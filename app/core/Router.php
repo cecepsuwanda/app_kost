@@ -1,0 +1,50 @@
+<?php
+
+class Router
+{
+    private $routes = [];
+
+    public function add($route, $controller)
+    {
+        $this->routes[$route] = $controller;
+    }
+
+    public function run()
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+        
+        // Remove query string if exists
+        if (($pos = strpos($uri, '?')) !== false) {
+            $uri = substr($uri, 0, $pos);
+        }
+
+        // Check if route exists
+        if (array_key_exists($uri, $this->routes)) {
+            $controllerAction = $this->routes[$uri];
+            $this->callController($controllerAction);
+        } else {
+            // Default to home if route not found
+            $this->callController('Home@index');
+        }
+    }
+
+    private function callController($controllerAction)
+    {
+        list($controller, $action) = explode('@', $controllerAction);
+        
+        $controllerFile = APP_PATH . '/controllers/' . $controller . '.php';
+        
+        if (file_exists($controllerFile)) {
+            require_once $controllerFile;
+            $controllerInstance = new $controller();
+            
+            if (method_exists($controllerInstance, $action)) {
+                $controllerInstance->$action();
+            } else {
+                die("Method $action not found in controller $controller");
+            }
+        } else {
+            die("Controller $controller not found");
+        }
+    }
+}
