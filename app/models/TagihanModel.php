@@ -62,17 +62,17 @@ class TagihanModel extends Model
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
                        p.nama as nama_penghuni, p.no_ktp, p.no_hp,
                        k.nomor as nomor_kamar, k.harga as harga_kamar,
-                       COALESCE(SUM(by.jml_bayar), 0) as jml_dibayar,
+                       COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        CASE 
-                           WHEN COALESCE(SUM(by.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
-                           WHEN COALESCE(SUM(by.jml_bayar), 0) > 0 THEN 'Cicil'
+                           WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
+                           WHEN COALESCE(SUM(byr.jml_bayar), 0) > 0 THEN 'Cicil'
                            ELSE 'Belum Bayar'
                        END as status_bayar
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
-                LEFT JOIN tb_bayar by ON t.id = by.id_tagihan
+                LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan
                 " . ($bulan ? "WHERE t.bulan = :bulan " : "") . "
                 GROUP BY t.id
                 ORDER BY t.bulan DESC, k.nomor";
