@@ -22,6 +22,8 @@ $router = new Router();
 
 // Define routes
 $router->add('/', 'Home@index');
+$router->add('/login', 'Auth@login');
+$router->add('/logout', 'Auth@logout');
 $router->add('/admin', 'Admin@index');
 $router->add('/admin/penghuni', 'Admin@penghuni');
 $router->add('/admin/kamar', 'Admin@kamar');

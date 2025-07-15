@@ -2,6 +2,13 @@
 
 class Admin extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        // Check authentication for all admin methods
+        Auth::requireLogin();
+    }
+
     public function index()
     {
         $kamarModel = $this->loadModel('KamarModel');

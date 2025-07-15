@@ -70,11 +70,27 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <!--<a class="nav-link" href="<?= APP_URL ?>/install">
-                            <i class="bi bi-download"></i> Install
-                        </a>-->
-                    </li>
+                    <?php if (Auth::isLoggedIn()): ?>
+                        <?php $user = Auth::getUser(); ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> <?= htmlspecialchars($user['nama']) ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text"><small>Login sebagai: <?= htmlspecialchars($user['username']) ?></small></span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="<?= APP_URL ?>/logout">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= APP_URL ?>/login">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
