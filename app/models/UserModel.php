@@ -11,11 +11,7 @@ class UserModel extends Model
     public function authenticate($username, $password)
     {
         $sql = "SELECT * FROM {$this->table} WHERE username = :username AND is_active = 1";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':username', $username);
-        $stmt->execute();
-        
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $this->db->fetch($sql,['username' => $username]);
         
         if ($user && password_verify($password, $user['password'])) {
             // Remove password from returned data
@@ -55,9 +51,8 @@ class UserModel extends Model
     public function updateLastLogin($userId)
     {
         $sql = "UPDATE {$this->table} SET last_login = NOW() WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $userId);
+        $stmt = $this->db->query($sql,['id' => $userId]);
         
-        return $stmt->execute();
+        return $stmt;
     }
 }

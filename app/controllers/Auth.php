@@ -10,7 +10,7 @@ class Auth extends Controller
     {
         // If already logged in, redirect to admin
         if (isset($_SESSION['user_id'])) {
-            $this->redirect('/admin');
+            $this->redirect(APP_URL.'/admin');
         }
 
         $error = '';
@@ -37,7 +37,7 @@ class Auth extends Controller
                     $userModel->updateLastLogin($user['id']);
 
                     // Redirect to admin
-                    $this->redirect('/admin');
+                    $this->redirect(APP_URL.'/admin');
                 } else {
                     $error = 'Username atau password salah';
                 }
@@ -58,7 +58,7 @@ class Auth extends Controller
         session_destroy();
         
         // Redirect to login
-        $this->redirect('/login');
+        $this->redirect(APP_URL.'/login');
     }
 
     public static function isLoggedIn()

@@ -105,32 +105,32 @@
                 <h6 class="text-muted mb-3">MENU ADMIN</h6>
                 <ul class="nav nav-pills flex-column">
                     <li class="nav-item mb-1">
-                        <a href="/admin" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin' ? 'active' : '' ?>">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="/admin/penghuni" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/penghuni' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin/penghuni" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/penghuni' ? 'active' : '' ?>">
                             <i class="bi bi-people"></i> Kelola Penghuni
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="/admin/kamar" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/kamar' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin/kamar" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/kamar' ? 'active' : '' ?>">
                             <i class="bi bi-door-open"></i> Kelola Kamar
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="/admin/barang" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/barang' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin/barang" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/barang' ? 'active' : '' ?>">
                             <i class="bi bi-box"></i> Kelola Barang
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="/admin/tagihan" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/tagihan' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin/tagihan" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/tagihan' ? 'active' : '' ?>">
                             <i class="bi bi-receipt"></i> Kelola Tagihan
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="/admin/pembayaran" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/pembayaran' ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>/admin/pembayaran" class="nav-link <?= $_SERVER['REQUEST_URI'] == '/admin/pembayaran' ? 'active' : '' ?>">
                             <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                     </li>
