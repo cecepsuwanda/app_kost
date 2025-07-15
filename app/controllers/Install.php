@@ -39,6 +39,20 @@ class Install extends Controller
     private function createTables()
     {
         $sql = "
+        -- Table: users (for authentication)
+        DROP TABLE IF EXISTS users;
+        CREATE TABLE users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            nama VARCHAR(100) NOT NULL,
+            role ENUM('admin', 'superadmin') DEFAULT 'admin',
+            is_active TINYINT(1) DEFAULT 1,
+            last_login DATETIME NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        );
+
         -- Table: tb_penghuni
         DROP TABLE IF EXISTS tb_brng_bawaan;
         DROP TABLE IF EXISTS tb_bayar;
@@ -141,6 +155,18 @@ class Install extends Controller
 
     private function insertSampleData()
     {
+        // Insert default admin user
+        $defaultPassword = 'admin123';
+        $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
+        
+        $this->db->insert('users', [
+            'username' => 'admin',
+            'password' => $hashedPassword,
+            'nama' => 'Administrator',
+            'role' => 'superadmin',
+            'is_active' => 1
+        ]);
+
         // Insert sample kamar
         $kamarData = [
             ['nomor' => '101', 'harga' => 500000],

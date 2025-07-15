@@ -39,15 +39,19 @@ sudo yum install php php-mysql
 ```
 
 ### 2. Jalankan Setup Database
+Akses halaman install di browser: `/install/run`
+
+Atau via terminal:
 ```bash
-php install_auth.php
+curl http://localhost/your-app/install/run
 ```
 
-Script ini akan:
-- Membuat tabel `users` di database
+Setup ini akan:
+- Membuat semua tabel database termasuk tabel `users`
 - Membuat user admin default dengan credentials:
   - **Username:** `admin`
   - **Password:** `admin123`
+- Mengisi sample data untuk testing
 
 ### 3. Test Login
 1. Akses `/login` di browser
@@ -120,7 +124,7 @@ define('DB_PASS', 'Cecep@1982');
 ```
 
 ### Login Gagal
-1. Pastikan user admin sudah dibuat dengan `php install_auth.php`
+1. Pastikan setup database sudah dijalankan via `/install/run`
 2. Cek username/password: `admin` / `admin123`
 3. Pastikan tabel users sudah ada di database
 
