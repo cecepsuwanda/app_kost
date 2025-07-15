@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Core;
+
 class Controller
 {
     protected $db;
@@ -23,6 +25,13 @@ class Controller
 
     protected function loadModel($model)
     {
+        // Try namespaced model first
+        $namespacedModel = "App\\Models\\$model";
+        if (class_exists($namespacedModel)) {
+            return new $namespacedModel();
+        }
+        
+        // Fallback to non-namespaced (backward compatibility)
         $modelFile = APP_PATH . '/models/' . $model . '.php';
         
         if (file_exists($modelFile)) {

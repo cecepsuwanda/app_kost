@@ -1,12 +1,16 @@
 <?php
 
+namespace App\Controllers;
+
+use App\Core\Controller;
+
 class Admin extends Controller
 {
     public function __construct()
     {
         parent::__construct();
         // Check authentication for all admin methods
-        Auth::requireLogin();
+        \App\Controllers\Auth::requireLogin();
     }
 
     public function index()

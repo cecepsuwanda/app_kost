@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Models;
+
+use App\Core\Model;
+
 class BarangModel extends Model
 {
     protected $table = 'tb_barang';

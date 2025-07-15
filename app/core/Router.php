@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Core;
+
 class Router
 {
     private $routes = [];
@@ -37,6 +39,20 @@ class Router
     {
         list($controller, $action) = explode('@', $controllerAction);
         
+        // Try namespaced controller first
+        $namespacedController = "App\\Controllers\\$controller";
+        if (class_exists($namespacedController)) {
+            $controllerInstance = new $namespacedController();
+            
+            if (method_exists($controllerInstance, $action)) {
+                $controllerInstance->$action();
+            } else {
+                die("Method $action not found in controller $controller");
+            }
+            return;
+        }
+        
+        // Fallback to non-namespaced (backward compatibility)
         $controllerFile = APP_PATH . '/controllers/' . $controller . '.php';
         
         if (file_exists($controllerFile)) {

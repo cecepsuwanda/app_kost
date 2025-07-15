@@ -11,14 +11,14 @@ define('PUBLIC_PATH', ROOT_PATH . '/public');
 require_once APP_PATH . '/core/Autoloader.php';
 
 // Create autoloader instance
-$autoloader = new Autoloader();
+$autoloader = new App\Core\Autoloader();
 $autoloader->register();
 
 // Include config
 require_once CONFIG_PATH . '/config.php';
 
 // Create router instance
-$router = new Router();
+$router = new App\Core\Router();
 
 // Define routes
 $router->add('/', 'Home@index');

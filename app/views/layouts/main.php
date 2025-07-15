@@ -70,8 +70,8 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    <?php if (Auth::isLoggedIn()): ?>
-                        <?php $user = Auth::getUser(); ?>
+                    <?php if (\App\Controllers\Auth::isLoggedIn()): ?>
+                        <?php $user = \App\Controllers\Auth::getUser(); ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> <?= htmlspecialchars($user['nama']) ?>
