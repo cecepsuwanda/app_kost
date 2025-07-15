@@ -39,6 +39,12 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - Laporan pembayaran
 - Auto-update status tagihan
 
+### 🔐 Sistem Authentication
+- User authentication dengan password hashing
+- Session management dan security
+- Protected admin routes
+- Role-based access control
+
 ### 🔧 Fitur Teknis
 - Framework MVC PHP murni dengan namespace PSR-4
 - Database MySQL/MariaDB
@@ -175,6 +181,112 @@ users (id, username, password, nama, role, created_at, last_login)
 5. **Access Application**
    - Frontend: `http://localhost:8000`
    - Admin Panel: `http://localhost:8000/admin`
+
+## Setup Sistem Authentication
+
+### Yang Sudah Ditambahkan
+
+✅ **User Model** (`app/models/UserModel.php`)
+- Handling authentication dengan password hashing
+- Fungsi untuk create user, login, dan update last login
+
+✅ **Auth Controller** (`app/controllers/Auth.php`) 
+- Halaman login dengan validasi
+- Logout functionality
+- Session management
+- Authentication middleware
+
+✅ **Login View** (`app/views/auth/login.php`)
+- Design modern dengan Bootstrap 5
+- Form login yang responsive
+- Error handling
+
+✅ **Admin Protection** 
+- Semua halaman admin sekarang memerlukan login
+- Auto redirect ke login jika belum login
+
+✅ **Navigation Updates**
+- User info dan logout button di navbar
+- Dynamic navigation berdasarkan login status
+
+### Cara Setup Authentication
+
+#### 1. Install PHP (jika belum ada)
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install -y php php-mysql
+
+# CentOS/RHEL
+sudo yum install php php-mysql
+
+# Windows (XAMPP/WAMP sudah include PHP)
+```
+
+#### 2. Jalankan Setup Database
+Akses halaman install di browser: `/install/run`
+
+Atau via terminal:
+```bash
+curl http://localhost/your-app/install/run
+```
+
+Setup ini akan:
+- Membuat semua tabel database termasuk tabel `users`
+- Membuat user admin default dengan credentials:
+  - **Username:** `admin`
+  - **Password:** `admin123`
+- Mengisi sample data untuk testing
+
+#### 3. Test Login
+1. Akses `/login` di browser
+2. Masuk dengan username: `admin` dan password: `admin123`
+3. Setelah login berhasil, akan redirect ke dashboard admin
+
+#### 4. Ganti Password Default
+**PENTING:** Segera ganti password default setelah login pertama!
+
+### Struktur Tabel Users
+
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nama VARCHAR(100) NOT NULL,
+    role ENUM('admin', 'superadmin') DEFAULT 'admin',
+    is_active TINYINT(1) DEFAULT 1,
+    last_login DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+### Fitur Authentication
+
+#### Login
+- Akses: `/login`
+- Validasi username/password
+- Session management
+- Remember login status
+
+#### Logout
+- Akses: `/logout`
+- Destroy session
+- Redirect ke login page
+
+#### Protected Routes
+Semua route `/admin/*` sekarang dilindungi:
+- `/admin` - Dashboard
+- `/admin/penghuni` - Kelola Penghuni  
+- `/admin/kamar` - Kelola Kamar
+- `/admin/barang` - Kelola Barang
+- `/admin/tagihan` - Kelola Tagihan
+- `/admin/pembayaran` - Pembayaran
+
+#### Session Management
+- Auto logout jika session expired
+- Login time tracking
+- User info tersimpan di session
 
 ## Panduan Penggunaan
 
@@ -349,6 +461,14 @@ Edit `config/config.php` untuk:
 
 ## Security Features
 
+### Authentication Security
+✅ **Password Hashing** - Menggunakan PHP `password_hash()`
+✅ **SQL Injection Protection** - PDO prepared statements
+✅ **XSS Protection** - `htmlspecialchars()` pada output
+✅ **Session Security** - Proper session handling
+✅ **Input Validation** - Server-side validation
+
+### General Security
 - **SQL Injection Protection**: PDO prepared statements
 - **Session Management**: Secure session handling
 - **Authentication**: Username/password verification
@@ -365,6 +485,29 @@ Edit `config/config.php` untuk:
 5. **Database Connection**: Singleton pattern
 
 ## Troubleshooting
+
+### Authentication Issues
+
+#### Database Connection Error
+Pastikan config database di `config/config.php` sudah benar:
+```php
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'db_kost');  
+define('DB_USER', 'cecep');
+define('DB_PASS', 'Cecep@1982');
+```
+
+#### Login Gagal
+1. Pastikan setup database sudah dijalankan via `/install/run`
+2. Cek username/password: `admin` / `admin123`
+3. Pastikan tabel users sudah ada di database
+
+#### Redirect Loop
+Jika terjadi redirect loop, hapus session:
+```php
+// Temporary fix - hapus di index.php setelah session_start()
+session_destroy();
+```
 
 ### Common Issues
 
@@ -397,6 +540,15 @@ Jika mengupgrade dari versi tanpa namespace:
 3. **Check Custom Code**: Update custom code untuk use namespace
 4. **Test Functionality**: Test semua fitur setelah upgrade
 
+## Roadmap & Next Steps
+
+### Authentication Enhancements
+1. **Ganti Password Default** - Buat halaman change password
+2. **User Management** - Tambah CRUD untuk kelola user
+3. **Role-based Access** - Implementasi permission berdasarkan role
+4. **Remember Me** - Implementasi "Ingat Saya" functionality
+5. **Password Reset** - Implementasi reset password via email
+
 ## Contributing
 
 1. Fork repository
@@ -427,7 +579,6 @@ Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 ## Support & Documentation
 
 - **Technical Documentation**: README.md (this file)
-- **Installation Guide**: SETUP_AUTH.md
 - **Issues**: GitHub Issues
 - **Wiki**: Comprehensive guides and examples
 
