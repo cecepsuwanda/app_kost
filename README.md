@@ -32,12 +32,20 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - Kalkulasi berdasarkan harga kamar + biaya barang
 - Tracking tagihan per periode
 - Status pembayaran (lunas/cicil/belum bayar)
+- **Modal-based interface untuk generate tagihan bulanan**
+- **Filter berdasarkan bulan dengan comprehensive billing table**
+- **Summary statistics dengan totals dan percentages**
+- **Status badges (Lunas/Paid, Cicil/Installment, Belum Bayar/Unpaid)**
 
 ### 💳 Manajemen Pembayaran
 - Pencatatan pembayaran dengan sistem cicilan
 - Tracking pembayaran per tagihan
 - Laporan pembayaran
 - Auto-update status tagihan
+- **Payment recording dengan modal form dan validation**
+- **Payment history tracking dengan month-based filtering**
+- **Payment summary dashboard dengan breakdown status**
+- **Smart form dengan auto-calculation remaining amounts**
 
 ### 🔐 Sistem Authentication
 - User authentication dengan password hashing
@@ -53,6 +61,40 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - Installer otomatis untuk setup database
 - Custom autoloader dengan namespace support
 - Clean code architecture dengan separation of concerns
+
+## Recent Implementation Updates
+
+### Tagihan dan Pembayaran Views Implementation
+Telah berhasil diimplementasikan comprehensive views untuk modul **Tagihan** (Billing) dan **Pembayaran** (Payment) yang terintegrasi penuh dengan arsitektur MVC yang ada.
+
+#### Files yang Dibuat:
+
+**1. app/views/admin/tagihan.php**
+- Monthly bill generation dengan modal interface
+- Month-based filtering system
+- Comprehensive billing table dengan tenant info, room details, amounts, dan payment status
+- Summary statistics dengan totals dan percentages
+- Status badges dan integration dengan payment module
+
+**2. app/views/admin/pembayaran.php**  
+- Payment recording dengan modal form dan validation
+- Payment history tracking dengan month-based filtering
+- Payment summary dashboard dengan status breakdown
+- Interactive payment buttons dan automatic calculation
+
+#### Key Features yang Diimplementasikan:
+
+**Tagihan Module:**
+- Bill generation dengan modal-based interface
+- Automatic calculation berdasarkan room rent + additional items
+- Comprehensive listing dengan filter options dan status tracking
+- Financial summary dengan total amounts dan payment completion percentage
+
+**Pembayaran Module:**
+- Smart form dengan bill selection dan remaining amount calculation
+- Complete payment history dengan status monitoring
+- Monthly payment summaries dengan status distribution
+- Outstanding balance tracking
 
 ## Arsitektur Aplikasi
 
@@ -326,6 +368,22 @@ Admin > Pembayaran > Cari Tagihan
 - **Checkout**: Admin > Penghuni > [Icon Checkout]
 - **Check-in**: Tambah penghuni baru dengan kamar
 
+### Detailed Usage Instructions
+
+#### Untuk Tagihan (Billing):
+1. Navigate to Admin → Kelola Tagihan
+2. Use month filter to view specific period
+3. Click "Generate Tagihan" to create monthly bills
+4. Review bill status and amounts
+5. Use payment links to record payments
+
+#### Untuk Pembayaran (Payment):
+1. Navigate to Admin → Pembayaran
+2. Use month filter to view payment data
+3. Click "Catat Pembayaran" to record new payments
+4. Select bill and enter payment amount
+5. View payment history and status updates
+
 ### API Endpoints
 
 Aplikasi menggunakan clean URL routing:
@@ -549,6 +607,39 @@ Jika mengupgrade dari versi tanpa namespace:
 4. **Remember Me** - Implementasi "Ingat Saya" functionality
 5. **Password Reset** - Implementasi reset password via email
 
+### Future Enhancements
+- Payment history modal dengan detailed transaction records
+- Export functionality untuk financial reports
+- Automated reminders untuk overdue payments
+- Receipt generation dan printing
+- Advanced reporting dan analytics
+
+## Technical Implementation Details
+
+### Frontend Architecture
+- **Framework**: Bootstrap 5 dengan custom styling
+- **Icons**: Bootstrap Icons
+- **Responsive**: Mobile-friendly design
+- **JavaScript**: Interactive forms dan modals
+- **Accessibility**: Proper labeling dan keyboard navigation
+
+### Backend Integration
+- **PHP**: Server-side rendering dengan secure data handling
+- **Security**: XSS protection dengan `htmlspecialchars()`
+- **Validation**: Form validation dan data sanitization
+- **Database**: Integration dengan existing models dan database structure
+
+### File Structure
+```
+app/views/admin/
+├── tagihan.php      # Billing management interface
+├── pembayaran.php   # Payment management interface
+├── dashboard.php    # Dashboard utama
+├── penghuni.php     # Manajemen penghuni
+├── kamar.php        # Manajemen kamar
+└── barang.php       # Manajemen barang
+```
+
 ## Contributing
 
 1. Fork repository
@@ -565,9 +656,13 @@ Jika mengupgrade dari versi tanpa namespace:
 ### Version 2.0.0
 - ✅ **NEW**: PSR-4 namespace implementation
 - ✅ **NEW**: Enhanced autoloader with namespace support
+- ✅ **NEW**: Comprehensive Tagihan dan Pembayaran views
+- ✅ **NEW**: Modal-based interfaces untuk billing dan payment
+- ✅ **NEW**: Advanced filtering dan status tracking
 - ✅ **IMPROVED**: Better code organization and separation of concerns
 - ✅ **IMPROVED**: Enhanced documentation and code comments
 - ✅ **IMPROVED**: Better error handling and debugging support
+- ✅ **IMPROVED**: Streamlined workflow untuk billing dan payment operations
 
 ### Version 1.0.0
 - Initial release with basic MVC structure
