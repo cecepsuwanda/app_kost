@@ -65,7 +65,7 @@ class Auth extends Controller
     public static function requireLogin()
     {
         if (!self::isLoggedIn()) {
-            header('Location: /login');
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
     }

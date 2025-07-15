@@ -72,7 +72,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form method="POST" action="/login">
+                        <form method="POST" action="<?= APP_URL ?>/login">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Username</label>
                                 <div class="input-group">
