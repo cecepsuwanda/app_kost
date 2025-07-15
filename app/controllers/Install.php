@@ -40,7 +40,12 @@ class Install extends Controller
     {
         $sql = "
         -- Table: tb_penghuni
-        CREATE TABLE IF NOT EXISTS tb_penghuni (
+        DROP TABLE IF EXISTS tb_brng_bawaan;
+        DROP TABLE IF EXISTS tb_bayar;
+        DROP TABLE IF EXISTS tb_tagihan;
+        DROP TABLE IF EXISTS tb_kmr_penghuni;        
+        DROP TABLE IF EXISTS tb_penghuni;
+        CREATE TABLE tb_penghuni (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nama VARCHAR(255) NOT NULL,
             no_ktp VARCHAR(20) UNIQUE NOT NULL,
@@ -52,7 +57,8 @@ class Install extends Controller
         );
 
         -- Table: tb_kamar
-        CREATE TABLE IF NOT EXISTS tb_kamar (
+        DROP TABLE IF EXISTS tb_kamar;
+        CREATE TABLE tb_kamar (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nomor VARCHAR(10) UNIQUE NOT NULL,
             harga DECIMAL(10,2) NOT NULL,
@@ -61,7 +67,8 @@ class Install extends Controller
         );
 
         -- Table: tb_barang
-        CREATE TABLE IF NOT EXISTS tb_barang (
+        DROP TABLE IF EXISTS tb_barang;
+        CREATE TABLE tb_barang (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nama VARCHAR(255) NOT NULL,
             harga DECIMAL(10,2) NOT NULL,
@@ -69,8 +76,9 @@ class Install extends Controller
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         );
 
-        -- Table: tb_kmr_penghuni
-        CREATE TABLE IF NOT EXISTS tb_kmr_penghuni (
+        -- Table: tb_kmr_penghuni        
+        DROP TABLE IF EXISTS tb_kmr_penghuni;
+        CREATE TABLE tb_kmr_penghuni (
             id INT AUTO_INCREMENT PRIMARY KEY,
             id_kamar INT NOT NULL,
             id_penghuni INT NOT NULL,
@@ -83,7 +91,8 @@ class Install extends Controller
         );
 
         -- Table: tb_brng_bawaan
-        CREATE TABLE IF NOT EXISTS tb_brng_bawaan (
+        DROP TABLE IF EXISTS tb_brng_bawaan;
+        CREATE TABLE tb_brng_bawaan (
             id INT AUTO_INCREMENT PRIMARY KEY,
             id_penghuni INT NOT NULL,
             id_barang INT NOT NULL,
@@ -94,20 +103,23 @@ class Install extends Controller
             UNIQUE KEY unique_penghuni_barang (id_penghuni, id_barang)
         );
 
-        -- Table: tb_tagihan
-        CREATE TABLE IF NOT EXISTS tb_tagihan (
+        -- Table: tb_tagihan        
+        DROP TABLE IF EXISTS tb_tagihan;
+        CREATE TABLE tb_tagihan (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            bulan VARCHAR(7) NOT NULL,
+            bulan INT NOT NULL,
+            tahun INT NOT NULL,
             id_kmr_penghuni INT NOT NULL,
             jml_tagihan DECIMAL(10,2) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (id_kmr_penghuni) REFERENCES tb_kmr_penghuni(id) ON DELETE CASCADE,
-            UNIQUE KEY unique_bulan_kmr_penghuni (bulan, id_kmr_penghuni)
+            UNIQUE KEY unique_bulan_tahun_kmr_penghuni (bulan, tahun, id_kmr_penghuni)
         );
 
         -- Table: tb_bayar
-        CREATE TABLE IF NOT EXISTS tb_bayar (
+        DROP TABLE IF EXISTS tb_bayar;
+        CREATE TABLE tb_bayar (
             id INT AUTO_INCREMENT PRIMARY KEY,
             id_tagihan INT NOT NULL,
             jml_bayar DECIMAL(10,2) NOT NULL,

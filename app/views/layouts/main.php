@@ -48,7 +48,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">
+                        <a class="nav-link" href="<?= APP_URL ?>">
                             <i class="bi bi-house"></i> Beranda
                         </a>
                     </li>
@@ -57,23 +57,23 @@
                             <i class="bi bi-gear"></i> Admin
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/admin/penghuni"><i class="bi bi-people"></i> Kelola Penghuni</a></li>
-                            <li><a class="dropdown-item" href="/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
-                            <li><a class="dropdown-item" href="/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin/penghuni"><i class="bi bi-people"></i> Kelola Penghuni</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
-                            <li><a class="dropdown-item" href="/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
                         </ul>
                     </li>
                 </ul>
                 
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/install">
+                        <!--<a class="nav-link" href="<?= APP_URL ?>/install">
                             <i class="bi bi-download"></i> Install
-                        </a>
+                        </a>-->
                     </li>
                 </ul>
             </div>

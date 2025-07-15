@@ -79,20 +79,21 @@ class TagihanModel extends Model
 
     public function getTagihanTerlambat()
     {
-        $currentMonth = date('Y-m');
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
                        p.nama as nama_penghuni, k.nomor as nomor_kamar,
-                       COALESCE(SUM(by.jml_bayar), 0) as jml_dibayar
+                       COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
-                LEFT JOIN tb_bayar by ON t.id = by.id_tagihan
-                WHERE t.bulan < :current_month
+                LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
+                WHERE t.bulan = month(now()) AND t.tahun = year(now())
                 GROUP BY t.id
-                HAVING COALESCE(SUM(by.jml_bayar), 0) < t.jml_tagihan
+                HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.bulan DESC, k.nomor";
+
+                //WHERE t.bulan < :current_month AND t.tahun = :current_year
         
-        return $this->db->fetchAll($sql, ['current_month' => $currentMonth]);
+        return $this->db->fetchAll($sql, []); //'current_month' => $currentMonth, 'current_year' => $currentYear
     }
 }

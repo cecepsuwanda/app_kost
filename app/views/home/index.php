@@ -204,25 +204,25 @@ ob_start();
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-2">
-                            <a href="/admin" class="btn btn-outline-primary w-100">
+                            <a href="<?= APP_URL ?>/admin" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-speedometer2"></i><br>
                                 Dashboard Admin
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="/admin/penghuni" class="btn btn-outline-success w-100">
+                            <a href="<?= APP_URL ?>/admin/penghuni" class="btn btn-outline-success w-100">
                                 <i class="bi bi-people"></i><br>
                                 Kelola Penghuni
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="/admin/tagihan" class="btn btn-outline-warning w-100">
+                            <a href="<?= APP_URL ?>/admin/tagihan" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-receipt"></i><br>
                                 Kelola Tagihan
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="/admin/pembayaran" class="btn btn-outline-info w-100">
+                            <a href="<?= APP_URL ?>/admin/pembayaran" class="btn btn-outline-info w-100">
                                 <i class="bi bi-credit-card"></i><br>
                                 Pembayaran
                             </a>

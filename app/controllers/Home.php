@@ -16,7 +16,7 @@ class Home extends Controller
 
         // Get overdue payments
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
-
+       
         $data = [
             'title' => 'Selamat Datang - ' . APP_NAME,
             'kamarKosong' => $kamarKosong,

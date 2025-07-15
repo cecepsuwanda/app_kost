@@ -84,11 +84,11 @@ ob_start();
                     </table>
 
                     <div class="d-grid gap-2 mt-4">
-                        <a href="/install/run" class="btn btn-primary btn-lg">
+                        <a href="<?= APP_URL ?>/install/run" class="btn btn-primary btn-lg">
                             <i class="bi bi-play-circle"></i>
                             Mulai Instalasi
                         </a>
-                        <a href="/" class="btn btn-secondary">
+                        <a href="<?= APP_URL ?>" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i>
                             Kembali ke Beranda
                         </a>

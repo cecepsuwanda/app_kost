@@ -18,6 +18,11 @@ class Router
             $uri = substr($uri, 0, $pos);
         }
 
+        $segments = explode('/', trim(str_replace('\\', '/', ROOT_PATH), '/'));
+        $lastSegment = end($segments);
+
+        $uri = str_replace('/'.$lastSegment, '', $uri);
+        
         // Check if route exists
         if (array_key_exists($uri, $this->routes)) {
             $controllerAction = $this->routes[$uri];
