@@ -82,7 +82,7 @@ $showSidebar = true;
                             ];
                             ?>
                             <tr>
-                                <td><?= date('M Y', strtotime($t['bulan'] . '-01')) ?></td>
+                                <td><?= date('M Y', mktime(0, 0, 0, $t['bulan'], 1, $t['tahun'])) ?></td>
                                 <td>
                                     <strong><?= htmlspecialchars($t['nama_penghuni']) ?></strong>
                                     <br>

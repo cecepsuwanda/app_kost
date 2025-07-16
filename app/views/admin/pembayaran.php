@@ -90,7 +90,7 @@ $showSidebar = true;
                             ];
                             ?>
                             <tr>
-                                <td><?= date('M Y', strtotime($l['bulan'] . '-01')) ?></td>
+                                <td><?= date('M Y', mktime(0, 0, 0, $l['bulan'], 1, $l['tahun'])) ?></td>
                                 <td>
                                     <strong><?= htmlspecialchars($l['nama_penghuni']) ?></strong>
                                 </td>
@@ -211,7 +211,7 @@ $showSidebar = true;
                                                 data-sisa="<?= $t['jml_tagihan'] - $t['jml_dibayar'] ?>">
                                             <?= htmlspecialchars($t['nama_penghuni']) ?> - 
                                             Kamar <?= htmlspecialchars($t['nomor_kamar']) ?> - 
-                                            <?= date('M Y', strtotime($t['bulan'] . '-01')) ?> 
+                                            <?= date('M Y', mktime(0, 0, 0, $t['bulan'], 1, $t['tahun'])) ?> 
                                             (Sisa: Rp <?= number_format($t['jml_tagihan'] - $t['jml_dibayar'], 0, ',', '.') ?>)
                                         </option>
                                     <?php endif; ?>

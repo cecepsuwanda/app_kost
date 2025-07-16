@@ -83,9 +83,23 @@ class BayarModel extends Model
         return $this->db->fetchAll($sql, $params);
     }
 
-    public function getLaporanPembayaran($bulan = null)
+    public function getLaporanPembayaran($periode = null)
     {
-        $sql = "SELECT t.bulan, p.nama as nama_penghuni, k.nomor as nomor_kamar,
+        $whereCondition = "";
+        $params = [];
+        
+        if ($periode) {
+            // Parse periode (format: YYYY-MM) to extract bulan and tahun
+            $date = date_create_from_format('Y-m', $periode);
+            if ($date) {
+                $bulan = (int)$date->format('n'); // 1-12
+                $tahun = (int)$date->format('Y'); // YYYY
+                $whereCondition = "WHERE t.bulan = :bulan AND t.tahun = :tahun ";
+                $params = ['bulan' => $bulan, 'tahun' => $tahun];
+            }
+        }
+
+        $sql = "SELECT t.bulan, t.tahun, p.nama as nama_penghuni, k.nomor as nomor_kamar,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
@@ -97,11 +111,10 @@ class BayarModel extends Model
                 INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN {$this->table} b ON t.id = b.id_tagihan
-                " . ($bulan ? "WHERE t.bulan = :bulan " : "") . "
+                " . $whereCondition . "
                 GROUP BY t.id
-                ORDER BY t.bulan DESC, k.nomor";
+                ORDER BY t.tahun DESC, t.bulan DESC, k.nomor";
         
-        $params = $bulan ? ['bulan' => $bulan] : [];
         return $this->db->fetchAll($sql, $params);
     }
 }

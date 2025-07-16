@@ -170,7 +170,7 @@ ob_start();
                                         <td><?= htmlspecialchars($tagihan['nama_penghuni']) ?></td>
                                         <td>
                                             <span class="badge bg-secondary">
-                                                <?= date('M Y', strtotime($tagihan['bulan'] . '-01')) ?>
+                                                <?= date('M Y', mktime(0, 0, 0, $tagihan['bulan'], 1, $tagihan['tahun'])) ?>
                                             </span>
                                         </td>
                                         <td>Rp <?= number_format($tagihan['jml_tagihan'], 0, ',', '.') ?></td>
