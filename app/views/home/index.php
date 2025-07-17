@@ -22,7 +22,7 @@ ob_start();
                 <div class="card-body">
                     <i class="bi bi-door-open text-success" style="font-size: 2rem;"></i>
                     <h5 class="card-title text-success mt-2">Kamar Tersedia</h5>
-                    <h2 class="text-success"><?= count($kamarKosong) ?></h2>
+                    <h2 class="text-success"><?= count($kamarKosong ?? []) ?></h2>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@ ob_start();
                 <div class="card-body">
                     <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
                     <h5 class="card-title text-warning mt-2">Segera Jatuh Tempo</h5>
-                    <h2 class="text-warning"><?= count($kamarMendekatiJatuhTempo) ?></h2>
+                    <h2 class="text-warning"><?= count($kamarMendekatiJatuhTempo ?? []) ?></h2>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@ ob_start();
                 <div class="card-body">
                     <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
                     <h5 class="card-title text-danger mt-2">Terlambat Bayar</h5>
-                    <h2 class="text-danger"><?= count($tagihanTerlambat) ?></h2>
+                    <h2 class="text-danger"><?= count($tagihanTerlambat ?? []) ?></h2>
                 </div>
             </div>
         </div>
@@ -57,14 +57,14 @@ ob_start();
                     </h5>
                 </div>
                 <div class="card-body">
-                    <?php if (empty($kamarKosong)): ?>
+                    <?php if (empty($kamarKosong ?? [])): ?>
                         <div class="text-center py-4">
                             <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
                             <p class="text-muted mt-2">Tidak ada kamar yang tersedia saat ini.</p>
                         </div>
                     <?php else: ?>
                         <div class="row">
-                            <?php foreach ($kamarKosong as $kamar): ?>
+                            <?php foreach (($kamarKosong ?? []) as $kamar): ?>
                                 <div class="col-md-6 col-lg-4 mb-3">
                                     <div class="card border-success">
                                         <div class="card-body">
@@ -88,7 +88,7 @@ ob_start();
     </div>
 
     <!-- Approaching Due Date Section -->
-    <?php if (!empty($kamarMendekatiJatuhTempo)): ?>
+            <?php if (!empty($kamarMendekatiJatuhTempo ?? [])): ?>
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -110,7 +110,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($kamarMendekatiJatuhTempo as $kamar): ?>
+                                <?php foreach (($kamarMendekatiJatuhTempo ?? []) as $kamar): ?>
                                     <tr>
                                         <td>
                                             <i class="bi bi-door-closed"></i>
@@ -137,7 +137,7 @@ ob_start();
     <?php endif; ?>
 
     <!-- Overdue Payments Section -->
-    <?php if (!empty($tagihanTerlambat)): ?>
+          <?php if (!empty($tagihanTerlambat ?? [])): ?>
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -161,7 +161,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tagihanTerlambat as $tagihan): ?>
+                                <?php foreach (($tagihanTerlambat ?? []) as $tagihan): ?>
                                     <tr>
                                         <td>
                                             <i class="bi bi-door-closed"></i>

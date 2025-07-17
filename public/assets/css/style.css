@@ -1,0 +1,191 @@
+/* Custom styles for Sistem Manajemen Kos */
+
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75em;
+    padding: 0.375rem 0.75rem;
+}
+
+.status-kosong {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+.status-tersedia {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.status-penuh {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.status-lunas {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-cicil {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.status-belum-bayar {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Login page styles */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.login-card {
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard styles */
+.stats-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.quick-action-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-action-card:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+/* Modal styles */
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Utility classes */
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}

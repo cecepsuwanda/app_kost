@@ -6,11 +6,15 @@ use App\Core\Controller;
 
 class Admin extends Controller
 {
+    private $auth;
+    
     public function __construct()
     {
         parent::__construct();
-        // Check authentication for all admin methods
-        \App\Controllers\Auth::requireLogin();
+        
+        // Initialize Auth instance and check authentication
+        $this->auth = new \App\Controllers\Auth();
+        $this->auth->requireLogin();
     }
 
     public function index()

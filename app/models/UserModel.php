@@ -11,7 +11,7 @@ class UserModel extends Model
     public function authenticate($username, $password)
     {
         $sql = "SELECT * FROM {$this->table} WHERE username = :username AND is_active = 1";
-        $user = $this->db->fetch($sql,['username' => $username]);
+        $user = $this->db->fetch($sql, ['username' => $username]);
         
         if ($user && password_verify($password, $user['password'])) {
             // Remove password from returned data
@@ -26,33 +26,46 @@ class UserModel extends Model
     {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         
-        $sql = "INSERT INTO {$this->table} (username, password, nama, role, is_active, created_at) 
-                VALUES (:username, :password, :nama, :role, 1, NOW())";
+        $data = [
+            'username' => $username,
+            'password' => $hashedPassword,
+            'nama' => $nama,
+            'role' => $role,
+            'is_active' => 1,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':password', $hashedPassword);
-        $stmt->bindParam(':nama', $nama);
-        $stmt->bindParam(':role', $role);
-        
-        return $stmt->execute();
+        return $this->db->insert($this->table, $data);
     }
 
     public function findByUsername($username)
     {
         $sql = "SELECT * FROM {$this->table} WHERE username = :username";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':username', $username);
-        $stmt->execute();
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $this->db->fetch($sql, ['username' => $username]);
     }
 
     public function updateLastLogin($userId)
     {
-        $sql = "UPDATE {$this->table} SET last_login = NOW() WHERE id = :id";
-        $stmt = $this->db->query($sql,['id' => $userId]);
-        
-        return $stmt;
+        $data = ['last_login' => date('Y-m-d H:i:s')];
+        return $this->db->update($this->table, $data, 'id = :id', ['id' => $userId]);
+    }
+    
+    public function changePassword($userId, $newPassword)
+    {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $data = ['password' => $hashedPassword];
+        return $this->db->update($this->table, $data, 'id = :id', ['id' => $userId]);
+    }
+    
+    public function deactivateUser($userId)
+    {
+        $data = ['is_active' => 0];
+        return $this->db->update($this->table, $data, 'id = :id', ['id' => $userId]);
+    }
+    
+    public function activateUser($userId)
+    {
+        $data = ['is_active' => 1];
+        return $this->db->update($this->table, $data, 'id = :id', ['id' => $userId]);
     }
 }

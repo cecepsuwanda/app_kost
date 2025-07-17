@@ -20,6 +20,12 @@ class Config
                 // Apply error reporting
                 error_reporting(self::$config['error_reporting']);
                 ini_set('display_errors', self::$config['display_errors']);
+                
+                // Set session timeout configuration (but don't start session here)
+                if (isset(self::$config['session']['timeout'])) {
+                    ini_set('session.gc_maxlifetime', self::$config['session']['timeout']);
+                    ini_set('session.cookie_lifetime', self::$config['session']['timeout']);
+                }
             } else {
                 throw new \Exception('Configuration file not found');
             }
@@ -99,5 +105,29 @@ class Config
             return $this->config('app');
         }
         return $this->config("app.$key");
+    }
+    
+    public function session($key = null)
+    {
+        if ($key === null) {
+            return $this->config('session');
+        }
+        return $this->config("session.$key");
+    }
+    
+    public function security($key = null)
+    {
+        if ($key === null) {
+            return $this->config('security');
+        }
+        return $this->config("security.$key");
+    }
+    
+    public function upload($key = null)
+    {
+        if ($key === null) {
+            return $this->config('upload');
+        }
+        return $this->config("upload.$key");
     }
 } 
