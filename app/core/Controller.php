@@ -8,13 +8,24 @@ class Controller
     protected $config;
     protected $session;
     protected $request;
+    protected $app;
 
-    public function __construct()
+    public function __construct(?Application $app = null)
     {
-        $this->db = Database::getInstance();
-        $this->config = Config::getInstance();
-        $this->session = Session::getInstance();
-        $this->request = Request::getInstance();
+        // If Application instance is provided, use dependency injection
+        if ($app !== null) {
+            $this->app = $app;
+            $this->db = $app->getDatabase();
+            $this->config = $app->getConfig();
+            $this->session = $app->getSession();
+            $this->request = $app->getRequest();
+        } else {
+            // Fallback to singleton pattern for backward compatibility
+            $this->db = Database::getInstance();
+            $this->config = Config::getInstance();
+            $this->session = Session::getInstance();
+            $this->request = Request::getInstance();
+        }
     }
 
     protected function loadView($view, $data = [])
@@ -39,7 +50,10 @@ class Controller
         // Try namespaced model first
         $namespacedModel = "App\\Models\\$model";
         if (class_exists($namespacedModel)) {
-            return new $namespacedModel();
+            // Use dependency injection if Application is available
+            return $this->app ? 
+                new $namespacedModel($this->db, $this->app) : 
+                new $namespacedModel();
         }
         
         // Fallback to non-namespaced (backward compatibility)
@@ -47,9 +61,12 @@ class Controller
         
         if (file_exists($modelFile)) {
             require_once $modelFile;
-            return new $model();
+            // Use dependency injection for fallback models too
+            return $this->app ? 
+                new $model($this->db, $this->app) : 
+                new $model();
         } else {
-            die("Model $model not found");
+            throw new \RuntimeException("Model $model not found");
         }
     }
 
