@@ -3,9 +3,21 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Config;
+use App\Core\Session;
 
 class Auth extends Controller
 {
+    protected $config;
+    protected $session;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->config = Config::getInstance();
+        $this->session = Session::getInstance();
+    }
+    
     public function login()
     {
         // If already logged in, redirect to admin
@@ -61,30 +73,27 @@ class Auth extends Controller
         $this->redirect($this->config->appConfig('url').'/login');
     }
 
-    public static function isLoggedIn()
+    public function isLoggedIn()
     {
-        $session = Session::getInstance();
-        return $session->sessionHas('user_id') && !empty($session->sessionGet('user_id'));
+        return $this->session->sessionHas('user_id') && !empty($this->session->sessionGet('user_id'));
     }
 
-    public static function requireLogin()
+    public function requireLogin()
     {
-        if (!self::isLoggedIn()) {
-            $config = Config::getInstance();
-            header('Location: ' . $config->appConfig('url') . '/login');
+        if (!$this->isLoggedIn()) {
+            header('Location: ' . $this->config->appConfig('url') . '/login');
             exit;
         }
     }
 
-    public static function getUser()
+    public function getUser()
     {
-        if (self::isLoggedIn()) {
-            $session = Session::getInstance();
+        if ($this->isLoggedIn()) {
             return [
-                'id' => $session->sessionGet('user_id'),
-                'username' => $session->sessionGet('username'),
-                'nama' => $session->sessionGet('nama'),
-                'role' => $session->sessionGet('role')
+                'id' => $this->session->sessionGet('user_id'),
+                'username' => $this->session->sessionGet('username'),
+                'nama' => $this->session->sessionGet('nama'),
+                'role' => $this->session->sessionGet('role')
             ];
         }
         return null;

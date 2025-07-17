@@ -38,7 +38,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="bi bi-house-fill"></i>
-                <?= APP_NAME ?>
+                <?= \App\Core\Config::get('app.name') ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -70,8 +70,8 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    <?php if (\App\Controllers\Auth::isLoggedIn()): ?>
-                        <?php $user = \App\Controllers\Auth::getUser(); ?>
+                    <?php if ($auth->isLoggedIn()): ?>
+                        <?php $user = $auth->getUser(); ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> <?= htmlspecialchars($user['nama']) ?>

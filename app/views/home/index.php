@@ -7,7 +7,7 @@ ob_start();
     <div class="row mb-5">
         <div class="col-12">
             <div class="jumbotron bg-primary text-white p-5 rounded">
-                <h1 class="display-4">Selamat Datang di <?= APP_NAME ?></h1>
+                <h1 class="display-4">Selamat Datang di <?= \App\Core\Config::get('app.name') ?></h1>
                 <p class="lead">Sistem manajemen kos yang memudahkan pengelolaan penghuni, kamar, tagihan, dan pembayaran.</p>
                 <hr class="my-4 border-white">
                 <p>Kelola kos Anda dengan lebih efisien dan terorganisir.</p>
@@ -204,25 +204,25 @@ ob_start();
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-2">
-                            <a href="<?= APP_URL ?>/admin" class="btn btn-outline-primary w-100">
+                            <a href="<?= \App\Core\Config::get('app.url') ?>/admin" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-speedometer2"></i><br>
                                 Dashboard Admin
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="<?= APP_URL ?>/admin/penghuni" class="btn btn-outline-success w-100">
+                            <a href="<?= \App\Core\Config::get('app.url') ?>/admin/penghuni" class="btn btn-outline-success w-100">
                                 <i class="bi bi-people"></i><br>
                                 Kelola Penghuni
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="<?= APP_URL ?>/admin/tagihan" class="btn btn-outline-warning w-100">
+                            <a href="<?= \App\Core\Config::get('app.url') ?>/admin/tagihan" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-receipt"></i><br>
                                 Kelola Tagihan
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="<?= APP_URL ?>/admin/pembayaran" class="btn btn-outline-info w-100">
+                            <a href="<?= \App\Core\Config::get('app.url') ?>/admin/pembayaran" class="btn btn-outline-info w-100">
                                 <i class="bi bi-credit-card"></i><br>
                                 Pembayaran
                             </a>
