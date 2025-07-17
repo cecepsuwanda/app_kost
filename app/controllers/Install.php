@@ -61,6 +61,7 @@ class Install extends Controller
         DROP TABLE IF EXISTS tb_brng_bawaan;
         DROP TABLE IF EXISTS tb_bayar;
         DROP TABLE IF EXISTS tb_tagihan;
+        DROP TABLE IF EXISTS tb_detail_kmr_penghuni;
         DROP TABLE IF EXISTS tb_kmr_penghuni;        
         DROP TABLE IF EXISTS tb_penghuni;
         CREATE TABLE tb_penghuni (
@@ -99,12 +100,24 @@ class Install extends Controller
         CREATE TABLE tb_kmr_penghuni (
             id INT AUTO_INCREMENT PRIMARY KEY,
             id_kamar INT NOT NULL,
+            tgl_masuk DATE NOT NULL,
+            tgl_keluar DATE NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_kamar) REFERENCES tb_kamar(id) ON DELETE CASCADE
+        );
+
+        -- Table: tb_detail_kmr_penghuni
+        DROP TABLE IF EXISTS tb_detail_kmr_penghuni;
+        CREATE TABLE tb_detail_kmr_penghuni (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_kmr_penghuni INT NOT NULL,
             id_penghuni INT NOT NULL,
             tgl_masuk DATE NOT NULL,
             tgl_keluar DATE NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (id_kamar) REFERENCES tb_kamar(id) ON DELETE CASCADE,
+            FOREIGN KEY (id_kmr_penghuni) REFERENCES tb_kmr_penghuni(id) ON DELETE CASCADE,
             FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id) ON DELETE CASCADE
         );
 
@@ -220,12 +233,23 @@ class Install extends Controller
         // Insert sample kamar penghuni
         $this->db->insert('tb_kmr_penghuni', [
             'id_kamar' => 1,
-            'id_penghuni' => 1,
             'tgl_masuk' => '2024-01-15'
         ]);
 
         $this->db->insert('tb_kmr_penghuni', [
             'id_kamar' => 2,
+            'tgl_masuk' => '2024-02-01'
+        ]);
+
+        // Insert sample detail kamar penghuni
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 1,
+            'id_penghuni' => 1,
+            'tgl_masuk' => '2024-01-15'
+        ]);
+
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 2,
             'id_penghuni' => 2,
             'tgl_masuk' => '2024-02-01'
         ]);

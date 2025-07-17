@@ -135,9 +135,10 @@ $showSidebar = true;
                         <label class="form-label">Pilih Kamar (Opsional)</label>
                         <select class="form-select" name="id_kamar">
                             <option value="">-- Belum pilih kamar --</option>
-                            <?php foreach ($kamarKosong as $kamar): ?>
+                            <?php foreach ($kamarTersedia as $kamar): ?>
                                 <option value="<?= $kamar['id'] ?>">
-                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?>
+                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?> 
+                                    (<?= $kamar['slot_tersedia'] ?> slot tersedia)
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -239,9 +240,10 @@ $showSidebar = true;
                         <label class="form-label">Kamar Baru</label>
                         <select class="form-select" name="id_kamar_baru" required>
                             <option value="">-- Pilih kamar baru --</option>
-                            <?php foreach ($kamarKosong as $kamar): ?>
+                            <?php foreach ($kamarTersedia as $kamar): ?>
                                 <option value="<?= $kamar['id'] ?>">
-                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?>
+                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?> 
+                                    (<?= $kamar['slot_tersedia'] ?> slot tersedia)
                                 </option>
                             <?php endforeach; ?>
                         </select>

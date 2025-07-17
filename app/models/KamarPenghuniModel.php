@@ -8,16 +8,19 @@ class KamarPenghuniModel extends Model
 {
     protected $table = 'tb_kmr_penghuni';
 
-    public function findActiveByPenghuni($id_penghuni)
-    {
-        return $this->db->fetch("SELECT * FROM {$this->table} WHERE id_penghuni = :id_penghuni AND tgl_keluar IS NULL", 
-                               ['id_penghuni' => $id_penghuni]);
-    }
-
     public function findActiveByKamar($id_kamar)
     {
         return $this->db->fetch("SELECT * FROM {$this->table} WHERE id_kamar = :id_kamar AND tgl_keluar IS NULL", 
                                ['id_kamar' => $id_kamar]);
+    }
+
+    public function findKamarByPenghuni($id_penghuni)
+    {
+        $sql = "SELECT kp.* FROM {$this->table} kp
+                INNER JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni
+                WHERE dkp.id_penghuni = :id_penghuni AND dkp.tgl_keluar IS NULL AND kp.tgl_keluar IS NULL";
+        
+        return $this->db->fetch($sql, ['id_penghuni' => $id_penghuni]);
     }
 
     public function checkoutKamar($id, $tgl_keluar)
@@ -25,30 +28,67 @@ class KamarPenghuniModel extends Model
         return $this->update($id, ['tgl_keluar' => $tgl_keluar]);
     }
 
-    public function pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah)
+    public function createKamarPenghuni($id_kamar, $tgl_masuk, $penghuni_ids)
     {
-        // Checkout dari kamar lama
-        $kamarLama = $this->findActiveByPenghuni($id_penghuni);
-        if ($kamarLama) {
-            $this->checkoutKamar($kamarLama['id'], $tgl_pindah);
+        // Create main kamar penghuni record
+        $id_kmr_penghuni = $this->create([
+            'id_kamar' => $id_kamar,
+            'tgl_masuk' => $tgl_masuk
+        ]);
+
+        // Create detail records for each penghuni
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        foreach ($penghuni_ids as $id_penghuni) {
+            $detailKamarPenghuniModel->create([
+                'id_kmr_penghuni' => $id_kmr_penghuni,
+                'id_penghuni' => $id_penghuni,
+                'tgl_masuk' => $tgl_masuk
+            ]);
         }
 
-        // Masuk ke kamar baru
-        return $this->create([
-            'id_kamar' => $id_kamar_baru,
+        return $id_kmr_penghuni;
+    }
+
+    public function addPenghuniToKamar($id_kmr_penghuni, $id_penghuni, $tgl_masuk)
+    {
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        return $detailKamarPenghuniModel->create([
+            'id_kmr_penghuni' => $id_kmr_penghuni,
             'id_penghuni' => $id_penghuni,
-            'tgl_masuk' => $tgl_pindah
+            'tgl_masuk' => $tgl_masuk
         ]);
+    }
+
+    public function pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah)
+    {
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        
+        // Checkout dari kamar lama
+        $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id_penghuni, $tgl_pindah);
+
+        // Cek apakah kamar baru sudah ada entry aktif
+        $kamarPenghuniAktif = $this->findActiveByKamar($id_kamar_baru);
+        
+        if ($kamarPenghuniAktif) {
+            // Tambahkan ke kamar yang sudah ada
+            return $this->addPenghuniToKamar($kamarPenghuniAktif['id'], $id_penghuni, $tgl_pindah);
+        } else {
+            // Buat entry kamar baru
+            return $this->createKamarPenghuni($id_kamar_baru, $tgl_pindah, [$id_penghuni]);
+        }
     }
 
     public function getPenghuniKamarActive()
     {
-        $sql = "SELECT kp.*, p.nama as nama_penghuni, p.no_ktp, p.no_hp,
-                       k.nomor as nomor_kamar, k.harga as harga_kamar
+        $sql = "SELECT kp.*, k.nomor as nomor_kamar, k.harga as harga_kamar,
+                       GROUP_CONCAT(CONCAT(p.nama, ' (', p.no_ktp, ')') SEPARATOR ', ') as penghuni_list,
+                       COUNT(dkp.id) as jumlah_penghuni
                 FROM {$this->table} kp
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 WHERE kp.tgl_keluar IS NULL
+                GROUP BY kp.id
                 ORDER BY k.nomor";
         
         return $this->db->fetchAll($sql);
@@ -56,15 +96,25 @@ class KamarPenghuniModel extends Model
 
     public function getKamarSewaanMendekatiJatuhTempo($days = 30)
     {
-        $sql = "SELECT kp.*, p.nama as nama_penghuni, k.nomor as nomor_kamar,
+        $sql = "SELECT kp.*, k.nomor as nomor_kamar,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
                        DATEDIFF(DATE_ADD(kp.tgl_masuk, INTERVAL 1 MONTH), CURDATE()) as hari_tersisa
                 FROM {$this->table} kp
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 WHERE kp.tgl_keluar IS NULL
                 AND DATEDIFF(DATE_ADD(kp.tgl_masuk, INTERVAL 1 MONTH), CURDATE()) <= :days
+                GROUP BY kp.id
                 ORDER BY hari_tersisa ASC";
         
         return $this->db->fetchAll($sql, ['days' => $days]);
+    }
+
+    public function checkKamarCapacity($id_kamar, $max_occupants = 2)
+    {
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        $current_count = $detailKamarPenghuniModel->countActivePenghuniInKamar($id_kamar);
+        return $current_count < $max_occupants;
     }
 }
