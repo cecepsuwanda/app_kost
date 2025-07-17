@@ -8,12 +8,12 @@ class Admin extends Controller
 {
     private $auth;
     
-    public function __construct()
+    public function __construct($app = null)
     {
-        parent::__construct();
+        parent::__construct($app);
         
         // Initialize Auth instance and check authentication
-        $this->auth = new \App\Controllers\Auth();
+        $this->auth = new \App\Controllers\Auth($app);
         $this->auth->requireLogin();
     }
 

@@ -38,7 +38,7 @@ class TagihanModel extends Model
         $tahun = (int)$date->format('Y'); // YYYY
 
         // Get all active penghuni kamar
-        $kmrPenghuniModel = new KamarPenghuniModel();
+        $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
         $activeKamarPenghuni = $kmrPenghuniModel->getPenghuniKamarActive();
 
         $generated = 0;
@@ -50,7 +50,7 @@ class TagihanModel extends Model
             }
 
             // Calculate total tagihan (harga kamar + harga barang for all penghuni)
-            $barangModel = new BarangModel();
+            $barangModel = new \App\Models\BarangModel();
             $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
             $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kp['id']);
             

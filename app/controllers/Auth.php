@@ -11,11 +11,11 @@ class Auth extends Controller
     protected $config;
     protected $session;
 
-    public function __construct()
+    public function __construct($app = null)
     {
-        parent::__construct();
-        $this->config = Config::getInstance();
-        $this->session = Session::getInstance();
+        parent::__construct($app);
+        // Note: config and session are already set by parent constructor
+        // This ensures compatibility with both DI and singleton patterns
     }
     
     public function login()

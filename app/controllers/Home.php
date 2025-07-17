@@ -6,6 +6,11 @@ use App\Core\Controller;
 
 class Home extends Controller
 {
+    public function __construct($app = null)
+    {
+        parent::__construct($app);
+    }
+
     public function index()
     {
         $kamarModel = $this->loadModel('KamarModel');

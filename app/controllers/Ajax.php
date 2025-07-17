@@ -6,6 +6,11 @@ use App\Core\Controller;
 
 class Ajax extends Controller
 {
+    public function __construct($app = null)
+    {
+        parent::__construct($app);
+    }
+
     public function handle()
     {
         // Check if request has action parameter

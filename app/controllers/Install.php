@@ -7,6 +7,11 @@ use PDO;
 
 class Install extends Controller
 {
+    public function __construct($app = null)
+    {
+        parent::__construct($app);
+    }
+
     public function index()
     {
         $this->loadView('install/index');
@@ -27,7 +32,7 @@ class Install extends Controller
             $message = "Installation completed successfully!";
             $success = true;
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $message = "Installation failed: " . $e->getMessage();
             $success = false;
         }

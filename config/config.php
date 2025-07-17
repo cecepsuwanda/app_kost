@@ -8,7 +8,7 @@ define('DB_PASS', 'Cecep@1982');
 define('DB_CHARSET', 'utf8mb4');
 
 define('APP_NAME', 'Sistem Manajemen Kos');
-define('APP_VERSION', '2.2.0');
+define('APP_VERSION', '2.3.0');
 define('APP_URL', 'http://localhost/app_kost');
 
 define('SESSION_TIMEOUT', 1800); // 30 minutes
