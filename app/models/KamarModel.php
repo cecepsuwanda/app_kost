@@ -69,7 +69,7 @@ class KamarModel extends Model
                 LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
-                GROUP BY k.id
+                GROUP BY k.id,kp.tgl_masuk,kp.id
                 ORDER BY k.nomor";
         
         return $this->db->fetchAll($sql, [$max_occupants]);

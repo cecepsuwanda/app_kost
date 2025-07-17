@@ -91,7 +91,7 @@ class TagihanModel extends Model
             }
         }
 
-        $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
+        $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar,p.no_hp, 
                        GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
                        k.nomor as nomor_kamar, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
@@ -107,7 +107,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan
                 " . $whereCondition . "
-                GROUP BY t.id
+                GROUP BY t.id,p.no_hp
                 ORDER BY t.tahun DESC, t.bulan DESC, k.nomor";
         
         return $this->db->fetchAll($sql, $params);

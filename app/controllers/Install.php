@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use PDO;
 
 class Install extends Controller
 {
