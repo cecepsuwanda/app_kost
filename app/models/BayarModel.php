@@ -70,13 +70,15 @@ class BayarModel extends Model
     public function getPembayaranDetail($id_tagihan = null)
     {
         $sql = "SELECT b.*, t.bulan, t.jml_tagihan,
-                       p.nama as nama_penghuni, k.nomor as nomor_kamar
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar
                 FROM {$this->table} b
                 INNER JOIN tb_tagihan t ON b.id_tagihan = t.id
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 " . ($id_tagihan ? "WHERE b.id_tagihan = :id_tagihan " : "") . "
+                GROUP BY b.id
                 ORDER BY b.id DESC";
         
         $params = $id_tagihan ? ['id_tagihan' => $id_tagihan] : [];
@@ -99,7 +101,8 @@ class BayarModel extends Model
             }
         }
 
-        $sql = "SELECT t.id, t.bulan, t.tahun, p.nama as nama_penghuni, k.nomor as nomor_kamar,
+
+        $sql = "SELECT t.id,t.bulan, t.tahun, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
@@ -108,8 +111,9 @@ class BayarModel extends Model
                        END as status_bayar
                 FROM tb_tagihan t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN {$this->table} b ON t.id = b.id_tagihan
                 " . $whereCondition . "
                 GROUP BY t.id

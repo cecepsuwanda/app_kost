@@ -19,12 +19,14 @@ class Admin extends Controller
         $kamarPenghuniModel = $this->loadModel('KamarPenghuniModel');
         $tagihanModel = $this->loadModel('TagihanModel');
         $penghuniModel = $this->loadModel('PenghuniModel');
+        $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
 
         // Dashboard statistics
         $stats = [
             'total_kamar' => count($kamarModel->findAll()),
             'kamar_terisi' => count($kamarModel->getKamarTerisi()),
             'kamar_kosong' => count($kamarModel->getKamarKosong()),
+            'kamar_tersedia' => count($kamarModel->getKamarTersedia()),
             'total_penghuni' => count($penghuniModel->findActive()),
             'tagihan_terlambat' => count($tagihanModel->getTagihanTerlambat()),
             'mendekati_jatuh_tempo' => count($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5))
@@ -32,6 +34,7 @@ class Admin extends Controller
 
         // Get data for dashboard
         $kamarKosong = $kamarModel->getKamarKosong();
+        $kamarTersedia = $kamarModel->getKamarTersedia();
         $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5);
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
 
@@ -39,6 +42,7 @@ class Admin extends Controller
             'title' => 'Dashboard Admin - ' . APP_NAME,
             'stats' => $stats,
             'kamarKosong' => $kamarKosong,
+            'kamarTersedia' => $kamarTersedia,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
             'tagihanTerlambat' => $tagihanTerlambat
         ];
@@ -53,6 +57,7 @@ class Admin extends Controller
         $barangModel = $this->loadModel('BarangModel');
         $kamarPenghuniModel = $this->loadModel('KamarPenghuniModel');
         $barangBawaanModel = $this->loadModel('BarangBawaanModel');
+        $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $this->post('action');
@@ -70,11 +75,20 @@ class Admin extends Controller
                     
                     // Assign to room if selected
                     if ($this->post('id_kamar')) {
-                        $kamarPenghuniModel->create([
-                            'id_kamar' => $this->post('id_kamar'),
-                            'id_penghuni' => $id_penghuni,
-                            'tgl_masuk' => $this->post('tgl_masuk')
-                        ]);
+                        $id_kamar = $this->post('id_kamar');
+                        
+                        // Check if room already has active occupancy
+                        $activeKamarPenghuni = $kamarPenghuniModel->findActiveByKamar($id_kamar);
+                        
+                        if ($activeKamarPenghuni) {
+                            // Check room capacity
+                            if ($kamarPenghuniModel->checkKamarCapacity($id_kamar)) {
+                                $kamarPenghuniModel->addPenghuniToKamar($activeKamarPenghuni['id'], $id_penghuni, $this->post('tgl_masuk'));
+                            }
+                        } else {
+                            // Create new kamar penghuni record
+                            $kamarPenghuniModel->createKamarPenghuni($id_kamar, $this->post('tgl_masuk'), [$id_penghuni]);
+                        }
                     }
 
                     // Add barang bawaan if selected
@@ -114,10 +128,16 @@ class Admin extends Controller
                     // Update penghuni
                     $penghuniModel->update($id, ['tgl_keluar' => $tgl_keluar]);
                     
-                    // Update kamar penghuni
-                    $kamarPenghuni = $kamarPenghuniModel->findActiveByPenghuni($id);
+                    // Update detail kamar penghuni
+                    $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id, $tgl_keluar);
+                    
+                    // Check if kamar becomes empty and close it
+                    $kamarPenghuni = $kamarPenghuniModel->findKamarByPenghuni($id);
                     if ($kamarPenghuni) {
-                        $kamarPenghuniModel->update($kamarPenghuni['id'], ['tgl_keluar' => $tgl_keluar]);
+                        $remainingPenghuni = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamarPenghuni['id']);
+                        if (empty($remainingPenghuni)) {
+                            $kamarPenghuniModel->checkoutKamar($kamarPenghuni['id'], $tgl_keluar);
+                        }
                     }
                     break;
 
@@ -134,13 +154,13 @@ class Admin extends Controller
         }
 
         $penghuni = $penghuniModel->getPenghuniWithKamar();
-        $kamarKosong = $kamarModel->getKamarKosong();
+        $kamarTersedia = $kamarModel->getKamarTersedia();
         $barang = $barangModel->findAll();
 
         $data = [
             'title' => 'Kelola Penghuni - ' . APP_NAME,
             'penghuni' => $penghuni,
-            'kamarKosong' => $kamarKosong,
+            'kamarTersedia' => $kamarTersedia,
             'barang' => $barang
         ];
 

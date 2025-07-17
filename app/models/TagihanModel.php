@@ -49,10 +49,17 @@ class TagihanModel extends Model
                 continue; // Skip if already generated
             }
 
-            // Calculate total tagihan (harga kamar + harga barang)
+            // Calculate total tagihan (harga kamar + harga barang for all penghuni)
             $barangModel = new BarangModel();
-            $hargaBarang = $barangModel->getTotalHargaBarangPenghuni($kp['id_penghuni']);
-            $totalTagihan = $kp['harga_kamar'] + $hargaBarang;
+            $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kp['id']);
+            
+            $totalHargaBarang = 0;
+            foreach ($penghuniList as $penghuni) {
+                $totalHargaBarang += $barangModel->getTotalHargaBarangPenghuni($penghuni['id_penghuni']);
+            }
+            
+            $totalTagihan = $kp['harga_kamar'] + $totalHargaBarang;
 
             // Create tagihan
             $this->create([
@@ -85,7 +92,7 @@ class TagihanModel extends Model
         }
 
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       p.nama as nama_penghuni, p.no_ktp, p.no_hp,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
                        k.nomor as nomor_kamar, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        CASE 
@@ -95,8 +102,9 @@ class TagihanModel extends Model
                        END as status_bayar
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan
                 " . $whereCondition . "
                 GROUP BY t.id
@@ -111,12 +119,13 @@ class TagihanModel extends Model
         $currentYear = (int)date('Y');
         
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       p.nama as nama_penghuni, k.nomor as nomor_kamar,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
-                INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
                 WHERE (t.tahun < :current_year) OR (t.tahun = :current_year AND t.bulan < :current_month)
                 GROUP BY t.id

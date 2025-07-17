@@ -26,11 +26,24 @@ class PenghuniModel extends Model
     public function getPenghuniWithKamar()
     {
         $sql = "SELECT p.*, k.nomor as nomor_kamar, k.harga as harga_kamar, 
-                       kp.tgl_masuk as tgl_masuk_kamar, kp.tgl_keluar as tgl_keluar_kamar
+                       dkp.tgl_masuk as tgl_masuk_kamar, dkp.tgl_keluar as tgl_keluar_kamar,
+                       kp.id as id_kmr_penghuni
                 FROM tb_penghuni p
-                LEFT JOIN tb_kmr_penghuni kp ON p.id = kp.id_penghuni AND kp.tgl_keluar IS NULL
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON p.id = dkp.id_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_kmr_penghuni kp ON dkp.id_kmr_penghuni = kp.id AND kp.tgl_keluar IS NULL
                 LEFT JOIN tb_kamar k ON kp.id_kamar = k.id
-                WHERE p.tgl_keluar IS NULL";
+                WHERE p.tgl_keluar IS NULL
+                ORDER BY p.nama";
+        
+        return $this->db->fetchAll($sql);
+    }
+
+    public function getPenghuniAvailable()
+    {
+        $sql = "SELECT p.* FROM tb_penghuni p
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON p.id = dkp.id_penghuni AND dkp.tgl_keluar IS NULL
+                WHERE p.tgl_keluar IS NULL AND dkp.id IS NULL
+                ORDER BY p.nama";
         
         return $this->db->fetchAll($sql);
     }

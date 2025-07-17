@@ -14,12 +14,14 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - Tambah, edit, dan hapus data penghuni
 - Pencatatan data lengkap (nama, KTP, HP, tanggal masuk/keluar)
 - Assign penghuni ke kamar
+- **🆕 Multi-occupancy**: Satu kamar dapat dihuni hingga 2 penghuni
 - Pindah kamar dan checkout penghuni
 - Pencatatan barang bawaan
 
 ### 🏠 Manajemen Kamar
 - Data kamar dengan nomor dan harga sewa
-- Status kamar (kosong/terisi)
+- Status kamar (kosong/tersedia/penuh)
+- **🆕 Kapasitas kamar**: Otomatis tracking slot tersedia
 - Tracking occupancy rates
 
 ### 📦 Manajemen Barang
@@ -29,7 +31,8 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 
 ### 💰 Sistem Tagihan
 - Generate tagihan bulanan otomatis
-- Kalkulasi berdasarkan harga kamar + biaya barang
+- **🆕 Kalkulasi berdasarkan harga kamar + biaya barang untuk semua penghuni**
+- **🆕 Tagihan terkumpul per kamar untuk multi-occupancy**
 - Tracking tagihan per periode
 - Status pembayaran (lunas/cicil/belum bayar)
 - **Modal-based interface untuk generate tagihan bulanan**
@@ -135,7 +138,8 @@ tb_kamar (id, nomor, harga)
 tb_barang (id, nama, harga)
 
 -- Relationship Tables
-tb_kmr_penghuni (id, id_kamar, id_penghuni, tgl_masuk, tgl_keluar)
+tb_kmr_penghuni (id, id_kamar, tgl_masuk, tgl_keluar)
+tb_detail_kmr_penghuni (id, id_kmr_penghuni, id_penghuni, tgl_masuk, tgl_keluar)
 tb_brng_bawaan (id, id_penghuni, id_barang)
 
 -- Transaction Tables
@@ -787,6 +791,141 @@ ALTER TABLE tb_tagihan ADD UNIQUE KEY unique_bulan_tahun_kmr_penghuni (bulan, ta
 
 All changes maintain backward compatibility at the API level while properly handling the new database structure.
 
+## Changelog
+
+### v2.1 - Multi-Occupancy Support (Latest)
+
+**Perubahan Struktur Database:**
+- **REMOVED** kolom `id_penghuni` dari tabel `tb_kmr_penghuni`
+- **ADDED** tabel baru `tb_detail_kmr_penghuni(id, id_kmr_penghuni, id_penghuni, tgl_masuk, tgl_keluar)`
+- Satu kamar sekarang dapat dihuni oleh maksimal 2 orang
+
+**Fitur Baru:**
+- ✅ Multi-occupancy: Satu kamar dapat dihuni hingga 2 penghuni
+- ✅ Manajemen kapasitas kamar otomatis
+- ✅ Tracking individual untuk setiap penghuni dalam kamar yang sama
+- ✅ Tagihan terkumpul untuk seluruh penghuni dalam satu kamar
+- ✅ UI yang diperbarui untuk menunjukkan slot tersedia per kamar
+
+**Perubahan Technical:**
+- ✅ Model baru: `DetailKamarPenghuniModel.php`
+- ✅ Update semua model existing untuk mendukung struktur baru
+- ✅ Update controller untuk menangani multi-occupancy
+- ✅ Update view untuk menampilkan informasi slot kamar
+- ✅ Migrasi database schema otomatis melalui installer
+
+**Files Modified:**
+1. `app/controllers/Install.php` - Database schema migration
+2. `app/models/DetailKamarPenghuniModel.php` - New model (CREATED)
+3. `app/models/KamarPenghuniModel.php` - Updated for new structure
+4. `app/models/PenghuniModel.php` - Updated queries
+5. `app/models/KamarModel.php` - Added capacity management
+6. `app/models/TagihanModel.php` - Updated for multi-occupancy billing
+7. `app/models/BayarModel.php` - Updated payment reports
+8. `app/controllers/Admin.php` - Multi-occupancy logic
+9. `app/views/admin/penghuni.php` - Updated UI for room slots
+
 ---
 
-**Sistem Manajemen Kos v2.0** - Dibangun dengan ❤️ menggunakan PHP 8.0, PSR-4 Namespaces, dan Bootstrap 5
+## Detailed Implementation Guide
+
+### Database Schema Details
+
+#### Modified `tb_kmr_penghuni` Table
+**REMOVED:**
+- `id_penghuni` column (breaking the direct one-to-one relationship)
+
+**RETAINED:**
+- `id_kamar` - Room reference
+- `tgl_masuk` - Occupancy start date  
+- `tgl_keluar` - Occupancy end date
+
+**Purpose:** Now represents room occupancy periods independent of specific tenants.
+
+#### Created `tb_detail_kmr_penghuni` Table
+**Schema:**
+```sql
+CREATE TABLE tb_detail_kmr_penghuni (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_kmr_penghuni INT NOT NULL,
+    id_penghuni INT NOT NULL,
+    tgl_masuk DATE NOT NULL,
+    tgl_keluar DATE NULL,
+    FOREIGN KEY (id_kmr_penghuni) REFERENCES tb_kmr_penghuni(id),
+    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id)
+);
+```
+
+**Purpose:** Enables many-to-one relationship where multiple tenants can link to one room occupancy record.
+
+### Key Model Methods
+
+#### DetailKamarPenghuniModel.php (New)
+**Key Methods:**
+- `findPenghuniByKamarPenghuni($id_kmr_penghuni)` - Get active tenants for room occupancy
+- `addPenghuniToDetail($id_kmr_penghuni, $id_penghuni, $tgl_masuk)` - Add tenant to room
+- `checkoutPenghuni($id_kmr_penghuni, $id_penghuni, $tgl_keluar)` - Individual checkout
+- `countActivePenghuni($id_kmr_penghuni)` - Count active tenants
+- `getPenghuniWithKamarInfo()` - Comprehensive tenant-room listing
+
+#### KamarPenghuniModel.php Updates
+- `createKamarPenghuni($id_kamar, $tgl_masuk)` - Multi-tenant room setup
+- `addPenghuniToKamar($id_kamar, $id_penghuni, $tgl_masuk)` - Add tenant to existing occupancy
+- `checkKamarCapacity($id_kamar)` - 2-person limit enforcement
+- `pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah)` - Updated for new structure
+
+#### KamarModel.php Updates
+- `getKamarTersedia()` - Shows available slots per room
+- Room status logic: `kosong`/`tersedia`/`penuh` instead of `kosong`/`terisi`
+- Capacity management with slot counting
+
+### Business Logic Implementation
+
+#### Room Capacity Management
+- **Maximum Occupancy:** 2 tenants per room (hardcoded)
+- **Capacity Checking:** Prevents over-occupancy during tenant assignment
+- **Status Management:** Rooms can be `kosong` (0 tenants), `tersedia` (1 tenant), or `penuh` (2 tenants)
+
+#### Billing System
+- **Aggregated Billing:** Single bill per room covering all tenants
+- **Cost Calculation:** Room rent + individual tenant items
+- **Tenant Display:** Concatenated names in billing reports
+
+#### Individual Tenant Tracking
+- **Independent Dates:** Each tenant has individual move-in/move-out dates
+- **Selective Checkout:** Tenants can leave individually without affecting others
+- **Room Closure:** Occupancy automatically closes when last tenant leaves
+
+### Migration & Deployment
+
+#### From v2.0 to v2.1
+1. **Database Schema:** Automatic migration via installer
+2. **Existing Data:** Preserved and migrated to new structure
+3. **API Compatibility:** Maintained backward compatibility
+4. **Configuration:** No additional setup required
+
+#### Deployment Checklist
+- [ ] Backup existing database
+- [ ] Run installer for schema updates
+- [ ] Verify data migration integrity
+- [ ] Test multi-occupancy functionality
+- [ ] Update documentation and training materials
+
+### Technical Specifications
+- **Database Engine:** MySQL with InnoDB storage engine
+- **PHP Requirements:** PHP 8.0+ compatibility
+- **Architecture:** PSR-4 autoloading, MVC with namespaces
+- **Security:** SQL injection prevention, input validation
+
+### Testing Verification
+- ✅ Room occupancy creation and management
+- ✅ Multi-tenant assignment and checkout
+- ✅ Billing generation for shared rooms
+- ✅ Payment recording and tracking
+- ✅ UI capacity display and tenant management
+- ✅ Capacity limit enforcement
+- ✅ Individual tenant date tracking
+
+---
+
+**Sistem Manajemen Kos v2.1** - Dibangun dengan ❤️ menggunakan PHP 8.0, PSR-4 Namespaces, dan Bootstrap 5
