@@ -9,13 +9,13 @@ class Auth extends Controller
     public function login()
     {
         // If already logged in, redirect to admin
-        if (isset($_SESSION['user_id'])) {
-            $this->redirect(APP_URL.'/admin');
+        if (\App\Core\Session::has('user_id')) {
+            $this->redirect(\App\Core\Config::app('url').'/admin');
         }
 
         $error = '';
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $username = $this->post('username');
             $password = $this->post('password');
 
@@ -27,17 +27,17 @@ class Auth extends Controller
 
                 if ($user) {
                     // Set session
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['nama'] = $user['nama'];
-                    $_SESSION['role'] = $user['role'];
-                    $_SESSION['login_time'] = time();
+                    \App\Core\Session::set('user_id', $user['id']);
+                    \App\Core\Session::set('username', $user['username']);
+                    \App\Core\Session::set('nama', $user['nama']);
+                    \App\Core\Session::set('role', $user['role']);
+                    \App\Core\Session::set('login_time', time());
 
                     // Update last login
                     $userModel->updateLastLogin($user['id']);
 
                     // Redirect to admin
-                    $this->redirect(APP_URL.'/admin');
+                    $this->redirect(\App\Core\Config::app('url').'/admin');
                 } else {
                     $error = 'Username atau password salah';
                 }
@@ -45,7 +45,7 @@ class Auth extends Controller
         }
 
         $data = [
-            'title' => 'Login Admin - ' . APP_NAME,
+            'title' => 'Login Admin - ' . \App\Core\Config::app('name'),
             'error' => $error
         ];
 
@@ -55,21 +55,21 @@ class Auth extends Controller
     public function logout()
     {
         // Destroy session
-        session_destroy();
+        \App\Core\Session::destroy();
         
         // Redirect to login
-        $this->redirect(APP_URL.'/login');
+        $this->redirect(\App\Core\Config::app('url').'/login');
     }
 
     public static function isLoggedIn()
     {
-        return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+        return \App\Core\Session::has('user_id') && !empty(\App\Core\Session::get('user_id'));
     }
 
     public static function requireLogin()
     {
         if (!self::isLoggedIn()) {
-            header('Location: ' . APP_URL . '/login');
+            header('Location: ' . \App\Core\Config::app('url') . '/login');
             exit;
         }
     }
@@ -78,10 +78,10 @@ class Auth extends Controller
     {
         if (self::isLoggedIn()) {
             return [
-                'id' => $_SESSION['user_id'],
-                'username' => $_SESSION['username'],
-                'nama' => $_SESSION['nama'],
-                'role' => $_SESSION['role']
+                'id' => \App\Core\Session::get('user_id'),
+                'username' => \App\Core\Session::get('username'),
+                'nama' => \App\Core\Session::get('nama'),
+                'role' => \App\Core\Session::get('role')
             ];
         }
         return null;

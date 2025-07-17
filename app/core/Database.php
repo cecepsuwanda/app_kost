@@ -4,6 +4,7 @@ namespace App\Core;
 
 use PDO;
 use PDOException;
+use App\Core\Config;
 
 class Database
 {
@@ -13,8 +14,8 @@ class Database
     private function __construct()
     {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
-            $this->connection = new PDO($dsn, DB_USER, DB_PASS);
+            $dsn = "mysql:host=" . Config::database('host') . ";dbname=" . Config::database('name') . ";charset=" . Config::database('charset');
+            $this->connection = new PDO($dsn, Config::database('user'), Config::database('pass'));
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

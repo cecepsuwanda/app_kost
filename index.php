@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Define constants
 define('ROOT_PATH', __DIR__);
@@ -14,8 +13,8 @@ require_once APP_PATH . '/core/Autoloader.php';
 $autoloader = new App\Core\Autoloader();
 $autoloader->register();
 
-// Include config
-require_once CONFIG_PATH . '/config.php';
+// Initialize Config (this will also start session and apply settings)
+\App\Core\Config::getInstance();
 
 // Create router instance
 $router = new App\Core\Router();

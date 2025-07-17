@@ -39,7 +39,7 @@ class Admin extends Controller
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
 
         $data = [
-            'title' => 'Dashboard Admin - ' . APP_NAME,
+            'title' => 'Dashboard Admin - ' . \App\Core\Config::app('name'),
             'stats' => $stats,
             'kamarKosong' => $kamarKosong,
             'kamarTersedia' => $kamarTersedia,
@@ -59,7 +59,7 @@ class Admin extends Controller
         $barangBawaanModel = $this->loadModel('BarangBawaanModel');
         $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $action = $this->post('action');
 
             switch ($action) {
@@ -158,7 +158,7 @@ class Admin extends Controller
         $barang = $barangModel->findAll();
 
         $data = [
-            'title' => 'Kelola Penghuni - ' . APP_NAME,
+            'title' => 'Kelola Penghuni - ' . \App\Core\Config::app('name'),
             'penghuni' => $penghuni,
             'kamarTersedia' => $kamarTersedia,
             'barang' => $barang
@@ -171,7 +171,7 @@ class Admin extends Controller
     {
         $kamarModel = $this->loadModel('KamarModel');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $action = $this->post('action');
 
             switch ($action) {
@@ -200,7 +200,7 @@ class Admin extends Controller
         $kamar = $kamarModel->getKamarWithStatus();
 
         $data = [
-            'title' => 'Kelola Kamar - ' . APP_NAME,
+            'title' => 'Kelola Kamar - ' . \App\Core\Config::app('name'),
             'kamar' => $kamar
         ];
 
@@ -211,7 +211,7 @@ class Admin extends Controller
     {
         $barangModel = $this->loadModel('BarangModel');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $action = $this->post('action');
 
             switch ($action) {
@@ -240,7 +240,7 @@ class Admin extends Controller
         $barang = $barangModel->findAll();
 
         $data = [
-            'title' => 'Kelola Barang - ' . APP_NAME,
+            'title' => 'Kelola Barang - ' . \App\Core\Config::app('name'),
             'barang' => $barang
         ];
 
@@ -251,31 +251,29 @@ class Admin extends Controller
     {
         $tagihanModel = $this->loadModel('TagihanModel');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $action = $this->post('action');
 
             switch ($action) {
                 case 'generate':
                     $bulan = $this->post('bulan');
                     $generated = $tagihanModel->generateTagihan($bulan);
-                    $_SESSION['message'] = "Berhasil generate $generated tagihan untuk bulan $bulan";
+                    \App\Core\Session::flash('message', "Berhasil generate $generated tagihan untuk bulan $bulan");
                     break;
             }
             
-            $this->redirect(APP_URL . '/admin/tagihan');
+            $this->redirect(\App\Core\Config::app('url') . '/admin/tagihan');
         }
 
         $bulan = $this->get('bulan', date('Y-m'));
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
 
         $data = [
-            'title' => 'Kelola Tagihan - ' . APP_NAME,
+            'title' => 'Kelola Tagihan - ' . \App\Core\Config::app('name'),
             'tagihan' => $tagihan,
             'bulan' => $bulan,
-            'message' => $_SESSION['message'] ?? null
+            'message' => \App\Core\Session::flash('message')
         ];
-
-        unset($_SESSION['message']);
 
         $this->loadView('admin/tagihan', $data);
     }
@@ -285,7 +283,7 @@ class Admin extends Controller
         $bayarModel = $this->loadModel('BayarModel');
         $tagihanModel = $this->loadModel('TagihanModel');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (\App\Core\Request::isPost()) {
             $action = $this->post('action');
 
             switch ($action) {
@@ -295,14 +293,14 @@ class Admin extends Controller
                     
                     $result = $bayarModel->bayar($id_tagihan, $jml_bayar);
                     if ($result) {
-                        $_SESSION['message'] = "Pembayaran berhasil dicatat";
+                        \App\Core\Session::flash('message', "Pembayaran berhasil dicatat");
                     } else {
-                        $_SESSION['error'] = "Pembayaran gagal";
+                        \App\Core\Session::flash('error', "Pembayaran gagal");
                     }
                     break;
             }
             
-            $this->redirect(APP_URL . '/admin/pembayaran');
+            $this->redirect(\App\Core\Config::app('url') . '/admin/pembayaran');
         }
 
         $bulan = $this->get('bulan', date('Y-m'));
@@ -310,15 +308,13 @@ class Admin extends Controller
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
         
         $data = [
-            'title' => 'Kelola Pembayaran - ' . APP_NAME,
+            'title' => 'Kelola Pembayaran - ' . \App\Core\Config::app('name'),
             'laporan' => $laporan,
             'tagihan' => $tagihan,
             'bulan' => $bulan,
-            'message' => $_SESSION['message'] ?? null,
-            'error' => $_SESSION['error'] ?? null
+            'message' => \App\Core\Session::flash('message'),
+            'error' => \App\Core\Session::flash('error')
         ];
-
-        unset($_SESSION['message'], $_SESSION['error']);
 
         $this->loadView('admin/pembayaran', $data);
     }
