@@ -9,15 +9,15 @@ class Auth extends Controller
     public function login()
     {
         // If already logged in, redirect to admin
-        if (\App\Core\Session::has('user_id')) {
-            $this->redirect(\App\Core\Config::app('url').'/admin');
+        if ($this->session->sessionHas('user_id')) {
+            $this->redirect($this->config->appConfig('url').'/admin');
         }
 
         $error = '';
 
-        if (\App\Core\Request::isPost()) {
-            $username = $this->post('username');
-            $password = $this->post('password');
+        if ($this->request->isPostRequest()) {
+            $username = $this->request->postParam('username');
+            $password = $this->request->postParam('password');
 
             if (empty($username) || empty($password)) {
                 $error = 'Username dan password harus diisi';
@@ -27,17 +27,17 @@ class Auth extends Controller
 
                 if ($user) {
                     // Set session
-                    \App\Core\Session::set('user_id', $user['id']);
-                    \App\Core\Session::set('username', $user['username']);
-                    \App\Core\Session::set('nama', $user['nama']);
-                    \App\Core\Session::set('role', $user['role']);
-                    \App\Core\Session::set('login_time', time());
+                    $this->session->sessionSet('user_id', $user['id']);
+                    $this->session->sessionSet('username', $user['username']);
+                    $this->session->sessionSet('nama', $user['nama']);
+                    $this->session->sessionSet('role', $user['role']);
+                    $this->session->sessionSet('login_time', time());
 
                     // Update last login
                     $userModel->updateLastLogin($user['id']);
 
                     // Redirect to admin
-                    $this->redirect(\App\Core\Config::app('url').'/admin');
+                    $this->redirect($this->config->appConfig('url').'/admin');
                 } else {
                     $error = 'Username atau password salah';
                 }
@@ -45,7 +45,7 @@ class Auth extends Controller
         }
 
         $data = [
-            'title' => 'Login Admin - ' . \App\Core\Config::app('name'),
+            'title' => 'Login Admin - ' . $this->config->appConfig('name'),
             'error' => $error
         ];
 
@@ -55,21 +55,23 @@ class Auth extends Controller
     public function logout()
     {
         // Destroy session
-        \App\Core\Session::destroy();
+        $this->session->sessionDestroy();
         
         // Redirect to login
-        $this->redirect(\App\Core\Config::app('url').'/login');
+        $this->redirect($this->config->appConfig('url').'/login');
     }
 
     public static function isLoggedIn()
     {
-        return \App\Core\Session::has('user_id') && !empty(\App\Core\Session::get('user_id'));
+        $session = Session::getInstance();
+        return $session->sessionHas('user_id') && !empty($session->sessionGet('user_id'));
     }
 
     public static function requireLogin()
     {
         if (!self::isLoggedIn()) {
-            header('Location: ' . \App\Core\Config::app('url') . '/login');
+            $config = Config::getInstance();
+            header('Location: ' . $config->appConfig('url') . '/login');
             exit;
         }
     }
@@ -77,11 +79,12 @@ class Auth extends Controller
     public static function getUser()
     {
         if (self::isLoggedIn()) {
+            $session = Session::getInstance();
             return [
-                'id' => \App\Core\Session::get('user_id'),
-                'username' => \App\Core\Session::get('username'),
-                'nama' => \App\Core\Session::get('nama'),
-                'role' => \App\Core\Session::get('role')
+                'id' => $session->sessionGet('user_id'),
+                'username' => $session->sessionGet('username'),
+                'nama' => $session->sessionGet('nama'),
+                'role' => $session->sessionGet('role')
             ];
         }
         return null;

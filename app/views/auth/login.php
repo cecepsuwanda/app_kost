@@ -84,7 +84,7 @@
                                            id="username" 
                                            name="username" 
                                            placeholder="Masukkan username"
-                                           value="<?= htmlspecialchars($this->post('username', '')) ?>"
+                                           value="<?= htmlspecialchars($request->postParam('username', '')) ?>"
                                            required 
                                            autofocus>
                                 </div>

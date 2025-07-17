@@ -33,7 +33,8 @@ $router->add('/install', 'Install@index');
 $router->add('/install/run', 'Install@run');
 
 // Handle AJAX requests
-if (isset($_POST['action'])) {
+$request = \App\Core\Request::getInstance();
+if ($request->hasParam('action')) {
     $router->add('/ajax', 'Ajax@handle');
 }
 

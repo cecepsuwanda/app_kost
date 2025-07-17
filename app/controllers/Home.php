@@ -22,7 +22,7 @@ class Home extends Controller
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
        
         $data = [
-            'title' => 'Selamat Datang - ' . \App\Core\Config::app('name'),
+            'title' => 'Selamat Datang - ' . $this->config->appConfig('name'),
             'kamarKosong' => $kamarKosong,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
             'tagihanTerlambat' => $tagihanTerlambat

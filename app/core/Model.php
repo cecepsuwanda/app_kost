@@ -6,10 +6,16 @@ class Model
 {
     protected $db;
     protected $table;
+    protected $config;
+    protected $session;
+    protected $request;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->config = Config::getInstance();
+        $this->session = Session::getInstance();
+        $this->request = Request::getInstance();
     }
 
     public function findAll()

@@ -14,8 +14,9 @@ class Database
     private function __construct()
     {
         try {
-            $dsn = "mysql:host=" . Config::database('host') . ";dbname=" . Config::database('name') . ";charset=" . Config::database('charset');
-            $this->connection = new PDO($dsn, Config::database('user'), Config::database('pass'));
+            $config = Config::getInstance();
+            $dsn = "mysql:host=" . $config->db('host') . ";dbname=" . $config->db('name') . ";charset=" . $config->db('charset');
+            $this->connection = new PDO($dsn, $config->db('user'), $config->db('pass'));
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

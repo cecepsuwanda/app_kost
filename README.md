@@ -482,6 +482,130 @@ $db->fetchAll('SELECT * FROM table');
 $db->fetch('SELECT * FROM table LIMIT 1');
 ```
 
+### Instance-Based Core Access Pattern
+
+**NEW in v2.2.0**: All core components now use instance-based access for better dependency injection and testability.
+
+#### In Controllers
+
+```php
+<?php
+
+namespace App\Controllers;
+
+use App\Core\Controller;
+
+class ExampleController extends Controller
+{
+    public function index()
+    {
+        // NEW Instance-based access (Recommended)
+        $appName = $this->config->appConfig('name');
+        $userId = $this->session->sessionGet('user_id');
+        $inputData = $this->request->postParam('data');
+        
+        // Check request type
+        if ($this->request->isPostRequest()) {
+            // Handle POST data
+            $this->session->sessionSet('message', 'Data saved!');
+        }
+        
+        // OLD Static access (Still supported for backward compatibility)
+        $appName = \App\Core\Config::app('name');
+        $userId = \App\Core\Session::get('user_id');
+        $inputData = \App\Core\Request::post('data');
+    }
+}
+```
+
+#### In Models
+
+```php
+<?php
+
+namespace App\Models;
+
+use App\Core\Model;
+
+class ExampleModel extends Model
+{
+    public function customMethod()
+    {
+        // Access configuration in models
+        $dbHost = $this->config->db('host');
+        
+        // Access session data if needed
+        $currentUser = $this->session->sessionGet('user_id');
+        
+        return $this->db->fetchAll("SELECT * FROM {$this->table}");
+    }
+}
+```
+
+#### In Views
+
+All views automatically receive `$config`, `$session`, and `$request` variables:
+
+```php
+<!-- NEW Instance-based access in views -->
+<a href="<?= $config->appConfig('url') ?>/admin">Dashboard</a>
+
+<?php if ($session->sessionHas('user_id')): ?>
+    <p>Welcome back!</p>
+<?php endif; ?>
+
+<form method="post">
+    <input type="text" name="username" 
+           value="<?= $request->postParam('username', '') ?>">
+</form>
+
+<!-- OLD Static access (deprecated in views) -->
+<a href="<?= \App\Core\Config::app('url') ?>/admin">Dashboard</a>
+```
+
+#### New Method Names
+
+**Config Access:**
+- `$this->config->config($key)` - Get any config value
+- `$this->config->appConfig($key)` - Get app configuration
+- `$this->config->db($key)` - Get database configuration
+
+**Session Access:**
+- `$this->session->sessionGet($key, $default)` - Get session value
+- `$this->session->sessionSet($key, $value)` - Set session value
+- `$this->session->sessionHas($key)` - Check if session key exists
+- `$this->session->sessionRemove($key)` - Remove session key
+- `$this->session->sessionFlash($key, $value)` - Flash messaging
+- `$this->session->sessionDestroy()` - Destroy session
+
+**Request Access:**
+- `$this->request->getParam($key, $default)` - Get GET parameter
+- `$this->request->postParam($key, $default)` - Get POST parameter
+- `$this->request->isPostRequest()` - Check if POST request
+- `$this->request->isGetRequest()` - Check if GET request
+- `$this->request->requestMethod()` - Get request method
+- `$this->request->requestUri()` - Get request URI
+
+#### Migration Guide
+
+**For existing custom controllers:**
+
+```php
+// OLD (v2.1 and earlier)
+if (\App\Core\Request::isPost()) {
+    $data = $this->post('data');
+    \App\Core\Session::set('message', 'Success');
+    $this->redirect(\App\Core\Config::app('url') . '/admin');
+}
+
+// NEW (v2.2+)
+if ($this->request->isPostRequest()) {
+    $data = $this->request->postParam('data');
+    $this->session->sessionSet('message', 'Success');
+    $this->redirect($this->config->appConfig('url') . '/admin');
+}
+```
+
 ### View System
 
 ```php
@@ -620,6 +744,28 @@ Jika mengupgrade dari versi tanpa namespace:
 
 ## Technical Implementation Details
 
+### Core Architecture Changes (v2.2.0)
+
+**Instance-Based Access Pattern:**
+- All core classes (Config, Session, Request) now support both static and instance methods
+- Controllers and Models automatically receive core instances via dependency injection
+- Views automatically receive `$config`, `$session`, and `$request` variables
+- Backward compatibility maintained with deprecated static methods
+
+**Dependency Injection:**
+```php
+// Core instances available in all Controllers and Models
+protected $config;   // Config::getInstance()
+protected $session;  // Session::getInstance()  
+protected $request;  // Request::getInstance()
+protected $db;       // Database::getInstance()
+```
+
+**Method Naming Convention:**
+- Config: `->config()`, `->appConfig()`, `->db()`
+- Session: `->sessionGet()`, `->sessionSet()`, `->sessionHas()`
+- Request: `->getParam()`, `->postParam()`, `->isPostRequest()`
+
 ### Frontend Architecture
 - **Framework**: Bootstrap 5 dengan custom styling
 - **Icons**: Bootstrap Icons
@@ -632,6 +778,7 @@ Jika mengupgrade dari versi tanpa namespace:
 - **Security**: XSS protection dengan `htmlspecialchars()`
 - **Validation**: Form validation dan data sanitization
 - **Database**: Integration dengan existing models dan database structure
+- **Architecture**: PSR-4 autoloading, MVC with dependency injection
 
 ### File Structure
 ```
@@ -657,7 +804,24 @@ app/views/admin/
 
 ## Changelog
 
-### Version 2.0.0
+### Version 2.2.0 - **Instance-Based Core Access Pattern**
+- ✅ **BREAKING CHANGE**: Migrated from static method calls to instance-based access for Config, Session, and Request
+- ✅ **NEW**: Instance properties in Controllers and Models (`$this->config`, `$this->session`, `$this->request`)
+- ✅ **NEW**: Backward compatibility maintained with static methods
+- ✅ **NEW**: Improved dependency injection and testability
+- ✅ **NEW**: Enhanced method naming for better clarity
+- ✅ **IMPROVED**: Consistent access patterns across all MVC components
+- ✅ **IMPROVED**: Better separation of concerns and cleaner code architecture
+- ✅ **IMPROVED**: Views now receive config, session, and request instances automatically
+- ✅ **UPDATED**: All controllers, models, and views migrated to new pattern
+
+### Version 2.1.0 - **Multi-Occupancy Support**
+- ✅ **NEW**: Multi-occupancy support (up to 2 tenants per room)
+- ✅ **NEW**: Enhanced room capacity management
+- ✅ **NEW**: Individual tenant tracking within shared rooms
+- ✅ **NEW**: Aggregated billing for multi-tenant rooms
+
+### Version 2.0.0 - **PSR-4 Architecture**
 - ✅ **NEW**: PSR-4 namespace implementation
 - ✅ **NEW**: Enhanced autoloader with namespace support
 - ✅ **NEW**: Comprehensive Tagihan dan Pembayaran views
@@ -668,7 +832,7 @@ app/views/admin/
 - ✅ **IMPROVED**: Better error handling and debugging support
 - ✅ **IMPROVED**: Streamlined workflow untuk billing dan payment operations
 
-### Version 1.0.0
+### Version 1.0.0 - **Initial Release**
 - Initial release with basic MVC structure
 
 ## License

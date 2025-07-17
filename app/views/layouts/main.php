@@ -48,7 +48,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= \App\Core\Config::app('url') ?>">
+                        <a class="nav-link" href="<?= $config->appConfig('url') ?>">
                             <i class="bi bi-house"></i> Beranda
                         </a>
                     </li>
@@ -57,14 +57,14 @@
                             <i class="bi bi-gear"></i> Admin
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin/penghuni"><i class="bi bi-people"></i> Kelola Penghuni</a></li>
-<li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
-<li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/penghuni"><i class="bi bi-people"></i> Kelola Penghuni</a></li>
+<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
+<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
 <li><hr class="dropdown-divider"></li>
-<li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
-<li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
+<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
+<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -79,14 +79,14 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><span class="dropdown-item-text"><small>Login sebagai: <?= htmlspecialchars($user['username']) ?></small></span></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="<?= \App\Core\Config::app('url') ?>/logout">
+                                <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/logout">
                                     <i class="bi bi-box-arrow-right"></i> Logout
                                 </a></li>
                             </ul>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= \App\Core\Config::app('url') ?>/login">
+                            <a class="nav-link" href="<?= $config->appConfig('url') ?>/login">
                                 <i class="bi bi-box-arrow-in-right"></i> Login
                             </a>
                         </li>
@@ -105,32 +105,32 @@
                 <h6 class="text-muted mb-3">MENU ADMIN</h6>
                 <ul class="nav nav-pills flex-column">
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin" class="nav-link <?= \App\Core\Request::uri() == '/admin' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin" class="nav-link <?= $request->requestUri() == '/admin' ? 'active' : '' ?>">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin/penghuni" class="nav-link <?= \App\Core\Request::uri() == '/admin/penghuni' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin/penghuni" class="nav-link <?= $request->requestUri() == '/admin/penghuni' ? 'active' : '' ?>">
                             <i class="bi bi-people"></i> Kelola Penghuni
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin/kamar" class="nav-link <?= \App\Core\Request::uri() == '/admin/kamar' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin/kamar" class="nav-link <?= $request->requestUri() == '/admin/kamar' ? 'active' : '' ?>">
                             <i class="bi bi-door-open"></i> Kelola Kamar
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin/barang" class="nav-link <?= \App\Core\Request::uri() == '/admin/barang' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin/barang" class="nav-link <?= $request->requestUri() == '/admin/barang' ? 'active' : '' ?>">
                             <i class="bi bi-box"></i> Kelola Barang
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin/tagihan" class="nav-link <?= \App\Core\Request::uri() == '/admin/tagihan' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin/tagihan" class="nav-link <?= $request->requestUri() == '/admin/tagihan' ? 'active' : '' ?>">
                             <i class="bi bi-receipt"></i> Kelola Tagihan
                         </a>
                     </li>
                     <li class="nav-item mb-1">
-                        <a href="<?= \App\Core\Config::app('url') ?>/admin/pembayaran" class="nav-link <?= \App\Core\Request::uri() == '/admin/pembayaran' ? 'active' : '' ?>">
+                        <a href="<?= $config->appConfig('url') ?>/admin/pembayaran" class="nav-link <?= $request->requestUri() == '/admin/pembayaran' ? 'active' : '' ?>">
                             <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                     </li>

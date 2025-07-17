@@ -4,6 +4,7 @@ namespace App\Core;
 
 class Config
 {
+    private static $instance = null;
     private static $config = null;
 
     private function __construct()
@@ -27,18 +28,19 @@ class Config
 
     public static function getInstance()
     {
-        if (self::$config === null) {
-            new self();
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
-        return self::$config;
+        return self::$instance;
     }
 
+    // Static methods (for backward compatibility)
     public static function get($key, $default = null)
     {
-        $config = self::getInstance();
+        self::getInstance();
         $keys = explode('.', $key);
         
-        $value = $config;
+        $value = self::$config;
         foreach ($keys as $k) {
             if (isset($value[$k])) {
                 $value = $value[$k];
@@ -64,5 +66,38 @@ class Config
             return self::get('app');
         }
         return self::get("app.$key");
+    }
+
+    // Instance methods (new approach)
+    public function config($key, $default = null)
+    {
+        $keys = explode('.', $key);
+        
+        $value = self::$config;
+        foreach ($keys as $k) {
+            if (isset($value[$k])) {
+                $value = $value[$k];
+            } else {
+                return $default;
+            }
+        }
+        
+        return $value;
+    }
+
+    public function db($key = null)
+    {
+        if ($key === null) {
+            return $this->config('database');
+        }
+        return $this->config("database.$key");
+    }
+
+    public function appConfig($key = null)
+    {
+        if ($key === null) {
+            return $this->config('app');
+        }
+        return $this->config("app.$key");
     }
 } 

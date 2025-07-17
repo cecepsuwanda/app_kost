@@ -37,8 +37,8 @@ class Install extends Controller
 
     private function createDatabase()
     {
-        $pdo = new PDO("mysql:host=" . \App\Core\Config::database('host') . ";charset=" . \App\Core\Config::database('charset'), \App\Core\Config::database('user'), \App\Core\Config::database('pass'));
-        $pdo->exec("CREATE DATABASE IF NOT EXISTS " . \App\Core\Config::database('name'));
+        $pdo = new PDO("mysql:host=" . $this->config->db('host') . ";charset=" . $this->config->db('charset'), $this->config->db('user'), $this->config->db('pass'));
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS " . $this->config->db('name'));
     }
 
     private function createTables()

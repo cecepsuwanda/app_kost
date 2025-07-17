@@ -5,14 +5,25 @@ namespace App\Core;
 class Controller
 {
     protected $db;
+    protected $config;
+    protected $session;
+    protected $request;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->config = Config::getInstance();
+        $this->session = Session::getInstance();
+        $this->request = Request::getInstance();
     }
 
     protected function loadView($view, $data = [])
     {
+        // Make core instances available to views
+        $data['config'] = $this->config;
+        $data['session'] = $this->session;
+        $data['request'] = $this->request;
+        
         extract($data);
         $viewFile = APP_PATH . '/views/' . $view . '.php';
         
@@ -55,6 +66,7 @@ class Controller
         exit;
     }
 
+    // Legacy methods (for backward compatibility)
     protected function post($key, $default = null)
     {
         return \App\Core\Request::post($key, $default);

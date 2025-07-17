@@ -42,11 +42,11 @@ ob_start();
                         </ol>
 
                         <div class="d-grid gap-2 mt-4">
-                            <a href="<?= \App\Core\Config::app('url') ?>/admin" class="btn btn-primary btn-lg">
+                            <a href="<?= $config->appConfig('url') ?>/admin" class="btn btn-primary btn-lg">
                                 <i class="bi bi-speedometer2"></i>
                                 Masuk ke Dashboard Admin
                             </a>
-                            <a href="<?= \App\Core\Config::app('url') ?>" class="btn btn-success">
+                            <a href="<?= $config->appConfig('url') ?>" class="btn btn-success">
                                 <i class="bi bi-house"></i>
                                 Ke Halaman Utama
                             </a>
@@ -73,11 +73,11 @@ ob_start();
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <a href="<?= \App\Core\Config::app('url') ?>/install" class="btn btn-warning btn-lg">
+                            <a href="<?= $config->appConfig('url') ?>/install" class="btn btn-warning btn-lg">
                                 <i class="bi bi-arrow-repeat"></i>
                                 Coba Instalasi Lagi
                             </a>
-                            <a href="<?= \App\Core\Config::app('url') ?>" class="btn btn-secondary">
+                            <a href="<?= $config->appConfig('url') ?>" class="btn btn-secondary">
                                 <i class="bi bi-house"></i>
                                 Kembali ke Beranda
                             </a>
