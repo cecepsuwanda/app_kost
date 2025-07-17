@@ -802,6 +802,219 @@ app/views/admin/
 7. Push: `git push origin feature/AmazingFeature`
 8. Create Pull Request
 
+## Rekomendasi Perbaikan Arsitektur
+
+### ⚠️ Masalah Arsitektur Saat Ini
+
+**Struktur Saat Ini (Router-Centric):**
+```php
+// index.php - Router sebagai pusat aplikasi
+$router = new App\Core\Router();
+$router->add('/', 'Home@index');
+$router->add('/admin', 'Admin@index');
+// ... route definitions
+$router->run();
+```
+
+**Masalah:**
+- Router bertanggung jawab terlalu banyak (routing + application lifecycle)
+- Tidak ada central application class untuk dependency injection
+- Konfigurasi aplikasi tersebar di berbagai tempat
+- Sulit untuk implementasi middleware dan interceptors
+- Testing menjadi kompleks karena tight coupling
+
+### ✅ Solusi yang Disarankan: Application-Centric Architecture
+
+**Struktur yang Disarankan:**
+```php
+// index.php - Application sebagai pusat kontrol
+$app = new App\Core\Application();
+$app->initialize();
+$app->boot();
+$app->run();
+```
+
+**Implementasi `App\Core\Application` yang Disarankan:**
+```php
+<?php
+
+namespace App\Core;
+
+class Application
+{
+    private Router $router;
+    private Config $config;
+    private Database $database;
+    private Session $session;
+    
+    public function __construct()
+    {
+        $this->initializeComponents();
+    }
+    
+    public function initialize(): void
+    {
+        // Initialize configuration
+        $this->config = Config::getInstance();
+        
+        // Initialize session
+        $this->session = Session::getInstance();
+        
+        // Initialize database
+        $this->database = Database::getInstance();
+        
+        // Initialize router
+        $this->router = new Router();
+    }
+    
+    public function boot(): void
+    {
+        // Register routes
+        $this->registerRoutes();
+        
+        // Register middleware
+        $this->registerMiddleware();
+        
+        // Register error handlers
+        $this->registerErrorHandlers();
+    }
+    
+    public function run(): void
+    {
+        try {
+            $this->router->run();
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+    
+    private function registerRoutes(): void
+    {
+        $this->router->add('/', 'Home@index');
+        $this->router->add('/login', 'Auth@login');
+        $this->router->add('/logout', 'Auth@logout');
+        $this->router->add('/admin', 'Admin@index');
+        $this->router->add('/admin/penghuni', 'Admin@penghuni');
+        $this->router->add('/admin/kamar', 'Admin@kamar');
+        $this->router->add('/admin/barang', 'Admin@barang');
+        $this->router->add('/admin/tagihan', 'Admin@tagihan');
+        $this->router->add('/admin/pembayaran', 'Admin@pembayaran');
+        $this->router->add('/install', 'Install@index');
+        $this->router->add('/install/run', 'Install@run');
+        
+        // Handle AJAX requests
+        $request = Request::getInstance();
+        if ($request->hasParam('action')) {
+            $this->router->add('/ajax', 'Ajax@handle');
+        }
+    }
+    
+    private function registerMiddleware(): void
+    {
+        // Authentication middleware
+        // Rate limiting middleware
+        // CSRF protection middleware
+    }
+    
+    private function registerErrorHandlers(): void
+    {
+        // Custom error handlers
+    }
+    
+    private function handleException(\Exception $e): void
+    {
+        // Centralized exception handling
+        error_log($e->getMessage());
+        
+        if ($this->config->get('debug')) {
+            throw $e;
+        }
+        
+        // Show user-friendly error page
+        include APP_PATH . '/views/errors/500.php';
+    }
+    
+    // Getter methods for dependency injection
+    public function getRouter(): Router { return $this->router; }
+    public function getConfig(): Config { return $this->config; }
+    public function getDatabase(): Database { return $this->database; }
+    public function getSession(): Session { return $this->session; }
+}
+```
+
+### 🎯 Keuntungan Application-Centric Architecture
+
+1. **Single Responsibility**: Setiap class memiliki tanggung jawab yang jelas
+   - `Application`: Application lifecycle dan dependency management
+   - `Router`: Hanya routing logic
+   
+2. **Dependency Injection**: Central container untuk semua dependencies
+   ```php
+   // Controllers dapat mengakses dependencies dengan mudah
+   class AdminController extends Controller
+   {
+       public function __construct(Application $app)
+       {
+           parent::__construct();
+           $this->app = $app;
+           $this->database = $app->getDatabase();
+       }
+   }
+   ```
+
+3. **Middleware Support**: Mudah implementasi middleware untuk:
+   - Authentication
+   - Rate limiting
+   - CSRF protection
+   - Request/Response transformation
+
+4. **Better Error Handling**: Centralized exception handling dengan logging
+
+5. **Testability**: Mudah untuk unit testing dengan dependency injection
+
+6. **Extensibility**: Mudah menambah services baru (caching, logging, queue, etc.)
+
+### 📋 Migration Plan
+
+**Phase 1: Create Application Class**
+1. Buat `app/core/Application.php` dengan implementasi di atas
+2. Update `index.php` untuk menggunakan Application class
+3. Testing untuk memastikan tidak ada breaking changes
+
+**Phase 2: Enhance Router**
+1. Update Router untuk fokus hanya pada routing logic
+2. Remove application lifecycle code dari Router
+3. Add middleware support di Router
+
+**Phase 3: Dependency Injection**
+1. Update Controllers untuk receive Application instance
+2. Update Models untuk receive Database instance via DI
+3. Remove static calls dan global dependencies
+
+**Phase 4: Advanced Features**
+1. Implement middleware system
+2. Add service container
+3. Add configuration caching
+4. Add route caching
+
+### 🔄 Backward Compatibility
+
+Implementasi ini dapat dilakukan secara bertahap dengan mempertahankan backward compatibility:
+
+```php
+// index.php - Transition approach
+if (class_exists('App\Core\Application')) {
+    // New application-centric approach
+    $app = new App\Core\Application();
+    $app->initialize();
+    $app->boot();
+    $app->run();
+} else {
+    // Fallback to current router-centric approach
+    // ... current implementation
+}
+```
+
 ## Changelog
 
 ### Version 2.2.0 - **Instance-Based Core Access Pattern**
