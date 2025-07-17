@@ -839,6 +839,33 @@ app/views/admin/
 
 Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 
+## Copyright & Credits
+
+**Sistem Manajemen Kos v2.2.0**
+
+© 2024 - Aplikasi ini dikembangkan dengan bantuan **Cursor AI**, editor kode bertenaga artificial intelligence yang memungkinkan pengembangan aplikasi yang efisien dan berkualitas tinggi.
+
+**Development Tools:**
+- **Cursor AI**: AI-powered code editor untuk rapid development
+- **Claude (Anthropic)**: AI assistant untuk code generation dan refactoring
+- **Modern Web Technologies**: PHP 8.0+, Bootstrap 5, MySQL
+
+**Acknowledgments:**
+- Terima kasih kepada tim Cursor AI yang telah menyediakan tools revolusioner untuk pengembangan software
+- Aplikasi ini memanfaatkan teknologi AI untuk menghasilkan kode yang bersih, terstruktur, dan mengikuti best practices
+- Arsitektur MVC dan implementasi PSR-4 dirancang dengan bantuan AI untuk memastikan maintainability dan scalability
+
+**AI-Assisted Development Features:**
+- ✅ Automated code refactoring and optimization
+- ✅ Intelligent dependency injection implementation  
+- ✅ Comprehensive documentation generation
+- ✅ Best practices enforcement
+- ✅ Clean architecture design patterns
+
+---
+
+*"Built with the power of AI, designed for human needs"*
+
 ## Support & Documentation
 
 - **Technical Documentation**: README.md (this file)
