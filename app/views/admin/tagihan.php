@@ -179,7 +179,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Generate Tagihan Bulanan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST">
+            <form method="POST" action="<?= APP_URL ?>/admin/tagihan">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="generate">
                     <div class="mb-3">

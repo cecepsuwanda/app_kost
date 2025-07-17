@@ -288,7 +288,7 @@ function bayarTagihan(id, nama, kamar, sisa) {
     const sisaText = document.getElementById('sisaText');
     
     // Set the tagihan
-    select.value = id;
+    select.value = parseInt(id);
     
     // Update info
     sisaText.textContent = `Sisa tagihan: Rp ${sisa.toLocaleString('id-ID')}`;

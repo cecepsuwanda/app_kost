@@ -99,7 +99,7 @@ class BayarModel extends Model
             }
         }
 
-        $sql = "SELECT t.bulan, t.tahun, p.nama as nama_penghuni, k.nomor as nomor_kamar,
+        $sql = "SELECT t.id, t.bulan, t.tahun, p.nama as nama_penghuni, k.nomor as nomor_kamar,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'

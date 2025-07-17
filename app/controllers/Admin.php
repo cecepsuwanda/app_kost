@@ -242,7 +242,7 @@ class Admin extends Controller
                     break;
             }
             
-            $this->redirect('/admin/tagihan');
+            $this->redirect(APP_URL . '/admin/tagihan');
         }
 
         $bulan = $this->get('bulan', date('Y-m'));
@@ -282,13 +282,13 @@ class Admin extends Controller
                     break;
             }
             
-            $this->redirect('/admin/pembayaran');
+            $this->redirect(APP_URL . '/admin/pembayaran');
         }
 
         $bulan = $this->get('bulan', date('Y-m'));
         $laporan = $bayarModel->getLaporanPembayaran($bulan);
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
-
+        
         $data = [
             'title' => 'Kelola Pembayaran - ' . APP_NAME,
             'laporan' => $laporan,
