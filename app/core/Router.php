@@ -59,10 +59,16 @@ class Router
             $uri = substr($uri, 0, $pos);
         }
 
-        // Remove base path from URI
-        $segments = explode('/', trim(str_replace('\\', '/', ROOT_PATH), '/'));
-        $lastSegment = end($segments);
-        $uri = str_replace('/'.$lastSegment, '', $uri);
+        // Remove base path from URI (app_kost)
+        $basePath = '/app_kost';
+        if (strpos($uri, $basePath) === 0) {
+            $uri = substr($uri, strlen($basePath));
+        }
+        
+        // Ensure URI starts with /
+        if (empty($uri)) {
+            $uri = '/';
+        }
         
         return $uri;
     }

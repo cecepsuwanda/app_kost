@@ -10,9 +10,13 @@ SetEnvIf Authorization .+ HTTP_AUTHORIZATION=$0
 # Set the base directory for the application
 RewriteBase /app_kost/
 
+# Allow access to assets directory
+RewriteCond %{REQUEST_URI} !^/app_kost/public/assets/
+
 # If the request is not for a file or directory
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 
 # Rewrite all requests to public/index.php
-RewriteRule ^(.*)$ public/index.php [QSA,L] 
+RewriteRule ^(.*)$ public/index.php [QSA,L]
+

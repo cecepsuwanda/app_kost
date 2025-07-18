@@ -116,7 +116,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Tambah Kamar Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/admin/kamar">
+            <form method="POST" action="<?= $baseUrl ?>/admin/kamar">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="create">
                     
@@ -158,7 +158,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Edit Kamar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/admin/kamar">
+            <form method="POST" action="<?= $baseUrl ?>/admin/kamar">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" id="edit_id">
@@ -204,7 +204,7 @@ function deleteKamar(id, nomor) {
     if (confirm(`Apakah Anda yakin ingin menghapus kamar ${nomor}? Tindakan ini tidak dapat dibatalkan.`)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/admin/kamar';
+        form.action = '<?= $baseUrl ?>/admin/kamar';
         
         form.innerHTML = `
             <input type="hidden" name="action" value="delete">

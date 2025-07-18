@@ -83,21 +83,21 @@ class TagihanModel extends Model
     public function recalculateTagihan($id_tagihan)
     {
         // Get tagihan details
-        $tagihan = $this->find($id_tagihan);
+        $tagihan = $this->findAll($id_tagihan);
         if (!$tagihan) {
             return false;
         }
-
+                
         // Get kamar penghuni details
         $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
-        $kamarPenghuni = $kmrPenghuniModel->find($tagihan['id_kmr_penghuni']);
+        $kamarPenghuni = $kmrPenghuniModel->findAll($tagihan['id_kmr_penghuni']);
         if (!$kamarPenghuni) {
             return false;
         }
 
         // Get room price
         $kamarModel = new \App\Models\KamarModel();
-        $kamar = $kamarModel->find($kamarPenghuni['id_kamar']);
+        $kamar = $kamarModel->findAll($kamarPenghuni['id_kamar']);
         if (!$kamar) {
             return false;
         }
@@ -178,7 +178,7 @@ class TagihanModel extends Model
                            WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
                            WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
                            ELSE 'normal'
-                       END as status_waktu"
+                       END as status_waktu
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id

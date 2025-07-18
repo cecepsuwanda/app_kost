@@ -22,7 +22,7 @@ ob_start();
                     <ul class="list-group list-group-flush mb-4">
                         <li class="list-group-item">
                             <i class="bi bi-check-circle text-success"></i>
-                            Membuat database <code><?= DB_NAME ?></code>
+                            Membuat database <code><?= $config->database('name') ?></code>
                         </li>
                         <li class="list-group-item">
                             <i class="bi bi-check-circle text-success"></i>
@@ -67,19 +67,19 @@ ob_start();
                     <table class="table table-sm">
                         <tr>
                             <th width="150">Host:</th>
-                            <td><?= DB_HOST ?></td>
+                            <td><?= $config->database('host') ?></td>
                         </tr>
                         <tr>
                             <th>Database:</th>
-                            <td><?= DB_NAME ?></td>
+                            <td><?= $config->database('name') ?></td>
                         </tr>
                         <tr>
                             <th>Username:</th>
-                            <td><?= DB_USER ?></td>
+                            <td><?= $config->database('user') ?></td>
                         </tr>
                         <tr>
                             <th>Charset:</th>
-                            <td><?= DB_CHARSET ?></td>
+                            <td><?= $config->database('charset') ?></td>
                         </tr>
                     </table>
 

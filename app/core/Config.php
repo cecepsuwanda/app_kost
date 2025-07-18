@@ -109,7 +109,7 @@ class Config
      */
     public function isMaintenanceMode(): bool
     {
-        return (bool) $this->appConfig('maintenance');
+        return (bool) $this->config('app.maintenance');
     }
 
     public function appConfig($key = null)

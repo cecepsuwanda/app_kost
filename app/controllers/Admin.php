@@ -360,7 +360,7 @@ class Admin extends Controller
                 $t['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($t['id_penghuni']);
             }
         }
-
+        
         $data = [
             'title' => 'Kelola Tagihan - ' . $this->config->appConfig('name'),
             'tagihan' => $tagihan,

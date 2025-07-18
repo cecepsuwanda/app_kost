@@ -91,6 +91,10 @@ $showSidebar = true;
                     <tbody>
                         <?php foreach ($tagihan as $t): ?>
                             <?php
+                            echo "<pre>";
+                            print_r($t);
+                            echo "</pre>";
+                            
                             $sisa = $t['jml_tagihan'] - $t['jml_dibayar'];
                             $statusBadge = [
                                 'Lunas' => 'bg-success',
@@ -149,9 +153,9 @@ $showSidebar = true;
                                 <td>
                                     <?php if (!empty($t['barang_bawaan'])): ?>
                                         <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($t['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
+                                            <?php foreach ($t['barang_bawaan'] as $br): ?>
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($br['nama_barang']) ?> (+Rp <?= number_format($br['harga_barang'], 0, ',', '.') ?>)">
+                                                    <?= htmlspecialchars($br['nama_barang']) ?>
                                                 </span>
                                             <?php endforeach; ?>
                                         </div>

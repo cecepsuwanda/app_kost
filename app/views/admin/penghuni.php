@@ -62,9 +62,9 @@ $showSidebar = true;
                                 <td>
                                     <?php if (!empty($p['barang_bawaan'])): ?>
                                         <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($p['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
+                                            <?php foreach ($p['barang_bawaan'] as $br): ?>
+                                                <span class="badge bg-warning text-dark" title="<?= htmlspecialchars($br['nama_barang']) ?> (+Rp <?= number_format($br['harga_barang'], 0, ',', '.') ?>)">
+                                                    <?= htmlspecialchars($br['nama_barang']) ?>
                                                 </span>
                                             <?php endforeach; ?>
                                         </div>
@@ -160,8 +160,8 @@ $showSidebar = true;
                     
                     <div class="mb-3">
                         <label class="form-label">Barang Bawaan (Opsional)</label>
-                        <div class="row">
-                            <?php foreach ($barang as $b): ?>
+                        <div class="row">                             
+                              <?php foreach ($barang as $b): ?>                                
                                 <div class="col-md-6 mb-2">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="barang_ids[]" 
