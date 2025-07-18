@@ -53,12 +53,8 @@ class TagihanModel extends Model
             throw new \InvalidArgumentException("Tidak bisa generate tagihan untuk bulan yang terlalu jauh ke depan");
         }
 
-        // Get all active kamar with their penghuni
-        $kamarModel = new \App\Models\KamarModel();
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
-        $barangModel = new \App\Models\BarangModel();
-        
-        // Get all active kamar penghuni (group by kamar)
+        // Get all active kamar penghuni data directly via SQL join
+        // This eliminates the need for multiple model instantiations
         $sql = "SELECT kp.id, kp.id_kamar, kp.tgl_masuk, k.harga as harga_kamar
                 FROM tb_kmr_penghuni kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
@@ -75,8 +71,10 @@ class TagihanModel extends Model
                 continue; // Skip if already generated
             }
 
-            // Get all active penghuni in this kamar
-            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamar['id']);
+            // Get all active penghuni in this kamar via direct SQL
+            $penghuniSql = "SELECT id_penghuni FROM tb_detail_kmr_penghuni 
+                           WHERE id_kmr_penghuni = :id_kmr_penghuni AND tgl_keluar IS NULL";
+            $penghuniList = $this->db->fetchAll($penghuniSql, ['id_kmr_penghuni' => $kamar['id']]);
             
             if (empty($penghuniList)) {
                 continue; // Skip if no active penghuni
@@ -85,10 +83,15 @@ class TagihanModel extends Model
             // Use room occupancy entry date (tgl_masuk from tb_kmr_penghuni)
             $tglMasukKamarPenghuni = $kamar['tgl_masuk'];
             
-            // Calculate total harga barang for all penghuni in this kamar
+            // Calculate total harga barang for all penghuni in this kamar via direct SQL
             $totalHargaBarang = 0;
             foreach ($penghuniList as $penghuni) {
-                $totalHargaBarang += $barangModel->getTotalHargaBarangPenghuni($penghuni['id_penghuni']);
+                $barangSql = "SELECT COALESCE(SUM(bb.jumlah * b.harga), 0) as total_harga
+                             FROM tb_barang_bawaan bb
+                             INNER JOIN tb_barang b ON bb.id_barang = b.id
+                             WHERE bb.id_penghuni = :id_penghuni";
+                $barangResult = $this->db->fetch($barangSql, ['id_penghuni' => $penghuni['id_penghuni']]);
+                $totalHargaBarang += $barangResult['total_harga'] ?? 0;
             }
             
             $totalTagihan = $kamar['harga_kamar'] + $totalHargaBarang;
@@ -136,31 +139,34 @@ class TagihanModel extends Model
             throw new \InvalidArgumentException("Tidak bisa recalculate tagihan untuk bulan yang terlalu jauh ke depan");
         }
 
-        // Get kamar penghuni details
-        $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
-        $kamarPenghuni = $kmrPenghuniModel->findAll($tagihan['id_kmr_penghuni']);
-        if (!$kamarPenghuni) {
-            return false;
-        }
-
-        // Get room price
-        $kamarModel = new \App\Models\KamarModel();
-        $kamar = $kamarModel->findAll($kamarPenghuni['id_kamar']);
-        if (!$kamar) {
-            return false;
-        }
-
-        // Calculate total barang bawaan for all penghuni in this kamar
-        $barangModel = new \App\Models\BarangModel();
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
-        $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($tagihan['id_kmr_penghuni']);
+        // Get kamar penghuni and kamar details via direct SQL join
+        $kamarSql = "SELECT kp.id, kp.id_kamar, k.harga 
+                     FROM tb_kmr_penghuni kp 
+                     INNER JOIN tb_kamar k ON kp.id_kamar = k.id 
+                     WHERE kp.id = :id_kmr_penghuni";
+        $kamarData = $this->db->fetch($kamarSql, ['id_kmr_penghuni' => $tagihan['id_kmr_penghuni']]);
         
+        if (!$kamarData) {
+            return false;
+        }
+
+        // Get all active penghuni in this kamar
+        $penghuniSql = "SELECT id_penghuni FROM tb_detail_kmr_penghuni 
+                       WHERE id_kmr_penghuni = :id_kmr_penghuni AND tgl_keluar IS NULL";
+        $penghuniList = $this->db->fetchAll($penghuniSql, ['id_kmr_penghuni' => $tagihan['id_kmr_penghuni']]);
+        
+        // Calculate total barang bawaan for all penghuni in this kamar via direct SQL
         $totalHargaBarang = 0;
         foreach ($penghuniList as $penghuni) {
-            $totalHargaBarang += $barangModel->getTotalHargaBarangPenghuni($penghuni['id_penghuni']);
+            $barangSql = "SELECT COALESCE(SUM(bb.jumlah * b.harga), 0) as total_harga
+                         FROM tb_barang_bawaan bb
+                         INNER JOIN tb_barang b ON bb.id_barang = b.id
+                         WHERE bb.id_penghuni = :id_penghuni";
+            $barangResult = $this->db->fetch($barangSql, ['id_penghuni' => $penghuni['id_penghuni']]);
+            $totalHargaBarang += $barangResult['total_harga'] ?? 0;
         }
         
-        $newTotalTagihan = $kamar['harga'] + $totalHargaBarang;
+        $newTotalTagihan = $kamarData['harga'] + $totalHargaBarang;
 
         // Update tagihan with new calculated amount
         $result = $this->update($id_tagihan, [

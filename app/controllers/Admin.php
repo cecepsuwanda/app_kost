@@ -106,15 +106,16 @@ class Admin extends Controller
                         
                         // Check if room already has active occupancy
                         $activeKamarPenghuni = $kamarPenghuniModel->findActiveByKamar($id_kamar);
+                        $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
                         
                         if ($activeKamarPenghuni) {
                             // Check room capacity
-                            if ($kamarPenghuniModel->checkKamarCapacity($id_kamar)) {
-                                $kamarPenghuniModel->addPenghuniToKamar($activeKamarPenghuni['id'], $id_penghuni, $this->request->postParam('tgl_masuk'));
+                            if ($kamarPenghuniModel->checkKamarCapacity($id_kamar, 2, $detailKamarPenghuniModel)) {
+                                $kamarPenghuniModel->addPenghuniToKamar($activeKamarPenghuni['id'], $id_penghuni, $this->request->postParam('tgl_masuk'), $detailKamarPenghuniModel);
                             }
                         } else {
-                            // Create new kamar penghuni record
-                            $kamarPenghuniModel->createKamarPenghuni($id_kamar, $this->request->postParam('tgl_masuk'), [$id_penghuni]);
+                            // Create new kamar penghuni record and detail records
+                            $kamarPenghuniModel->createKamarPenghuniWithDetails($id_kamar, $this->request->postParam('tgl_masuk'), [$id_penghuni], $detailKamarPenghuniModel);
                         }
                     }
 
@@ -199,8 +200,9 @@ class Admin extends Controller
                     $id_penghuni = $this->request->postParam('id_penghuni');
                     $id_kamar_baru = $this->request->postParam('id_kamar_baru');
                     $tgl_pindah = $this->request->postParam('tgl_pindah');
+                    $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
                     
-                    $kamarPenghuniModel->pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah);
+                    $kamarPenghuniModel->pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah, $detailKamarPenghuniModel);
                     break;
             }
             
@@ -412,11 +414,17 @@ class Admin extends Controller
                     $id_tagihan = $this->request->postParam('id_tagihan');
                     $jml_bayar = $this->request->postParam('jml_bayar');
                     
-                    $result = $bayarModel->bayar($id_tagihan, $jml_bayar);
-                    if ($result) {
-                        $this->session->sessionFlash('message', "Pembayaran berhasil dicatat");
+                    // Get tagihan data first (proper MVC pattern)
+                    $tagihan = $tagihanModel->findById($id_tagihan);
+                    if ($tagihan) {
+                        $result = $bayarModel->bayar($id_tagihan, $jml_bayar, $tagihan);
+                        if ($result) {
+                            $this->session->sessionFlash('message', "Pembayaran berhasil dicatat");
+                        } else {
+                            $this->session->sessionFlash('error', "Pembayaran gagal");
+                        }
                     } else {
-                        $this->session->sessionFlash('error', "Pembayaran gagal");
+                        $this->session->sessionFlash('error', "Tagihan tidak ditemukan");
                     }
                     break;
             }

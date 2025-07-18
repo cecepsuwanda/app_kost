@@ -28,7 +28,7 @@ class KamarPenghuniModel extends Model
         return $this->update($id, ['tgl_keluar' => $tgl_keluar]);
     }
 
-    public function createKamarPenghuni($id_kamar, $tgl_masuk, $penghuni_ids)
+    public function createKamarPenghuni($id_kamar, $tgl_masuk)
     {
         // Create main kamar penghuni record
         $id_kmr_penghuni = $this->create([
@@ -36,8 +36,17 @@ class KamarPenghuniModel extends Model
             'tgl_masuk' => $tgl_masuk
         ]);
 
-        // Create detail records for each penghuni
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        return $id_kmr_penghuni;
+    }
+
+    // New method to handle the creation without model dependency
+    // The controller should handle the detail records creation separately
+    public function createKamarPenghuniWithDetails($id_kamar, $tgl_masuk, $penghuni_ids, $detailKamarPenghuniModel)
+    {
+        // Create main kamar penghuni record
+        $id_kmr_penghuni = $this->createKamarPenghuni($id_kamar, $tgl_masuk);
+
+        // Create detail records for each penghuni using injected model
         foreach ($penghuni_ids as $id_penghuni) {
             $detailKamarPenghuniModel->create([
                 'id_kmr_penghuni' => $id_kmr_penghuni,
@@ -49,9 +58,8 @@ class KamarPenghuniModel extends Model
         return $id_kmr_penghuni;
     }
 
-    public function addPenghuniToKamar($id_kmr_penghuni, $id_penghuni, $tgl_masuk)
+    public function addPenghuniToKamar($id_kmr_penghuni, $id_penghuni, $tgl_masuk, $detailKamarPenghuniModel)
     {
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
         return $detailKamarPenghuniModel->create([
             'id_kmr_penghuni' => $id_kmr_penghuni,
             'id_penghuni' => $id_penghuni,
@@ -59,10 +67,8 @@ class KamarPenghuniModel extends Model
         ]);
     }
 
-    public function pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah)
+    public function pindahKamar($id_penghuni, $id_kamar_baru, $tgl_pindah, $detailKamarPenghuniModel)
     {
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
-        
         // Get original room entry date before checkout
         $kamarPenghuniLama = $this->findKamarByPenghuni($id_penghuni);
         $tgl_masuk_kamar_asli = $kamarPenghuniLama ? $kamarPenghuniLama['tgl_masuk'] : $tgl_pindah;
@@ -83,15 +89,15 @@ class KamarPenghuniModel extends Model
         
         if ($kamarPenghuniAktif) {
             // Tambahkan ke kamar yang sudah ada
-            return $this->addPenghuniToKamar($kamarPenghuniAktif['id'], $id_penghuni, $tgl_pindah);
+            return $this->addPenghuniToKamar($kamarPenghuniAktif['id'], $id_penghuni, $tgl_pindah, $detailKamarPenghuniModel);
         } else {
             // Buat entry kamar baru dengan tanggal masuk yang sama dengan kamar asli
             // untuk menjaga konsistensi billing cycle
-            return $this->createKamarPenghuniForTransfer($id_kamar_baru, $tgl_masuk_kamar_asli, $id_penghuni, $tgl_pindah);
+            return $this->createKamarPenghuniForTransfer($id_kamar_baru, $tgl_masuk_kamar_asli, $id_penghuni, $tgl_pindah, $detailKamarPenghuniModel);
         }
     }
 
-    public function createKamarPenghuniForTransfer($id_kamar, $tgl_masuk_kamar, $id_penghuni, $tgl_pindah)
+    public function createKamarPenghuniForTransfer($id_kamar, $tgl_masuk_kamar, $id_penghuni, $tgl_pindah, $detailKamarPenghuniModel)
     {
         // Create main kamar penghuni record with original room entry date
         $id_kmr_penghuni = $this->create([
@@ -100,7 +106,6 @@ class KamarPenghuniModel extends Model
         ]);
 
         // Create detail record with move date for the occupant
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
         $detailKamarPenghuniModel->create([
             'id_kmr_penghuni' => $id_kmr_penghuni,
             'id_penghuni' => $id_penghuni,
@@ -143,9 +148,11 @@ class KamarPenghuniModel extends Model
         return $this->db->fetchAll($sql, ['days' => $days]);
     }
 
-    public function checkKamarCapacity($id_kamar, $max_occupants = 2)
+    public function checkKamarCapacity($id_kamar, $max_occupants = 2, $detailKamarPenghuniModel = null)
     {
-        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        if (!$detailKamarPenghuniModel) {
+            throw new \InvalidArgumentException("DetailKamarPenghuniModel must be provided by controller");
+        }
         $current_count = $detailKamarPenghuniModel->countActivePenghuniInKamar($id_kamar);
         return $current_count < $max_occupants;
     }

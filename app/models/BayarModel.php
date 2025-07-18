@@ -37,19 +37,17 @@ class BayarModel extends Model
         return $this->db->fetch($sql, ['id_tagihan' => $id_tagihan]);
     }
 
-    public function bayar($id_tagihan, $jml_bayar)
+    public function bayar($id_tagihan, $jml_bayar, $tagihan_data = null)
     {
-        // Get tagihan info
-        $tagihanModel = new TagihanModel();
-        $tagihan = $tagihanModel->findById($id_tagihan);
-        
-        if (!$tagihan) {
-            return false;
+        // If tagihan data is not provided, we need to get it from external source
+        // This should be handled by the controller
+        if (!$tagihan_data) {
+            throw new \InvalidArgumentException("Tagihan data must be provided by controller");
         }
 
         // Get total already paid
         $totalBayar = $this->getTotalBayarByTagihan($id_tagihan);
-        $sisaTagihan = $tagihan['jml_tagihan'] - $totalBayar;
+        $sisaTagihan = $tagihan_data['jml_tagihan'] - $totalBayar;
 
         // Determine status
         if ($jml_bayar >= $sisaTagihan) {
