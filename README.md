@@ -137,7 +137,6 @@ Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 - [Critical Fixes Applied](#critical-fixes-applied)
 - [Contributing](#contributing)
 - [Support & Documentation](#support--documentation)
-- [Database Migration Summary](#database-migration-summary)
 
 ## Fitur Utama
 
@@ -1311,81 +1310,6 @@ Ditambahkan validasi pada method:
 - **Issues**: GitHub Issues
 - **Wiki**: Comprehensive guides and examples
 
-## Database Migration Summary
-
-### tb_tagihan Table Changes
-
-#### Changes Made
-
-**Database Schema Changes**
-- **Column `bulan`**: Changed from `VARCHAR` to `INT` (values 1-12)
-- **Column `tahun`**: New `INT` column added
-- **Unique Constraint**: Updated to `(bulan, tahun, id_kmr_penghuni)`
-
-#### Codebase Updates
-
-**1. Models Updated**
-
-**`app/models/TagihanModel.php`**
-- **Method `findByBulan()`** → **`findByBulanTahun($bulan, $tahun)`**
-- **Method `findByBulanKamarPenghuni()`** → **`findByBulanTahunKamarPenghuni($bulan, $tahun, $id_kmr_penghuni)`**
-- **Method `generateTagihan($periode)`**: Now parses 'YYYY-MM' format and extracts separate bulan/tahun integers
-- **Method `getTagihanDetail($periode)`**: Updated to filter by both bulan and tahun
-- **Method `getTagihanTerlambat()`**: Updated to use proper date comparison with separate bulan/tahun fields
-
-**`app/models/BayarModel.php`**
-- **Method `getLaporanPembayaran($periode)`**: Updated to filter by both bulan and tahun
-- Added `t.tahun` to SELECT clause for proper date display
-
-**2. Controllers Updated**
-
-**`app/controllers/Admin.php`**
-- **Method `tagihan()`**: Updated to pass both bulan and tahun to model methods
-- **Method `pembayaran()`**: Updated date handling for new schema
-
-**3. Views Updated**
-
-**`app/views/admin/tagihan.php`**
-- Updated periode display to show 'Month YYYY' format
-- JavaScript updated to handle separate bulan/tahun values
-
-**`app/views/admin/pembayaran.php`**  
-- Updated to display periode in proper 'Month YYYY' format
-- Form handling updated for new date structure
-
-#### Migration Notes
-
-**Data Migration Strategy:**
-```sql
--- If you have existing data, migrate it first:
-UPDATE tb_tagihan 
-SET bulan = MONTH(STR_TO_DATE(bulan, '%Y-%m')),
-    tahun = YEAR(STR_TO_DATE(bulan, '%Y-%m'))
-WHERE bulan REGEXP '^[0-9]{4}-[0-9]{2}$';
-
--- Then change column type:
-ALTER TABLE tb_tagihan 
-MODIFY COLUMN bulan INT NOT NULL,
-ADD COLUMN tahun INT NOT NULL AFTER bulan;
-```
-
-**Testing Checklist:**
-- ✅ Generate tagihan works with new date format
-- ✅ Filter tagihan by month/year works correctly  
-- ✅ Payment recording works with new schema
-- ✅ Reports display proper dates (Month YYYY format)
-- ✅ No duplicate tagihan for same month/year/room
-
-**Database Performance:**
-- Added composite index on `(bulan, tahun, id_kmr_penghuni)` for faster queries
-- Separate integer columns improve query performance vs VARCHAR date parsing
-
-#### Compatibility
-
-**Backward Compatibility:** 
-- ❌ **BREAKING CHANGE**: Old date format ('YYYY-MM') no longer supported
-- ✅ **Migration Required**: Existing installations need to run migration script
-- ✅ **API Changes**: Model method signatures updated (documented above)
 
 
 
