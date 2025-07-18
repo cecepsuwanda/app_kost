@@ -129,6 +129,86 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 
 ## Recent Implementation Updates
 
+### Implementasi Kolom Tanggal pada Tabel Tagihan (v2.3.0)
+
+#### Deskripsi
+Penambahan kolom `tanggal` dengan tipe data DATE ke tabel `tb_tagihan` untuk menentukan tanggal jatuh tempo pembayaran berdasarkan tanggal masuk penghuni ke kamar.
+
+#### Formula Tanggal Jatuh Tempo
+```
+tanggal_jatuh_tempo = tahun_tagihan-bulan_tagihan-tanggal_masuk_kamar
+```
+
+**Contoh:**
+- Penghuni masuk kamar: 15 Juli 2025
+- Tagihan bulan: Agustus 2025  
+- Tanggal jatuh tempo: 2025-08-15
+
+#### Algoritma Status Pembayaran
+Berdasarkan selisih hari antara tanggal saat ini dengan tanggal jatuh tempo:
+
+| Kondisi | Status | Tampilan |
+|---------|--------|----------|
+| `DATEDIFF(CURDATE(), tanggal) > 0` | **Terlambat** | ⚠️ Merah dengan ikon peringatan |
+| `DATEDIFF(CURDATE(), tanggal) >= -3 AND <= 0` | **Mendekati** | ⏰ Kuning dengan ikon jam |
+| `Tagihan sudah lunas` | **Lunas** | ✅ Hijau dengan ikon centang |
+| `Lainnya` | **Normal** | 📄 Abu-abu |
+
+#### Fitur Baru yang Diimplementasikan
+
+**1. Smart Due Date Calculation**
+- Tanggal jatuh tempo dihitung otomatis saat generate tagihan
+- Berdasarkan tanggal masuk penghuni ke kamar
+- Konsisten setiap bulan (penghuni masuk tgl 15 → jatuh tempo selalu tgl 15)
+
+**2. Visual Payment Status**
+- **Merah + ⚠️**: Pembayaran terlambat
+- **Kuning + ⏰**: Mendekati jatuh tempo (0-3 hari)
+- **Hijau + ✅**: Sudah lunas
+- **Abu-abu**: Masih normal
+
+**3. Enhanced Dashboard Statistics**
+- Counter "Mendekati Jatuh Tempo" berdasarkan tanggal real
+- Counter "Terlambat" berdasarkan selisih hari aktual
+- Lebih akurat dibanding sistem bulan/tahun sebelumnya
+
+**4. Improved User Experience**
+- Tooltip informatif dengan detail hari
+- Responsive indicators
+- Consistent color coding across all views
+
+#### File yang Dimodifikasi:
+- `app/controllers/Install.php` - Schema database
+- `app/models/TagihanModel.php` - Core billing logic
+- `app/models/BayarModel.php` - Payment reports
+- `app/controllers/Admin.php` - Dashboard statistics
+- `app/views/admin/tagihan.php` - Billing interface
+- `app/views/admin/pembayaran.php` - Payment interface
+- `app/views/home/index.php` - Home dashboard
+- `README.md` - Documentation update
+
+#### Migration untuk Database Existing:
+```sql
+-- Jika ada data tagihan lama tanpa kolom tanggal
+ALTER TABLE tb_tagihan ADD COLUMN tanggal DATE;
+
+-- Update data lama (sesuai kebutuhan)
+UPDATE tb_tagihan t 
+JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id 
+SET t.tanggal = DATE_FORMAT(
+    CONCAT(t.tahun, '-', LPAD(t.bulan, 2, '0'), '-', DAY(kp.tgl_masuk)), 
+    '%Y-%m-%d'
+) 
+WHERE t.tanggal IS NULL;
+
+-- Set NOT NULL constraint
+ALTER TABLE tb_tagihan MODIFY tanggal DATE NOT NULL;
+```
+
+**Status**: ✅ **IMPLEMENTED & TESTED** | **Commit**: `d89ecf4` | **Date**: 2025-01-26
+
+---
+
 ### Tagihan dan Pembayaran Views Implementation
 Telah berhasil diimplementasikan comprehensive views untuk modul **Tagihan** (Billing) dan **Pembayaran** (Payment) yang terintegrasi penuh dengan arsitektur MVC yang ada.
 
