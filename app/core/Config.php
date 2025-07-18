@@ -104,6 +104,14 @@ class Config
         return $this->config("database.$key");
     }
 
+    /**
+     * Check if application is in maintenance mode
+     */
+    public function isMaintenanceMode(): bool
+    {
+        return (bool) $this->appConfig('maintenance');
+    }
+
     public function appConfig($key = null)
     {
         if ($key === null) {

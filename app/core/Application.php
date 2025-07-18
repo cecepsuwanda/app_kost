@@ -70,6 +70,12 @@ class Application
             throw new \RuntimeException('Application must be initialized and booted before running');
         }
 
+        // Check for maintenance mode before processing any requests
+        if ($this->config->isMaintenanceMode()) {
+            $this->handleMaintenanceMode();
+            return;
+        }
+
         try {
             $this->router->run();
         } catch (\Exception $e) {
@@ -95,6 +101,13 @@ class Application
         // Installation routes
         $this->router->add('/install', 'Install@index');
         $this->router->add('/install/run', 'Install@run');
+        
+        // Database diagnostic routes (superadmin only)
+        $this->router->add('/database-diagnostic', 'DatabaseDiagnostic@index', ['auth']);
+        $this->router->add('/database-diagnostic/logs', 'DatabaseDiagnostic@logs', ['auth']);
+        $this->router->add('/database-diagnostic/clearLogs', 'DatabaseDiagnostic@clearLogs', ['auth']);
+        $this->router->add('/database-diagnostic/toggleMaintenance', 'DatabaseDiagnostic@toggleMaintenance', ['auth']);
+        $this->router->add('/database-diagnostic/ping', 'DatabaseDiagnostic@ping');
         
         // Handle AJAX requests
         if ($this->request->hasParam('action')) {
@@ -278,5 +291,100 @@ class Application
     public function isDebug(): bool
     {
         return $this->config->get('debug', false);
+    }
+
+    /**
+     * Handle maintenance mode by showing maintenance page
+     */
+    private function handleMaintenanceMode(): void
+    {
+        try {
+            // Create maintenance controller and show maintenance page
+            $maintenanceController = new \App\Controllers\Maintenance($this);
+            $maintenanceController->index();
+        } catch (\Exception $e) {
+            // Fallback maintenance page if controller fails
+            $this->showFallbackMaintenancePage();
+        }
+    }
+
+    /**
+     * Show a basic maintenance page if the maintenance controller fails
+     */
+    private function showFallbackMaintenancePage(): void
+    {
+        // Set proper HTTP response code
+        http_response_code(503); // Service Unavailable
+        
+        // Add headers to prevent caching
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Retry-After: 3600'); // Suggest retry after 1 hour
+        
+        $appName = $this->config->appConfig('name');
+        
+        echo '<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Mode | ' . htmlspecialchars($appName) . '</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .app-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🔧</div>
+        <h1>Maintenance Mode</h1>
+        <p>We are currently performing scheduled maintenance to improve our services.</p>
+        <p>Please check back later.</p>
+        <p class="app-name">' . htmlspecialchars($appName) . '</p>
+        <p><small>This page will automatically refresh in 30 seconds.</small></p>
+    </div>
+    <script>
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>';
+        exit;
     }
 }

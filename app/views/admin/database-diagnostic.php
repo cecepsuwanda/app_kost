@@ -42,6 +42,23 @@ foreach ($diagnostics as $section => $data) {
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 
+<!-- Success/Error Messages -->
+<?php if ($session->sessionFlash('success')): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i>
+    <strong>Success!</strong> <?= htmlspecialchars($session->sessionFlash('success')) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<?php if ($session->sessionFlash('error')): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Error!</strong> <?= htmlspecialchars($session->sessionFlash('error')) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
 <!-- Connection Status -->
 <div class="row mb-4">
     <div class="col-12">
@@ -427,6 +444,55 @@ foreach ($diagnostics as $section => $data) {
                         (<?= number_format($diagnostics['logs']['log_file_size'] / 1024, 1) ?> KB)
                         <?php endif; ?>
                     </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Mode Control -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-<?= $config->isMaintenanceMode() ? 'danger' : 'success' ?> text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear-fill"></i>
+                    Maintenance Mode Control
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="mb-2">Current Status: 
+                            <span class="badge bg-<?= $config->isMaintenanceMode() ? 'danger' : 'success' ?>">
+                                <?= $config->isMaintenanceMode() ? '🔴 ENABLED' : '🟢 DISABLED' ?>
+                            </span>
+                        </h6>
+                        <p class="mb-0 text-muted">
+                            <?php if ($config->isMaintenanceMode()): ?>
+                                All users will see the maintenance page. Only superadmin can access this page.
+                            <?php else: ?>
+                                Application is running normally. Users can access all features.
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <form method="POST" action="<?= $baseUrl ?>/database-diagnostic/toggleMaintenance" style="display: inline;">
+                            <?php if ($config->isMaintenanceMode()): ?>
+                                <input type="hidden" name="maintenance_action" value="disable">
+                                <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure you want to disable maintenance mode?')">
+                                    <i class="bi bi-play-circle"></i>
+                                    Enable Application
+                                </button>
+                            <?php else: ?>
+                                <input type="hidden" name="maintenance_action" value="enable">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to enable maintenance mode? All users will be unable to access the application.')">
+                                    <i class="bi bi-pause-circle"></i>
+                                    Enable Maintenance
+                                </button>
+                            <?php endif; ?>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -14,7 +14,8 @@ return [
     'app' => [
         'name' => 'Sistem Manajemen Kos',
         'version' => '2.3.0',
-        'url' => 'http://localhost/app_kost'
+        'url' => 'http://localhost/app_kost',
+        'maintenance' => false // Set to true to enable maintenance mode
     ],
     
     // Session configuration

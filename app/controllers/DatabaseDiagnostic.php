@@ -39,6 +39,78 @@ class DatabaseDiagnostic extends Controller
         $this->loadView('admin/database-diagnostic', $data);
     }
 
+    public function toggleMaintenance()
+    {
+        // Check if user is logged in and is admin
+        if (!$this->isLoggedIn()) {
+            $this->redirect($this->config->appConfig('url') . '/auth/login');
+            return;
+        }
+
+        $user = $this->getUser();
+        if ($user['role'] !== 'superadmin') {
+            $this->redirect($this->config->appConfig('url') . '/admin');
+            return;
+        }
+
+        if ($this->request->isPostRequest()) {
+            $action = $this->request->postParam('maintenance_action');
+            $success = $this->updateMaintenanceMode($action === 'enable');
+            
+            if ($success) {
+                $message = $action === 'enable' ? 'Maintenance mode enabled' : 'Maintenance mode disabled';
+                $this->session->sessionFlash('success', $message);
+            } else {
+                $this->session->sessionFlash('error', 'Failed to update maintenance mode');
+            }
+        }
+
+        $this->redirect($this->config->appConfig('url') . '/database-diagnostic');
+    }
+
+    private function updateMaintenanceMode($enable)
+    {
+        try {
+            $configFile = ROOT_PATH . '/config/config.php';
+            
+            if (!file_exists($configFile)) {
+                return false;
+            }
+            
+            // Read current config
+            $config = require $configFile;
+            
+            // Update maintenance mode
+            $config['app']['maintenance'] = $enable;
+            
+            // Generate new config file content
+            $configContent = "<?php\n\nreturn " . var_export($config, true) . ";\n";
+            
+            // Write to file
+            return file_put_contents($configFile, $configContent) !== false;
+            
+        } catch (\Exception $e) {
+            $this->logError("Failed to update maintenance mode: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function logError($message)
+    {
+        $logFile = ROOT_PATH . '/storage/logs/error.log';
+        $logDir = dirname($logFile);
+        
+        // Create logs directory if it doesn't exist
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[$timestamp] MAINTENANCE ERROR: $message" . PHP_EOL;
+        
+        file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
+    }
+
     public function logs()
     {
         // Check if user is logged in and is admin
