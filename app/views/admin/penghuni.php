@@ -36,6 +36,7 @@ $showSidebar = true;
                             <th>No. KTP</th>
                             <th>No. HP</th>
                             <th>Kamar</th>
+                            <th>Barang Bawaan</th>
                             <th>Tgl Masuk</th>
                             <th>Status</th>
                             <th>Aksi</th>
@@ -56,6 +57,19 @@ $showSidebar = true;
                                         </span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary">Belum ada kamar</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($p['barang_bawaan'])): ?>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <?php foreach ($p['barang_bawaan'] as $barang): ?>
+                                                <span class="badge bg-warning text-dark" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td><?= date('d/m/Y', strtotime($p['tgl_masuk'])) ?></td>
@@ -179,7 +193,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Edit Penghuni</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/admin/penghuni" id="editPenghuniForm">
+            <form method="POST" action="<?= $baseUrl ?>/admin/penghuni" id="editPenghuniForm">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" id="edit_id">
@@ -208,6 +222,24 @@ $showSidebar = true;
                         <label class="form-label">Tanggal Keluar (Opsional)</label>
                         <input type="date" class="form-control" name="tgl_keluar" id="edit_tgl_keluar">
                     </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Barang Bawaan (Opsional)</label>
+                        <div class="row" id="editBarangBawaanContainer">
+                            <?php foreach ($barang as $b): ?>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="barang_ids[]" 
+                                               value="<?= $b['id'] ?>" id="edit_barang<?= $b['id'] ?>">
+                                        <label class="form-check-label" for="edit_barang<?= $b['id'] ?>">
+                                            <?= htmlspecialchars($b['nama']) ?> 
+                                            <small class="text-muted">(+Rp <?= number_format($b['harga'], 0, ',', '.') ?>)</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -226,7 +258,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Pindah Kamar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/admin/penghuni">
+                            <form method="POST" action="<?= $baseUrl ?>/admin/penghuni">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="pindah_kamar">
                     <input type="hidden" name="id_penghuni" id="pindah_id_penghuni">
@@ -272,6 +304,22 @@ function editPenghuni(data) {
     document.getElementById('edit_tgl_masuk').value = data.tgl_masuk;
     document.getElementById('edit_tgl_keluar').value = data.tgl_keluar || '';
     
+    // Reset all barang bawaan checkboxes
+    const barangCheckboxes = document.querySelectorAll('#editBarangBawaanContainer input[type="checkbox"]');
+    barangCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    // Check the barang bawaan that this penghuni has
+    if (data.barang_bawaan_ids && data.barang_bawaan_ids.length > 0) {
+        data.barang_bawaan_ids.forEach(barangId => {
+            const checkbox = document.getElementById('edit_barang' + barangId);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    }
+    
     new bootstrap.Modal(document.getElementById('editPenghuniModal')).show();
 }
 
@@ -286,7 +334,7 @@ function checkoutPenghuni(id, nama) {
     if (confirm(`Apakah Anda yakin ingin checkout ${nama} dari kos?`)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/admin/penghuni';
+        form.action = '<?= $baseUrl ?>/admin/penghuni';
         
         form.innerHTML = `
             <input type="hidden" name="action" value="checkout">
@@ -303,7 +351,7 @@ function deletePenghuni(id, nama) {
     if (confirm(`Apakah Anda yakin ingin menghapus data ${nama}? Tindakan ini tidak dapat dibatalkan.`)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/admin/penghuni';
+        form.action = '<?= $baseUrl ?>/admin/penghuni';
         
         form.innerHTML = `
             <input type="hidden" name="action" value="delete">

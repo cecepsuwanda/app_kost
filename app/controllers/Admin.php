@@ -126,6 +126,31 @@ class Admin extends Controller
                     }
                     
                     $penghuniModel->update($id, $data);
+                    
+                    // Update barang bawaan
+                    // First, get current barang bawaan
+                    $currentBarangBawaan = $barangBawaanModel->findByPenghuni($id);
+                    $currentBarangIds = array_column($currentBarangBawaan, 'id_barang');
+                    
+                    // Get new barang bawaan from form
+                    $newBarangIds = $this->request->postParam('barang_ids', []);
+                    
+                    // Remove unchecked items
+                    foreach ($currentBarangIds as $currentId) {
+                        if (!in_array($currentId, $newBarangIds)) {
+                            $barangBawaanModel->removeBarangFromPenghuni($id, $currentId);
+                        }
+                    }
+                    
+                    // Add new checked items
+                    foreach ($newBarangIds as $newId) {
+                        if (!in_array($newId, $currentBarangIds)) {
+                            $barangBawaanModel->create([
+                                'id_penghuni' => $id,
+                                'id_barang' => $newId
+                            ]);
+                        }
+                    }
                     break;
 
                 case 'delete':
@@ -167,6 +192,12 @@ class Admin extends Controller
         $penghuni = $penghuniModel->getPenghuniWithKamar();
         $kamarTersedia = $kamarModel->getKamarTersedia();
         $barang = $barangModel->findAll();
+        
+        // Add barang bawaan data for each penghuni
+        foreach ($penghuni as &$p) {
+            $p['barang_bawaan'] = $barangBawaanModel->getPenghuniBarangDetail($p['id']);
+            $p['barang_bawaan_ids'] = array_column($p['barang_bawaan'], 'id_barang');
+        }
 
         $isLoggedIn = $this->isLoggedIn();
         $user = $this->getUser();
