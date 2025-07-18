@@ -103,8 +103,10 @@ class BayarModel extends Model
 
 
         $sql = "SELECT t.id,t.bulan, t.tahun, t.tanggal, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(b.jml_bayar), 0) > 0 THEN 'Cicil'
@@ -112,8 +114,8 @@ class BayarModel extends Model
                        END as status_bayar,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) < 0 THEN 'terlambat'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3 THEN 'mendekati'
                            ELSE 'normal'
                        END as status_waktu
                 FROM tb_tagihan t

@@ -177,6 +177,9 @@ class Admin extends Controller
                     $id = $this->request->postParam('id');
                     $tgl_keluar = $this->request->postParam('tgl_keluar');
                     
+                    // Get room info BEFORE checkout
+                    $kamarPenghuni = $kamarPenghuniModel->findKamarByPenghuni($id);
+                    
                     // Update penghuni
                     $penghuniModel->update($id, ['tgl_keluar' => $tgl_keluar]);
                     
@@ -184,7 +187,6 @@ class Admin extends Controller
                     $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id, $tgl_keluar);
                     
                     // Check if kamar becomes empty and close it
-                    $kamarPenghuni = $kamarPenghuniModel->findKamarByPenghuni($id);
                     if ($kamarPenghuni) {
                         $remainingPenghuni = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamarPenghuni['id']);
                         if (empty($remainingPenghuni)) {
@@ -258,14 +260,7 @@ class Admin extends Controller
             $this->redirect($this->config->appConfig('url').'/admin/kamar');
         }
 
-        $kamar = $kamarModel->getKamarWithStatus();
-        
-        // Add barang bawaan data for penghuni in each kamar
-        foreach ($kamar as &$k) {
-            if (isset($k['id_penghuni']) && $k['id_penghuni']) {
-                $k['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($k['id_penghuni']);
-            }
-        }
+        $kamar = $kamarModel->getKamarWithAllOccupantsAndBelongings();
 
         $data = [
             'title' => 'Kelola Kamar - ' . $this->config->appConfig('name'),
@@ -326,25 +321,43 @@ class Admin extends Controller
 
             switch ($action) {
                 case 'generate':
-                    $bulan = $this->request->postParam('bulan');
-                    $generated = $tagihanModel->generateTagihan($bulan);
-                    $this->session->sessionFlash('message', "Berhasil generate $generated tagihan untuk bulan $bulan");
+                    try {
+                        $bulan = $this->request->postParam('bulan');
+                        $generated = $tagihanModel->generateTagihan($bulan);
+                        $this->session->sessionFlash('message', "Berhasil generate $generated tagihan untuk bulan $bulan");
+                    } catch (\InvalidArgumentException $e) {
+                        $this->session->sessionFlash('error', $e->getMessage());
+                    } catch (\Exception $e) {
+                        $this->session->sessionFlash('error', "Gagal generate tagihan: " . $e->getMessage());
+                    }
                     break;
 
                 case 'recalculate':
-                    $id_tagihan = $this->request->postParam('id_tagihan');
-                    $newAmount = $tagihanModel->recalculateTagihan($id_tagihan);
-                    if ($newAmount !== false) {
-                        $this->session->sessionFlash('message', "Berhasil hitung ulang tagihan. Jumlah baru: Rp " . number_format($newAmount, 0, ',', '.'));
-                    } else {
-                        $this->session->sessionFlash('error', "Gagal menghitung ulang tagihan");
+                    try {
+                        $id_tagihan = $this->request->postParam('id_tagihan');
+                        $newAmount = $tagihanModel->recalculateTagihan($id_tagihan);
+                        if ($newAmount !== false) {
+                            $this->session->sessionFlash('message', "Berhasil hitung ulang tagihan. Jumlah baru: Rp " . number_format($newAmount, 0, ',', '.'));
+                        } else {
+                            $this->session->sessionFlash('error', "Gagal menghitung ulang tagihan");
+                        }
+                    } catch (\InvalidArgumentException $e) {
+                        $this->session->sessionFlash('error', $e->getMessage());
+                    } catch (\Exception $e) {
+                        $this->session->sessionFlash('error', "Gagal menghitung ulang tagihan: " . $e->getMessage());
                     }
                     break;
 
                 case 'recalculate_all':
-                    $bulan = $this->request->postParam('bulan');
-                    $recalculated = $tagihanModel->recalculateAllTagihan($bulan);
-                    $this->session->sessionFlash('message', "Berhasil hitung ulang $recalculated tagihan untuk bulan $bulan");
+                    try {
+                        $bulan = $this->request->postParam('bulan');
+                        $recalculated = $tagihanModel->recalculateAllTagihan($bulan);
+                        $this->session->sessionFlash('message', "Berhasil hitung ulang $recalculated tagihan untuk bulan $bulan");
+                    } catch (\InvalidArgumentException $e) {
+                        $this->session->sessionFlash('error', $e->getMessage());
+                    } catch (\Exception $e) {
+                        $this->session->sessionFlash('error', "Gagal menghitung ulang tagihan: " . $e->getMessage());
+                    }
                     break;
             }
             
@@ -354,10 +367,23 @@ class Admin extends Controller
         $bulan = $this->request->getParam('bulan', date('Y-m'));
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
         
-        // Add barang bawaan data for each penghuni in tagihan
+        // Add barang bawaan data for each kamar in tagihan
+        $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
+        $barangBawaanModel = $this->loadModel('BarangBawaanModel');
+        
         foreach ($tagihan as &$t) {
-            if (isset($t['id_penghuni']) && $t['id_penghuni']) {
-                $t['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($t['id_penghuni']);
+            // Get all penghuni in this kamar and their barang bawaan
+            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($t['id_kmr_penghuni']);
+            $t['detail_penghuni'] = [];
+            
+            foreach ($penghuniList as $penghuni) {
+                $barangBawaan = $barangBawaanModel->getPenghuniBarangDetail($penghuni['id_penghuni']);
+                $t['detail_penghuni'][] = [
+                    'id_penghuni' => $penghuni['id_penghuni'],
+                    'nama' => $penghuni['nama'] ?? 'Nama tidak tersedia',
+                    'no_hp' => $penghuni['no_hp'] ?? '',
+                    'barang_bawaan' => $barangBawaan
+                ];
             }
         }
         
@@ -409,10 +435,23 @@ class Admin extends Controller
             }
         }
         
-        // Add barang bawaan data for each penghuni in tagihan
+        // Add barang bawaan data for each kamar in tagihan
+        $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
+        $barangBawaanModel = $this->loadModel('BarangBawaanModel');
+        
         foreach ($tagihan as &$t) {
-            if (isset($t['id_penghuni']) && $t['id_penghuni']) {
-                $t['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($t['id_penghuni']);
+            // Get all penghuni in this kamar and their barang bawaan
+            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($t['id_kmr_penghuni']);
+            $t['detail_penghuni'] = [];
+            
+            foreach ($penghuniList as $penghuni) {
+                $barangBawaan = $barangBawaanModel->getPenghuniBarangDetail($penghuni['id_penghuni']);
+                $t['detail_penghuni'][] = [
+                    'id_penghuni' => $penghuni['id_penghuni'],
+                    'nama' => $penghuni['nama'] ?? 'Nama tidak tersedia',
+                    'no_hp' => $penghuni['no_hp'] ?? '',
+                    'barang_bawaan' => $barangBawaan
+                ];
             }
         }
 

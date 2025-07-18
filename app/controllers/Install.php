@@ -250,33 +250,34 @@ class Install extends Controller
         }
 
         // Insert sample penghuni
+        // All penghuni will be assigned to rooms to demonstrate the system
         $penghuniData = [
             [
-                'nama' => 'Ahmad Santoso',
+                'nama' => 'Ahmad Santoso',        // Will be assigned to Room 101
                 'no_ktp' => '1234567890123456',
                 'no_hp' => '081234567890',
                 'tgl_masuk' => '2025-07-15'
             ],
             [
-                'nama' => 'Siti Aminah',
+                'nama' => 'Siti Aminah',          // Will be assigned to Room 102
                 'no_ktp' => '2345678901234567',
                 'no_hp' => '081234567891',
                 'tgl_masuk' => '2025-07-01'
             ],
             [
-                'nama' => 'Budi Prakoso',
+                'nama' => 'Budi Prakoso',         // Will be assigned to Room 103
                 'no_ktp' => null,
                 'no_hp' => null,
                 'tgl_masuk' => '2025-07-10'
             ],
             [
-                'nama' => 'Andi Wijaya',
+                'nama' => 'Andi Wijaya',          // Will be assigned to Room 104 (shared)
                 'no_ktp' => '3456789012345678',
                 'no_hp' => '081234567892',
                 'tgl_masuk' => '2025-07-20'
             ],
             [
-                'nama' => 'Rina Sari',
+                'nama' => 'Rina Sari',            // Will be assigned to Room 104 (shared)
                 'no_ktp' => '4567890123456789',
                 'no_hp' => '081234567893',
                 'tgl_masuk' => '2025-07-20'
@@ -289,68 +290,84 @@ class Install extends Controller
 
         // Insert sample kamar penghuni
         $this->db->insert('tb_kmr_penghuni', [
-            'id_kamar' => 1,
+            'id_kamar' => 1, // Kamar 101 - Ahmad Santoso
             'tgl_masuk' => '2025-07-15'
         ]);
 
         $this->db->insert('tb_kmr_penghuni', [
-            'id_kamar' => 2,
+            'id_kamar' => 2, // Kamar 102 - Siti Aminah
             'tgl_masuk' => '2025-07-01'
+        ]);
+
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 3, // Kamar 103 - Budi Prakoso
+            'tgl_masuk' => '2025-07-10'
         ]);
 
         // Insert sample for shared room (2 people in 1 room)
         $this->db->insert('tb_kmr_penghuni', [
-            'id_kamar' => 3, // Kamar 103 (Gedung 1)
+            'id_kamar' => 4, // Kamar 104 (Gedung 1) - Andi & Rina
             'tgl_masuk' => '2025-07-20'
         ]);
 
         // Insert sample detail kamar penghuni
         $this->db->insert('tb_detail_kmr_penghuni', [
-            'id_kmr_penghuni' => 1,
-            'id_penghuni' => 1,
+            'id_kmr_penghuni' => 1, // Kamar 101
+            'id_penghuni' => 1, // Ahmad Santoso
             'tgl_masuk' => '2025-07-15'
         ]);
 
         $this->db->insert('tb_detail_kmr_penghuni', [
-            'id_kmr_penghuni' => 2,
-            'id_penghuni' => 2,
+            'id_kmr_penghuni' => 2, // Kamar 102
+            'id_penghuni' => 2, // Siti Aminah
             'tgl_masuk' => '2025-07-01'
         ]);
 
-        // Insert details for shared room (2 people in kamar 103)
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 3, // Kamar 103
+            'id_penghuni' => 3, // Budi Prakoso
+            'tgl_masuk' => '2025-07-10'
+        ]);
+
+        // Insert details for shared room (2 people in kamar 104)
         // This demonstrates multi-occupancy: 2 people sharing 1 room
         $this->db->insert('tb_detail_kmr_penghuni', [
-            'id_kmr_penghuni' => 3,
+            'id_kmr_penghuni' => 4, // Kamar 104
             'id_penghuni' => 4, // Andi Wijaya
             'tgl_masuk' => '2025-07-20'
         ]);
 
         $this->db->insert('tb_detail_kmr_penghuni', [
-            'id_kmr_penghuni' => 3,
+            'id_kmr_penghuni' => 4, // Kamar 104
             'id_penghuni' => 5, // Rina Sari
             'tgl_masuk' => '2025-07-20'
         ]);
 
         // Insert sample barang bawaan
         $this->db->insert('tb_brng_bawaan', [
-            'id_penghuni' => 1,
+            'id_penghuni' => 1, // Ahmad Santoso
             'id_barang' => 1 // TV
         ]);
 
         $this->db->insert('tb_brng_bawaan', [
-            'id_penghuni' => 2,
+            'id_penghuni' => 2, // Siti Aminah
             'id_barang' => 2 // DISPENSER
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 3, // Budi Prakoso
+            'id_barang' => 3 // MAGICOM
         ]);
 
         // Insert barang bawaan for shared room residents
         $this->db->insert('tb_brng_bawaan', [
             'id_penghuni' => 4, // Andi Wijaya
-            'id_barang' => 3 // MAGICOM
+            'id_barang' => 5 // KOMPUTER
         ]);
 
         $this->db->insert('tb_brng_bawaan', [
             'id_penghuni' => 4, // Andi Wijaya
-            'id_barang' => 5 // KOMPUTER
+            'id_barang' => 1 // TV (shared item example)
         ]);
 
         $this->db->insert('tb_brng_bawaan', [

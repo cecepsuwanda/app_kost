@@ -1,6 +1,10 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
+include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -15,140 +19,61 @@ $showSidebar = true;
     </button>
 </div>
 
-<!-- Kamar List -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Daftar Kamar</h5>
-    </div>
-    <div class="card-body">
-        <?php if (empty($kamar)): ?>
-            <div class="text-center py-5">
-                <i class="bi bi-door-open text-muted" style="font-size: 4rem;"></i>
-                <h5 class="text-muted mt-3">Belum ada kamar</h5>
-                <p class="text-muted">Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Gedung</th>
-                            <th>Nomor Kamar</th>
-                            <th>Harga Sewa</th>
-                            <th>Status</th>
-                            <th>Penghuni</th>
-                            <th>Barang Bawaan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($kamar as $k): ?>
-                            <tr>
-                                <td>
-                                    <span class="badge bg-primary">Gedung <?= $k['gedung'] ?></span>
-                                </td>
-                                <td>
-                                    <strong><?= htmlspecialchars($k['nomor']) ?></strong>
-                                </td>
-                                <td>Rp <?= number_format($k['harga'], 0, ',', '.') ?></td>
-                                <td>
-                                    <?php if ($k['status'] == 'kosong'): ?>
-                                        <span class="badge bg-success">Kosong</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-info">Terisi</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($k['nama_penghuni']): ?>
-                                        <?= htmlspecialchars($k['nama_penghuni']) ?>
-                                        <br><small class="text-muted">
-                                            Masuk: <?= date('d/m/Y', strtotime($k['tgl_masuk'])) ?>
-                                        </small>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($k['nama_penghuni'] && !empty($k['barang_bawaan'])): ?>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($k['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary" 
-                                                onclick="editKamar(<?= htmlspecialchars(json_encode($k)) ?>)">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <?php if ($k['status'] == 'kosong'): ?>
-                                            <button type="button" class="btn btn-outline-danger"
-                                                    onclick="deleteKamar(<?= $k['id'] ?>, '<?= htmlspecialchars($k['nomor']) ?>')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        <?php else: ?>
-                                            <button type="button" class="btn btn-outline-secondary" disabled title="Kamar sedang terisi">
-                                                <i class="bi bi-lock"></i>
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
+<!-- Kamar Table -->
+<?php
+// Prepare table data
+$tableData = [];
+foreach ($kamar as $k) {
+    $tableData[] = [
+        View::buildingBadge($k['gedung']),
+        '<strong>' . htmlspecialchars($k['nomor']) . '</strong>',
+        Html::currency($k['harga']),
+        renderStatusBadge($k['status']),
+        $k['nama_penghuni'] ? View::occupantList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
+        $k['nama_penghuni'] ? View::belongingsList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
+        View::roomActionButtons($k)
+    ];
+}
+
+echo renderDataTable([
+    'title' => 'Daftar Kamar',
+    'headers' => ['Gedung', 'Nomor Kamar', 'Harga Sewa', 'Status', 'Penghuni', 'Barang Bawaan', 'Aksi'],
+    'data' => $tableData,
+    'emptyMessage' => 'Belum ada kamar. Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.',
+    'actions' => [
+        ['text' => 'Tambah Kamar', 'modal' => 'addKamarModal', 'icon' => '<i class="bi bi-plus-circle"></i>', 'class' => 'btn-primary']
+    ]
+");
+?>
 
 <!-- Add Kamar Modal -->
-<div class="modal fade" id="addKamarModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Kamar Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="<?= $baseUrl ?>/admin/kamar">
-                <div class="modal-body">
-                    <input type="hidden" name="action" value="create">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Nomor Gedung</label>
-                        <input type="number" class="form-control" name="gedung" placeholder="1, 2, 3, dll" min="1" required>
-                        <div class="form-text">Nomor gedung tempat kamar berada</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Nomor Kamar</label>
-                        <input type="text" class="form-control" name="nomor" placeholder="Contoh: 101, A1, dll" required>
-                        <div class="form-text">Nomor kamar harus unik dan mudah diingat</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Harga Sewa per Bulan</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control" name="harga" placeholder="500000" min="0" required>
-                        </div>
-                        <div class="form-text">Masukkan harga sewa bulanan dalam rupiah</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
+<?php
+$addModalBody = '<input type="hidden" name="action" value="create">' .
+    Html::formGroup('Nomor Gedung', Html::input('number', 'gedung', [
+        'placeholder' => '1, 2, 3, dll',
+        'required' => true,
+        'min' => '1'
+    ]), ['help' => 'Nomor gedung tempat kamar berada']) .
+    Html::formGroup('Nomor Kamar', Html::input('text', 'nomor', [
+        'placeholder' => 'Contoh: 101, A1, dll',
+        'required' => true
+    ]), ['help' => 'Nomor kamar harus unik dan mudah diingat']) .
+    '<div class="mb-3">
+        <label class="form-label">Harga Sewa per Bulan</label>
+        <div class="input-group">
+            <span class="input-group-text">Rp</span>
+            <input type="number" class="form-control" name="harga" placeholder="500000" min="0" required>
         </div>
-    </div>
-</div>
+        <div class="form-text">Masukkan harga sewa bulanan dalam rupiah</div>
+    </div>';
+
+$addModalFooter = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>' .
+                  '<button type="submit" class="btn btn-primary">Simpan</button>';
+
+echo '<form method="POST" action="/admin/kamar">';
+echo Html::modal('addKamarModal', 'Tambah Kamar Baru', $addModalBody, $addModalFooter);
+echo '</form>';
+?>
 
 <!-- Edit Kamar Modal -->
 <div class="modal fade" id="editKamarModal" tabindex="-1">

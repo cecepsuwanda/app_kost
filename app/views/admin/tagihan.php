@@ -1,6 +1,9 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
 ?>
 
 <!-- Page Header -->
@@ -29,7 +32,10 @@ $showSidebar = true;
         <form method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label for="bulan" class="form-label">Filter Bulan</label>
-                <input type="month" class="form-control" id="bulan" name="bulan" value="<?= $bulan ?>">
+                <input type="month" class="form-control" id="bulan" name="bulan" value="<?= $bulan ?>"
+                       min="<?= date('Y-m') ?>"
+                       max="<?= date('Y-m', strtotime('+1 month')) ?>">
+                <div class="form-text">Hanya bisa melihat bulan ini atau bulan berikutnya</div>
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">
@@ -111,16 +117,17 @@ $showSidebar = true;
                                     case 'terlambat':
                                         $dueDateClass = 'text-danger fw-bold';
                                         $dueDateIcon = '<i class="bi bi-exclamation-triangle-fill me-1"></i>';
-                                        $dueDateTooltip = 'title="Terlambat ' . abs($t['selisih_hari']) . ' hari"';
+                                        $hariTerlambat = abs($t['selisih_dari_tgl_masuk_kamar_penghuni']);
+                                        $dueDateTooltip = 'title="Terlambat ' . $hariTerlambat . ' hari dari tanggal masuk kamar"';
                                         break;
                                     case 'mendekati':
                                         $dueDateClass = 'text-warning fw-bold';
                                         $dueDateIcon = '<i class="bi bi-clock-fill me-1"></i>';
-                                        $sisaHari = abs($t['selisih_hari']);
+                                        $sisaHari = $t['selisih_dari_tgl_masuk_kamar_penghuni'];
                                         if ($sisaHari == 0) {
-                                            $dueDateTooltip = 'title="Jatuh tempo hari ini"';
+                                            $dueDateTooltip = 'title="Jatuh tempo hari ini (sesuai tanggal masuk kamar)"';
                                         } else {
-                                            $dueDateTooltip = 'title="Sisa ' . $sisaHari . ' hari"';
+                                            $dueDateTooltip = 'title="Sisa ' . $sisaHari . ' hari (dari tanggal masuk kamar)"';
                                         }
                                         break;
                                     case 'lunas':
@@ -151,14 +158,25 @@ $showSidebar = true;
                                     <span class="badge bg-info"><?= htmlspecialchars($t['nomor_kamar']) ?></span>
                                 </td>
                                 <td>
-                                    <?php if (!empty($t['barang_bawaan'])): ?>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($t['barang_bawaan'] as $br): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($br['nama_barang']) ?> (+Rp <?= number_format($br['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($br['nama_barang']) ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
+                                    <?php if (!empty($t['detail_penghuni'])): ?>
+                                        <?php foreach ($t['detail_penghuni'] as $idx => $penghuni): ?>
+                                            <?php if ($idx > 0): ?><hr class="my-1"><?php endif; ?>
+                                            <div class="mb-1">
+                                                <small class="text-muted fw-bold"><?= htmlspecialchars($penghuni['nama']) ?>:</small>
+                                                <?php if (!empty($penghuni['barang_bawaan'])): ?>
+                                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                                        <?php foreach ($penghuni['barang_bawaan'] as $barang): ?>
+                                                            <span class="badge bg-warning text-dark" style="font-size: 0.65rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                                <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                            </span>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <small class="text-muted">Tidak ada barang</small>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
@@ -337,7 +355,10 @@ $showSidebar = true;
                     <div class="mb-3">
                         <label for="bulan_generate" class="form-label">Bulan Tagihan</label>
                         <input type="month" class="form-control" id="bulan_generate" name="bulan" required 
-                               value="<?= date('Y-m') ?>">
+                               value="<?= date('Y-m') ?>"
+                               min="<?= date('Y-m') ?>"
+                               max="<?= date('Y-m', strtotime('+1 month')) ?>">
+                        <div class="form-text">Hanya bisa generate untuk bulan ini atau bulan berikutnya</div>
                     </div>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i>

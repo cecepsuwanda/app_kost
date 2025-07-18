@@ -63,8 +63,20 @@ class KamarPenghuniModel extends Model
     {
         $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
         
+        // Get original room entry date before checkout
+        $kamarPenghuniLama = $this->findKamarByPenghuni($id_penghuni);
+        $tgl_masuk_kamar_asli = $kamarPenghuniLama ? $kamarPenghuniLama['tgl_masuk'] : $tgl_pindah;
+        
         // Checkout dari kamar lama
         $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id_penghuni, $tgl_pindah);
+
+        // Check if original room becomes empty and close it
+        if ($kamarPenghuniLama) {
+            $remainingPenghuni = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamarPenghuniLama['id']);
+            if (empty($remainingPenghuni)) {
+                $this->checkoutKamar($kamarPenghuniLama['id'], $tgl_pindah);
+            }
+        }
 
         // Cek apakah kamar baru sudah ada entry aktif
         $kamarPenghuniAktif = $this->findActiveByKamar($id_kamar_baru);
@@ -73,9 +85,29 @@ class KamarPenghuniModel extends Model
             // Tambahkan ke kamar yang sudah ada
             return $this->addPenghuniToKamar($kamarPenghuniAktif['id'], $id_penghuni, $tgl_pindah);
         } else {
-            // Buat entry kamar baru
-            return $this->createKamarPenghuni($id_kamar_baru, $tgl_pindah, [$id_penghuni]);
+            // Buat entry kamar baru dengan tanggal masuk yang sama dengan kamar asli
+            // untuk menjaga konsistensi billing cycle
+            return $this->createKamarPenghuniForTransfer($id_kamar_baru, $tgl_masuk_kamar_asli, $id_penghuni, $tgl_pindah);
         }
+    }
+
+    public function createKamarPenghuniForTransfer($id_kamar, $tgl_masuk_kamar, $id_penghuni, $tgl_pindah)
+    {
+        // Create main kamar penghuni record with original room entry date
+        $id_kmr_penghuni = $this->create([
+            'id_kamar' => $id_kamar,
+            'tgl_masuk' => $tgl_masuk_kamar
+        ]);
+
+        // Create detail record with move date for the occupant
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        $detailKamarPenghuniModel->create([
+            'id_kmr_penghuni' => $id_kmr_penghuni,
+            'id_penghuni' => $id_penghuni,
+            'tgl_masuk' => $tgl_pindah
+        ]);
+
+        return $id_kmr_penghuni;
     }
 
     public function getPenghuniKamarActive()
@@ -117,4 +149,6 @@ class KamarPenghuniModel extends Model
         $current_count = $detailKamarPenghuniModel->countActivePenghuniInKamar($id_kamar);
         return $current_count < $max_occupants;
     }
+
+
 }

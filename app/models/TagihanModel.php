@@ -37,40 +37,73 @@ class TagihanModel extends Model
         $bulan = (int)$date->format('n'); // 1-12
         $tahun = (int)$date->format('Y'); // YYYY
 
-        // Get all active penghuni kamar
-        $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
-        $activeKamarPenghuni = $kmrPenghuniModel->getPenghuniKamarActive();
+        // Validasi periode - hanya bisa generate bulan sekarang dan bulan berikutnya
+        $currentMonth = (int)date('n');
+        $currentYear = (int)date('Y');
+        
+        // Hitung selisih bulan dari bulan sekarang
+        $monthDiff = ($tahun - $currentYear) * 12 + ($bulan - $currentMonth);
+        
+        // Hanya boleh generate untuk bulan sekarang (0) atau bulan berikutnya (1)
+        if ($monthDiff < 0) {
+            throw new \InvalidArgumentException("Tidak bisa generate tagihan untuk bulan yang sudah lewat");
+        }
+        
+        if ($monthDiff > 1) {
+            throw new \InvalidArgumentException("Tidak bisa generate tagihan untuk bulan yang terlalu jauh ke depan");
+        }
+
+        // Get all active kamar with their penghuni
+        $kamarModel = new \App\Models\KamarModel();
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        $barangModel = new \App\Models\BarangModel();
+        
+        // Get all active kamar penghuni (group by kamar)
+        $sql = "SELECT kp.id, kp.id_kamar, kp.tgl_masuk, k.harga as harga_kamar
+                FROM tb_kmr_penghuni kp
+                INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                WHERE kp.tgl_keluar IS NULL
+                GROUP BY kp.id_kamar
+                ORDER BY k.nomor";
+        
+        $activeKamarList = $this->db->fetchAll($sql);
 
         $generated = 0;
-        foreach ($activeKamarPenghuni as $kp) {
-            // Check if tagihan already exists for this month and year
-            $existing = $this->findByBulanTahunKamarPenghuni($bulan, $tahun, $kp['id']);
+        foreach ($activeKamarList as $kamar) {
+            // Check if tagihan already exists for this month, year, and kamar_penghuni
+            $existing = $this->findByBulanTahunKamarPenghuni($bulan, $tahun, $kamar['id']);
             if ($existing) {
                 continue; // Skip if already generated
             }
 
-            // Calculate total tagihan (harga kamar + harga barang for all penghuni)
-            $barangModel = new \App\Models\BarangModel();
-            $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
-            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kp['id']);
+            // Get all active penghuni in this kamar
+            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamar['id']);
             
+            if (empty($penghuniList)) {
+                continue; // Skip if no active penghuni
+            }
+            
+            // Use room occupancy entry date (tgl_masuk from tb_kmr_penghuni)
+            $tglMasukKamarPenghuni = $kamar['tgl_masuk'];
+            
+            // Calculate total harga barang for all penghuni in this kamar
             $totalHargaBarang = 0;
             foreach ($penghuniList as $penghuni) {
                 $totalHargaBarang += $barangModel->getTotalHargaBarangPenghuni($penghuni['id_penghuni']);
             }
             
-            $totalTagihan = $kp['harga_kamar'] + $totalHargaBarang;
+            $totalTagihan = $kamar['harga_kamar'] + $totalHargaBarang;
 
-            // Calculate tanggal tagihan: tahun_tagihan-bulan_tagihan-tanggal_masuk_kamar
-            $tanggalMasukKamar = date('d', strtotime($kp['tgl_masuk']));
-            $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamar);
+            // Calculate tanggal tagihan using room occupancy entry date
+            $tanggalMasukKamarPenghuniDay = date('d', strtotime($tglMasukKamarPenghuni));
+            $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamarPenghuniDay);
             
-            // Create tagihan
+            // Create tagihan (satu tagihan per kamar)
             $this->create([
                 'bulan' => $bulan,
                 'tahun' => $tahun,
                 'tanggal' => $tanggalTagihan,
-                'id_kmr_penghuni' => $kp['id'],
+                'id_kmr_penghuni' => $kamar['id'],
                 'jml_tagihan' => $totalTagihan
             ]);
 
@@ -87,7 +120,23 @@ class TagihanModel extends Model
         if (!$tagihan) {
             return false;
         }
-                
+
+        // Validasi periode - hanya bisa recalculate bulan sekarang dan bulan berikutnya
+        $currentMonth = (int)date('n');
+        $currentYear = (int)date('Y');
+        
+        // Hitung selisih bulan dari bulan sekarang
+        $monthDiff = ($tagihan['tahun'] - $currentYear) * 12 + ($tagihan['bulan'] - $currentMonth);
+        
+        // Hanya boleh recalculate untuk bulan sekarang (0) atau bulan berikutnya (1)
+        if ($monthDiff < 0) {
+            throw new \InvalidArgumentException("Tidak bisa recalculate tagihan untuk bulan yang sudah lewat");
+        }
+        
+        if ($monthDiff > 1) {
+            throw new \InvalidArgumentException("Tidak bisa recalculate tagihan untuk bulan yang terlalu jauh ke depan");
+        }
+
         // Get kamar penghuni details
         $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
         $kamarPenghuni = $kmrPenghuniModel->findAll($tagihan['id_kmr_penghuni']);
@@ -133,6 +182,22 @@ class TagihanModel extends Model
         $bulan = (int)$date->format('n'); // 1-12
         $tahun = (int)$date->format('Y'); // YYYY
 
+        // Validasi periode - hanya bisa recalculate bulan sekarang dan bulan berikutnya
+        $currentMonth = (int)date('n');
+        $currentYear = (int)date('Y');
+        
+        // Hitung selisih bulan dari bulan sekarang
+        $monthDiff = ($tahun - $currentYear) * 12 + ($bulan - $currentMonth);
+        
+        // Hanya boleh recalculate untuk bulan sekarang (0) atau bulan berikutnya (1)
+        if ($monthDiff < 0) {
+            throw new \InvalidArgumentException("Tidak bisa recalculate tagihan untuk bulan yang sudah lewat");
+        }
+        
+        if ($monthDiff > 1) {
+            throw new \InvalidArgumentException("Tidak bisa recalculate tagihan untuk bulan yang terlalu jauh ke depan");
+        }
+
         // Get all tagihan for the specified periode
         $allTagihan = $this->findByBulanTahun($bulan, $tahun);
         
@@ -163,11 +228,14 @@ class TagihanModel extends Model
             }
         }
 
-        $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar,p.no_hp, 
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
+        $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar,
+                       GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni,
+                       GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) > 0 THEN 'Cicil'
@@ -175,8 +243,8 @@ class TagihanModel extends Model
                        END as status_bayar,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) < 0 THEN 'terlambat'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3 THEN 'mendekati'
                            ELSE 'normal'
                        END as status_waktu
                 FROM {$this->table} t
@@ -186,7 +254,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan
                 " . $whereCondition . "
-                GROUP BY t.id,p.no_hp
+                GROUP BY t.id
                 ORDER BY t.tahun DESC, t.bulan DESC, k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql, $params);
@@ -195,16 +263,20 @@ class TagihanModel extends Model
     public function getTagihanTerlambat()
     {
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
+                       GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni, 
+                       GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
+                       k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), t.tanggal) > 0
+                WHERE DATEDIFF(t.tanggal, kp.tgl_masuk) < 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
@@ -215,16 +287,20 @@ class TagihanModel extends Model
     public function getTagihanMendekatiJatuhTempo()
     {
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
+                       GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni, 
+                       GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
+                       k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0
+                WHERE DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";

@@ -1,6 +1,9 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
 ?>
 
 <!-- Page Header -->
@@ -17,58 +20,22 @@ $showSidebar = true;
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-md-2 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body text-center">
-                <i class="bi bi-door-open" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['total_kamar'] ?></h4>
-                <small>Total Kamar</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Total Kamar', $stats['total_kamar'], 'door-open', 'primary') ?>
     </div>
     <div class="col-md-2 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body text-center">
-                <i class="bi bi-door-closed" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['kamar_terisi'] ?></h4>
-                <small>Kamar Terisi</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Kamar Terisi', $stats['kamar_terisi'], 'door-closed', 'success') ?>
     </div>
     <div class="col-md-2 mb-3">
-        <div class="card bg-info text-white">
-            <div class="card-body text-center">
-                <i class="bi bi-door-open" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['kamar_kosong'] ?></h4>
-                <small>Kamar Kosong</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Kamar Kosong', $stats['kamar_kosong'], 'door-open', 'info') ?>
     </div>
     <div class="col-md-2 mb-3">
-        <div class="card bg-secondary text-white">
-            <div class="card-body text-center">
-                <i class="bi bi-people" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['total_penghuni'] ?></h4>
-                <small>Total Penghuni</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Total Penghuni', $stats['total_penghuni'], 'people', 'secondary') ?>
     </div>
     <div class="col-md-2 mb-3">
-        <div class="card bg-warning text-dark">
-            <div class="card-body text-center">
-                <i class="bi bi-clock" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['mendekati_jatuh_tempo'] ?></h4>
-                <small>Jatuh Tempo</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Jatuh Tempo', $stats['mendekati_jatuh_tempo'], 'clock', 'warning') ?>
     </div>
     <div class="col-md-2 mb-3">
-        <div class="card bg-danger text-white">
-            <div class="card-body text-center">
-                <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                <h4 class="mt-2"><?= $stats['tagihan_terlambat'] ?></h4>
-                <small>Terlambat</small>
-            </div>
-        </div>
+        <?= View::summaryCard('Terlambat', $stats['tagihan_terlambat'], 'exclamation-triangle', 'danger') ?>
     </div>
 </div>
 

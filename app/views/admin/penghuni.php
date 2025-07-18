@@ -1,6 +1,10 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
+include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -15,175 +19,91 @@ $showSidebar = true;
     </button>
 </div>
 
-<!-- Penghuni List -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Daftar Penghuni</h5>
-    </div>
-    <div class="card-body">
-        <?php if (empty($penghuni)): ?>
-            <div class="text-center py-5">
-                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
-                <h5 class="text-muted mt-3">Belum ada penghuni</h5>
-                <p class="text-muted">Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>No. KTP</th>
-                            <th>No. HP</th>
-                            <th>Kamar</th>
-                            <th>Barang Bawaan</th>
-                            <th>Tgl Masuk</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($penghuni as $p): ?>
-                            <tr>
-                                <td>
-                                    <strong><?= htmlspecialchars($p['nama']) ?></strong>
-                                </td>
-                                <td><?= $p['no_ktp'] ? htmlspecialchars($p['no_ktp']) : '<span class="text-muted">-</span>' ?></td>
-                                <td><?= $p['no_hp'] ? htmlspecialchars($p['no_hp']) : '<span class="text-muted">-</span>' ?></td>
-                                <td>
-                                    <?php if ($p['nomor_kamar']): ?>
-                                        <span class="badge bg-info">
-                                            <?= htmlspecialchars($p['nomor_kamar']) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">Belum ada kamar</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($p['barang_bawaan'])): ?>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($p['barang_bawaan'] as $br): ?>
-                                                <span class="badge bg-warning text-dark" title="<?= htmlspecialchars($br['nama_barang']) ?> (+Rp <?= number_format($br['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($br['nama_barang']) ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= date('d/m/Y', strtotime($p['tgl_masuk'])) ?></td>
-                                <td>
-                                    <?php if ($p['tgl_keluar']): ?>
-                                        <span class="badge bg-danger">Keluar</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-success">Aktif</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary" 
-                                                onclick="editPenghuni(<?= htmlspecialchars(json_encode($p)) ?>)">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <?php if (!$p['tgl_keluar']): ?>
-                                            <button type="button" class="btn btn-outline-warning"
-                                                    onclick="pindahKamar(<?= $p['id'] ?>, '<?= htmlspecialchars($p['nama']) ?>')">
-                                                <i class="bi bi-arrow-repeat"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger"
-                                                    onclick="checkoutPenghuni(<?= $p['id'] ?>, '<?= htmlspecialchars($p['nama']) ?>')">
-                                                <i class="bi bi-box-arrow-right"></i>
-                                            </button>
-                                        <?php endif; ?>
-                                        <button type="button" class="btn btn-outline-danger"
-                                                onclick="deletePenghuni(<?= $p['id'] ?>, '<?= htmlspecialchars($p['nama']) ?>')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
+<!-- Penghuni Table -->
+<?php
+// Prepare table data
+$tableData = [];
+foreach ($penghuni as $p) {
+    // Room badge
+    $roomBadge = $p['nomor_kamar'] ? Html::badge($p['nomor_kamar'], 'info') : Html::badge('Belum ada kamar', 'secondary');
+    
+    // Belongings badges
+    $belongings = '<span class="text-muted">-</span>';
+    if (!empty($p['barang_bawaan'])) {
+        $belongingsBadges = [];
+        foreach ($p['barang_bawaan'] as $barang) {
+            $title = htmlspecialchars($barang['nama_barang']) . ' (+' . Html::currency($barang['harga_barang']) . ')';
+            $belongingsBadges[] = Html::badge(htmlspecialchars($barang['nama_barang']), 'warning text-dark', ['title' => $title]);
+        }
+        $belongings = '<div class="d-flex flex-wrap gap-1">' . implode('', $belongingsBadges) . '</div>';
+    }
+    
+    // Status badge
+    $status = $p['tgl_keluar'] ? Html::badge('Keluar', 'danger') : Html::badge('Aktif', 'success');
+    
+    // Action buttons
+    $buttons = [
+        ['icon' => '<i class="bi bi-pencil"></i>', 'class' => 'btn-outline-primary', 'onclick' => 'editPenghuni(' . htmlspecialchars(json_encode($p)) . ')']
+    ];
+    
+    if (!$p['tgl_keluar']) {
+        $buttons[] = ['icon' => '<i class="bi bi-arrow-repeat"></i>', 'class' => 'btn-outline-warning', 'onclick' => "pindahKamar({$p['id']}, '" . htmlspecialchars($p['nama']) . "')"];
+        $buttons[] = ['icon' => '<i class="bi bi-box-arrow-right"></i>', 'class' => 'btn-outline-danger', 'onclick' => "checkoutPenghuni({$p['id']}, '" . htmlspecialchars($p['nama']) . "')"];
+    }
+    
+    $buttons[] = ['icon' => '<i class="bi bi-trash"></i>', 'class' => 'btn-outline-danger', 'onclick' => "deletePenghuni({$p['id']}, '" . htmlspecialchars($p['nama']) . "')"];
+    
+    $tableData[] = [
+        '<strong>' . htmlspecialchars($p['nama']) . '</strong>',
+        $p['no_ktp'] ? htmlspecialchars($p['no_ktp']) : '<span class="text-muted">-</span>',
+        $p['no_hp'] ? htmlspecialchars($p['no_hp']) : '<span class="text-muted">-</span>',
+        $roomBadge,
+        $belongings,
+        Html::date($p['tgl_masuk']),
+        $status,
+        renderActionButtons($buttons)
+    ];
+}
+
+echo renderDataTable([
+    'title' => 'Daftar Penghuni',
+    'headers' => ['Nama', 'No. KTP', 'No. HP', 'Kamar', 'Barang Bawaan', 'Tgl Masuk', 'Status', 'Aksi'],
+    'data' => $tableData,
+    'emptyMessage' => 'Belum ada penghuni. Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.',
+    'actions' => [
+        ['text' => 'Tambah Penghuni', 'modal' => 'addPenghuniModal', 'icon' => '<i class="bi bi-person-plus"></i>', 'class' => 'btn-primary']
+    ]
+]);
+?>
 
 <!-- Add Penghuni Modal -->
-<div class="modal fade" id="addPenghuniModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Penghuni Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="<?= $baseUrl ?>/admin/penghuni">
-                <div class="modal-body">
-                    <input type="hidden" name="action" value="create">
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" name="nama" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">No. KTP (Opsional)</label>
-                            <input type="text" class="form-control" name="no_ktp" placeholder="Masukkan No. KTP jika ada">
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">No. HP (Opsional)</label>
-                            <input type="text" class="form-control" name="no_hp" placeholder="Masukkan No. HP jika ada">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Masuk</label>
-                            <input type="date" class="form-control" name="tgl_masuk" value="<?= date('Y-m-d') ?>" required>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Pilih Kamar (Opsional)</label>
-                        <select class="form-select" name="id_kamar">
-                            <option value="">-- Belum pilih kamar --</option>
-                            <?php foreach ($kamarTersedia as $kamar): ?>
-                                <option value="<?= $kamar['id'] ?>">
-                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?> 
-                                    (<?= $kamar['slot_tersedia'] ?> slot tersedia)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Barang Bawaan (Opsional)</label>
-                        <div class="row">                             
-                              <?php foreach ($barang as $b): ?>                                
-                                <div class="col-md-6 mb-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="barang_ids[]" 
-                                               value="<?= $b['id'] ?>" id="barang<?= $b['id'] ?>">
-                                        <label class="form-check-label" for="barang<?= $b['id'] ?>">
-                                            <?= htmlspecialchars($b['nama']) ?> 
-                                            <small class="text-muted">(+Rp <?= number_format($b['harga'], 0, ',', '.') ?>)</small>
-                                        </label>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<?php
+// Prepare room options
+$roomOptions = ['' => '-- Belum pilih kamar --'];
+foreach ($kamarTersedia as $kamar) {
+    $roomOptions[$kamar['id']] = "Kamar {$kamar['nomor']} - " . Html::currency($kamar['harga']) . " ({$kamar['slot_tersedia']} slot tersedia)";
+}
+
+$addModalBody = '<input type="hidden" name="action" value="create">' .
+    '<div class="row">' .
+        Html::formGroup('Nama Lengkap', Html::input('text', 'nama', ['required' => true]), ['col' => 'col-md-6 mb-3']) .
+        Html::formGroup('No. KTP (Opsional)', Html::input('text', 'no_ktp', ['placeholder' => 'Masukkan No. KTP jika ada']), ['col' => 'col-md-6 mb-3']) .
+    '</div>' .
+    '<div class="row">' .
+        Html::formGroup('No. HP (Opsional)', Html::input('text', 'no_hp', ['placeholder' => 'Masukkan No. HP jika ada']), ['col' => 'col-md-6 mb-3']) .
+        Html::formGroup('Tanggal Masuk', Html::input('date', 'tgl_masuk', ['value' => date('Y-m-d'), 'required' => true]), ['col' => 'col-md-6 mb-3']) .
+    '</div>' .
+    Html::formGroup('Pilih Kamar (Opsional)', Html::select('id_kamar', $roomOptions)) .
+    Html::formGroup('Barang Bawaan (Opsional)', View::belongingsCheckboxes($barang));
+
+$addModalFooter = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>' .
+                  '<button type="submit" class="btn btn-primary">Simpan</button>';
+
+echo '<form method="POST" action="' . $baseUrl . '/admin/penghuni">';
+echo Html::modal('addPenghuniModal', 'Tambah Penghuni Baru', $addModalBody, $addModalFooter, ['size' => 'lg']);
+echo '</form>';
+?>
+
 
 <!-- Edit Penghuni Modal -->
 <div class="modal fade" id="editPenghuniModal" tabindex="-1">

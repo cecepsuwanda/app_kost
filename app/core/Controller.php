@@ -18,7 +18,24 @@ class Controller
             $this->config = Config::getInstance();
             $this->session = Session::getInstance();
             $this->request = Request::getInstance();
+            
+            // Load helpers
+            $this->loadHelpers();
         
+    }
+    
+    /**
+     * Load application helpers
+     */
+    protected function loadHelpers()
+    {
+        $helpersPath = APP_PATH . '/helpers/';
+        if (is_dir($helpersPath)) {
+            $helpers = glob($helpersPath . '*.php');
+            foreach ($helpers as $helper) {
+                require_once $helper;
+            }
+        }
     }
 
     protected function loadView($view, $data = [])
