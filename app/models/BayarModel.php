@@ -106,10 +106,7 @@ class BayarModel extends Model
                        GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
-                       DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
-                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
-                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
-                                           AND dkp2.tgl_keluar IS NULL)) as selisih_dari_tgl_masuk_penghuni,
+                       DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(b.jml_bayar), 0) > 0 THEN 'Cicil'
@@ -117,14 +114,8 @@ class BayarModel extends Model
                        END as status_bayar,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
-                           WHEN DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
-                                                     INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
-                                                     WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
-                                                     AND dkp2.tgl_keluar IS NULL)) < 0 THEN 'terlambat'
-                           WHEN DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
-                                                     INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
-                                                     WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
-                                                     AND dkp2.tgl_keluar IS NULL)) BETWEEN 0 AND 3 THEN 'mendekati'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) < 0 THEN 'terlambat'
+                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3 THEN 'mendekati'
                            ELSE 'normal'
                        END as status_waktu
                 FROM tb_tagihan t

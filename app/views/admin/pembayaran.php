@@ -100,17 +100,17 @@ $showSidebar = true;
                                     case 'terlambat':
                                         $dueDateClass = 'text-danger fw-bold';
                                         $dueDateIcon = '<i class="bi bi-exclamation-triangle-fill me-1"></i>';
-                                        $hariTerlambat = abs($l['selisih_dari_tgl_masuk_penghuni']);
-                                        $dueDateTooltip = 'title="Terlambat ' . $hariTerlambat . ' hari dari tanggal masuk penghuni"';
+                                        $hariTerlambat = abs($l['selisih_dari_tgl_masuk_kamar_penghuni']);
+                                        $dueDateTooltip = 'title="Terlambat ' . $hariTerlambat . ' hari dari tanggal masuk kamar"';
                                         break;
                                     case 'mendekati':
                                         $dueDateClass = 'text-warning fw-bold';
                                         $dueDateIcon = '<i class="bi bi-clock-fill me-1"></i>';
-                                        $sisaHari = $l['selisih_dari_tgl_masuk_penghuni'];
+                                        $sisaHari = $l['selisih_dari_tgl_masuk_kamar_penghuni'];
                                         if ($sisaHari == 0) {
-                                            $dueDateTooltip = 'title="Jatuh tempo hari ini (sesuai tanggal masuk penghuni)"';
+                                            $dueDateTooltip = 'title="Jatuh tempo hari ini (sesuai tanggal masuk kamar)"';
                                         } else {
-                                            $dueDateTooltip = 'title="Sisa ' . $sisaHari . ' hari (dari tanggal masuk penghuni)"';
+                                            $dueDateTooltip = 'title="Sisa ' . $sisaHari . ' hari (dari tanggal masuk kamar)"';
                                         }
                                         break;
                                     case 'lunas':
