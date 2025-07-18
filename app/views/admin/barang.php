@@ -41,41 +41,9 @@ foreach ($barang as $b) {
 echo renderDataTable([
     'title' => 'Daftar Barang',
     'headers' => ['No', 'Nama Barang', 'Harga', 'Aksi'],
-    'data' => $tableData,
-    'emptyMessage' => 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.',
-    'actions' => [
-        ['text' => 'Tambah Barang', 'modal' => 'addBarangModal', 'icon' => '<i class="bi bi-plus-circle"></i>', 'class' => 'btn-primary']
-    ]
+    'data' => $tableData
 ]);
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editBarangModal"
-                                                data-id="<?= $b['id'] ?>"
-                                                data-nama="<?= htmlspecialchars($b['nama']) ?>"
-                                                data-harga="<?= $b['harga'] ?>">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteBarangModal"
-                                                data-id="<?= $b['id'] ?>"
-                                                data-nama="<?= htmlspecialchars($b['nama']) ?>">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
+?>
 
 <!-- Add Barang Modal -->
 <div class="modal fade" id="addBarangModal" tabindex="-1">

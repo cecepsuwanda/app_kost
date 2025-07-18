@@ -38,12 +38,7 @@ foreach ($kamar as $k) {
 echo renderDataTable([
     'title' => 'Daftar Kamar',
     'headers' => ['Gedung', 'Nomor Kamar', 'Harga Sewa', 'Status', 'Penghuni', 'Barang Bawaan', 'Aksi'],
-    'data' => $tableData,
-    'emptyMessage' => 'Belum ada kamar. Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.',
-    'actions' => [
-        ['text' => 'Tambah Kamar', 'modal' => 'addKamarModal', 'icon' => '<i class="bi bi-plus-circle"></i>', 'class' => 'btn-primary']
-    ]
-");
+    'data' => $tableData]);
 ?>
 
 <!-- Add Kamar Modal -->

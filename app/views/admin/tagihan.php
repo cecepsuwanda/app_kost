@@ -97,10 +97,7 @@ use App\Helpers\ViewHelper as View;
                     <tbody>
                         <?php foreach ($tagihan as $t): ?>
                             <?php
-                            echo "<pre>";
-                            print_r($t);
-                            echo "</pre>";
-                            
+                                                        
                             $sisa = $t['jml_tagihan'] - $t['jml_dibayar'];
                             $statusBadge = [
                                 'Lunas' => 'bg-success',

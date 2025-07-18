@@ -31,9 +31,9 @@ foreach ($penghuni as $p) {
     $belongings = '<span class="text-muted">-</span>';
     if (!empty($p['barang_bawaan'])) {
         $belongingsBadges = [];
-        foreach ($p['barang_bawaan'] as $barang) {
-            $title = htmlspecialchars($barang['nama_barang']) . ' (+' . Html::currency($barang['harga_barang']) . ')';
-            $belongingsBadges[] = Html::badge(htmlspecialchars($barang['nama_barang']), 'warning text-dark', ['title' => $title]);
+        foreach ($p['barang_bawaan'] as $br) {
+            $title = htmlspecialchars($br['nama_barang']) . ' (+' . Html::currency($br['harga_barang']) . ')';
+            $belongingsBadges[] = Html::badge(htmlspecialchars($br['nama_barang']), 'warning text-dark', ['title' => $title]);
         }
         $belongings = '<div class="d-flex flex-wrap gap-1">' . implode('', $belongingsBadges) . '</div>';
     }

@@ -63,8 +63,7 @@ class TagihanModel extends Model
                 FROM tb_kmr_penghuni kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 WHERE kp.tgl_keluar IS NULL
-                GROUP BY kp.id_kamar
-                ORDER BY k.nomor";
+                GROUP BY kp.id,kp.id_kamar, kp.tgl_masuk, k.harga";
         
         $activeKamarList = $this->db->fetchAll($sql);
 
