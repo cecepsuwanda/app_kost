@@ -41,18 +41,11 @@ class Home extends Controller
             }
         }
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-        
         $data = [
             'title' => 'Selamat Datang - ' . $this->config->appConfig('name'),
             'kamarKosong' => $kamarKosong,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
-            'tagihanTerlambat' => $tagihanTerlambat,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'tagihanTerlambat' => $tagihanTerlambat
         ];
             
         $this->loadView('home/index', $data);

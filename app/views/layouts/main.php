@@ -52,6 +52,8 @@
                             <i class="bi bi-house"></i> Beranda
                         </a>
                     </li>
+                    
+                    <?php if ($isLoggedIn && isset($user)): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-gear"></i> Admin
@@ -60,13 +62,19 @@
                             <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/penghuni"><i class="bi bi-people"></i> Kelola Penghuni</a></li>
-<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
-<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
-<li><hr class="dropdown-divider"></li>
-<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
-<li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/kamar"><i class="bi bi-door-open"></i> Kelola Kamar</a></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/barang"><i class="bi bi-box"></i> Kelola Barang</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
+                            
+                            <?php if ($user['role'] === 'superadmin'): ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/database-diagnostic"><i class="bi bi-database-gear"></i> Database Diagnostic</a></li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php endif; ?>
                 </ul>
                 
                 <ul class="navbar-nav">
@@ -99,7 +107,7 @@
     <!-- Main Content -->
     <div class="container-fluid">
         <div class="row">
-            <?php if (isset($showSidebar) && $showSidebar): ?>
+            <?php if (isset($showSidebar) && $showSidebar && $isLoggedIn && isset($user)): ?>
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar p-3">
                 <h6 class="text-muted mb-3">MENU ADMIN</h6>

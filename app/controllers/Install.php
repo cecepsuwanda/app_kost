@@ -14,16 +14,7 @@ class Install extends Controller
 
     public function index()
     {
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
-        $data = [
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
-        ];
-        
+        $data = [];
         $this->loadView('install/index', $data);
     }
 
@@ -47,16 +38,9 @@ class Install extends Controller
             $success = false;
         }
 
-        $isLoggedIn = $this->isLoggedIn();  
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'message' => $message,
-            'success' => $success,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'success' => $success
         ];
         $this->loadView('install/result', $data);
     }

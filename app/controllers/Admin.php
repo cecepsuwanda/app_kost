@@ -64,10 +64,6 @@ class Admin extends Controller
         $kamarMendekatiJatuhTempo = $this->addBarangBawaanToPenghuni($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5));
         $tagihanTerlambat = $this->addBarangBawaanToPenghuni($tagihanModel->getTagihanTerlambat());
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Dashboard Admin - ' . $this->config->appConfig('name'),
             'stats' => $stats,
@@ -75,9 +71,7 @@ class Admin extends Controller
             'kamarTersedia' => $kamarTersedia,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
             'tagihanTerlambat' => $tagihanTerlambat,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/dashboard', $data);
@@ -221,18 +215,12 @@ class Admin extends Controller
             $p['barang_bawaan_ids'] = array_column($p['barang_bawaan'], 'id_barang');
         }
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Kelola Penghuni - ' . $this->config->appConfig('name'),
             'penghuni' => $penghuni,
             'kamarTersedia' => $kamarTersedia,
             'barang' => $barang,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/penghuni', $data);
@@ -279,16 +267,10 @@ class Admin extends Controller
             }
         }
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Kelola Kamar - ' . $this->config->appConfig('name'),
             'kamar' => $kamar,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/kamar', $data);
@@ -326,16 +308,10 @@ class Admin extends Controller
 
         $barang = $barangModel->findAll();
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Kelola Barang - ' . $this->config->appConfig('name'),
             'barang' => $barang,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/barang', $data);
@@ -385,19 +361,13 @@ class Admin extends Controller
             }
         }
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Kelola Tagihan - ' . $this->config->appConfig('name'),
             'tagihan' => $tagihan,
             'bulan' => $bulan,
             'message' => $this->session->sessionFlash('message'),
             'error' => $this->session->sessionFlash('error'),
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/tagihan', $data);
@@ -446,10 +416,6 @@ class Admin extends Controller
             }
         }
 
-        $isLoggedIn = $this->isLoggedIn();
-        $user = $this->getUser();   
-        $baseUrl = $this->getBaseUrl();
-
         $data = [
             'title' => 'Kelola Pembayaran - ' . $this->config->appConfig('name'),
             'laporan' => $laporan,
@@ -457,9 +423,7 @@ class Admin extends Controller
             'bulan' => $bulan,
             'message' => $this->session->sessionFlash('message'),
             'error' => $this->session->sessionFlash('error'),
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/pembayaran', $data);

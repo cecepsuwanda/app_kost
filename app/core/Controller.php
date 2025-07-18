@@ -28,6 +28,11 @@ class Controller
         $data['session'] = $this->session;
         $data['request'] = $this->request;
         
+        // Always include authentication state
+        $data['isLoggedIn'] = $this->isLoggedIn();
+        $data['user'] = $this->getUser();
+        $data['baseUrl'] = $this->getBaseUrl();
+        
         extract($data);
         $viewFile = APP_PATH . '/views/' . $view . '.php';
         

@@ -29,16 +29,11 @@ class DatabaseDiagnostic extends Controller
         }
 
         $diagnostics = $this->runDatabaseDiagnostics();
-        
-        $isLoggedIn = $this->isLoggedIn();
-        $baseUrl = $this->getBaseUrl();
 
         $data = [
             'title' => 'Database Diagnostics - ' . $this->config->appConfig('name'),
             'diagnostics' => $diagnostics,
-            'isLoggedIn' => $isLoggedIn,
-            'user' => $user,
-            'baseUrl' => $baseUrl
+            'showSidebar' => true
         ];
 
         $this->loadView('admin/database-diagnostic', $data);
