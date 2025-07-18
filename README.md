@@ -35,6 +35,13 @@ Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 
 ## Changelog
 
+### Version 2.4.3 - **Payment Management UI Fix** 🔧
+- ✅ **FIXED**: Tenant belongings (barang bawaan penghuni) now displayed in payment management
+- ✅ **ENHANCED**: Payment report shows aggregated belongings data per room
+- ✅ **IMPROVED**: View displays quantity and total cost for each belonging item
+- ✅ **OPTIMIZED**: Smart aggregation prevents duplicate items in shared rooms
+- ✅ **UI/UX**: Better tooltip information with quantity and pricing details
+
 ### Version 2.4.2 - **MVC Architecture Refactoring** 🏗️
 - ✅ **FIXED**: Removed all model-to-model direct dependencies (12 violations fixed)
 - ✅ **REFACTORED**: BayarModel - eliminated direct TagihanModel instantiation
