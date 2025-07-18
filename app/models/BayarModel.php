@@ -100,7 +100,9 @@ class BayarModel extends Model
         }
 
 
-        $sql = "SELECT t.id,t.bulan, t.tahun, t.tanggal, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
+        $sql = "SELECT t.id, t.bulan, t.tahun, t.tanggal, t.id_kmr_penghuni,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, 
+                       k.nomor as nomor_kamar, k.gedung,
                        GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,

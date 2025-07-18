@@ -147,8 +147,12 @@ use App\Helpers\ViewHelper as View;
                                     <?php if (!empty($l['barang_bawaan'])): ?>
                                         <div class="d-flex flex-wrap gap-1">
                                             <?php foreach ($l['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" 
+                                                      title="<?= htmlspecialchars($barang['nama_barang']) ?> (<?= $barang['jumlah'] ?>x) - +Rp <?= number_format($barang['harga_barang'] * $barang['jumlah'], 0, ',', '.') ?>">
                                                     <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                    <?php if ($barang['jumlah'] > 1): ?>
+                                                        <small>(<?= $barang['jumlah'] ?>x)</small>
+                                                    <?php endif; ?>
                                                 </span>
                                             <?php endforeach; ?>
                                         </div>

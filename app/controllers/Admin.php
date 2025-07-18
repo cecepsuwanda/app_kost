@@ -436,16 +436,37 @@ class Admin extends Controller
         $laporan = $bayarModel->getLaporanPembayaran($bulan);
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
         
-        // Add barang bawaan data for each penghuni in laporan
-        foreach ($laporan as &$l) {
-            if (isset($l['id_penghuni']) && $l['id_penghuni']) {
-                $l['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($l['id_penghuni']);
-            }
-        }
-        
-        // Add barang bawaan data for each kamar in tagihan
+        // Add barang bawaan data for each room in laporan
         $detailKamarPenghuniModel = $this->loadModel('DetailKamarPenghuniModel');
         $barangBawaanModel = $this->loadModel('BarangBawaanModel');
+        
+        foreach ($laporan as &$l) {
+            // Get all penghuni in this room and their barang bawaan
+            $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($l['id_kmr_penghuni']);
+            $l['barang_bawaan'] = [];
+            $barangNames = []; // Track unique items to avoid duplicates
+            
+            foreach ($penghuniList as $penghuni) {
+                $barangBawaan = $barangBawaanModel->getPenghuniBarangDetail($penghuni['id_penghuni']);
+                foreach ($barangBawaan as $barang) {
+                    // Use item name as key to track uniqueness and sum quantities
+                    $itemKey = $barang['nama_barang'];
+                    if (!isset($barangNames[$itemKey])) {
+                        $barangNames[$itemKey] = [
+                            'nama_barang' => $barang['nama_barang'],
+                            'harga_barang' => $barang['harga_barang'],
+                            'jumlah' => 0
+                        ];
+                    }
+                    $barangNames[$itemKey]['jumlah'] += $barang['jumlah'];
+                }
+            }
+            
+            // Convert back to indexed array for view
+            $l['barang_bawaan'] = array_values($barangNames);
+        }
+        
+        // Add barang bawaan data for each kamar in tagihan (using already loaded models)
         
         foreach ($tagihan as &$t) {
             // Get all penghuni in this kamar and their barang bawaan
