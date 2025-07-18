@@ -36,7 +36,8 @@ return [
         'upload_path' => ROOT_PATH . '/uploads'
     ],
     
-    // Error reporting
+    // Error reporting and debugging
     'error_reporting' => E_ALL,
-    'display_errors' => 1
+    'display_errors' => 1,
+    'debug' => true, // Set to false in production
 ];

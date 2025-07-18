@@ -134,6 +134,17 @@
                             <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                     </li>
+                    
+                    <?php if (isset($user) && $user['role'] === 'superadmin'): ?>
+                    <li class="nav-item mb-1 mt-3">
+                        <h6 class="text-muted mb-2">SISTEM</h6>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a href="<?= $config->appConfig('url') ?>/database-diagnostic" class="nav-link <?= strpos($request->requestUri(), '/database-diagnostic') !== false ? 'active' : '' ?>">
+                            <i class="bi bi-database-gear"></i> Database Diagnostic
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </div>
             

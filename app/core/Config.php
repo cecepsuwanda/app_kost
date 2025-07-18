@@ -21,6 +21,11 @@ class Config
                 error_reporting(self::$config['error_reporting']);
                 ini_set('display_errors', self::$config['display_errors']);
                 
+                // Define debug constant
+                if (!defined('APP_DEBUG')) {
+                    define('APP_DEBUG', self::$config['debug'] ?? false);
+                }
+                
                 // Set session timeout configuration (but don't start session here)
                 if (isset(self::$config['session']['timeout'])) {
                     ini_set('session.gc_maxlifetime', self::$config['session']['timeout']);
