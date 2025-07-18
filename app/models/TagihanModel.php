@@ -83,6 +83,15 @@ class TagihanModel extends Model
                 continue; // Skip if no active penghuni
             }
             
+            // Get the earliest entry date (tgl_masuk) from penghuni table for this kamar
+            $sqlEarliestDate = "SELECT MIN(p.tgl_masuk) as earliest_tgl_masuk
+                               FROM tb_detail_kmr_penghuni dkp
+                               INNER JOIN tb_penghuni p ON dkp.id_penghuni = p.id
+                               WHERE dkp.id_kmr_penghuni = ? AND dkp.tgl_keluar IS NULL";
+            
+            $earliestDateResult = $this->db->fetch($sqlEarliestDate, [$kamar['id']]);
+            $earliestTglMasuk = $earliestDateResult['earliest_tgl_masuk'];
+            
             // Calculate total harga barang for all penghuni in this kamar
             $totalHargaBarang = 0;
             foreach ($penghuniList as $penghuni) {
@@ -91,9 +100,9 @@ class TagihanModel extends Model
             
             $totalTagihan = $kamar['harga_kamar'] + $totalHargaBarang;
 
-            // Calculate tanggal tagihan: tahun_tagihan-bulan_tagihan-tanggal_masuk_kamar
-            $tanggalMasukKamar = date('d', strtotime($kamar['tgl_masuk']));
-            $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamar);
+            // Calculate tanggal tagihan using earliest penghuni entry date
+            $tanggalMasukPenghuni = date('d', strtotime($earliestTglMasuk));
+            $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukPenghuni);
             
             // Create tagihan (satu tagihan per kamar)
             $this->create([
@@ -228,9 +237,14 @@ class TagihanModel extends Model
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar,
                        GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni,
                        GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                           AND dkp2.tgl_keluar IS NULL)) as selisih_dari_tgl_masuk_penghuni,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) > 0 THEN 'Cicil'
@@ -238,8 +252,14 @@ class TagihanModel extends Model
                        END as status_bayar,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
-                           WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
+                           WHEN DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                                     INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                                     WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                                     AND dkp2.tgl_keluar IS NULL)) < 0 THEN 'terlambat'
+                           WHEN DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                                     INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                                     WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                                     AND dkp2.tgl_keluar IS NULL)) BETWEEN 0 AND 3 THEN 'mendekati'
                            ELSE 'normal'
                        END as status_waktu
                 FROM {$this->table} t
@@ -260,16 +280,24 @@ class TagihanModel extends Model
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
                        GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni, 
                        GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                           AND dkp2.tgl_keluar IS NULL)) as selisih_dari_tgl_masuk_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), t.tanggal) > 0
+                WHERE DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                           AND dkp2.tgl_keluar IS NULL)) < 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
@@ -282,16 +310,24 @@ class TagihanModel extends Model
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
                        GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni, 
                        GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ') as no_hp,
+                       GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                           AND dkp2.tgl_keluar IS NULL)) as selisih_dari_tgl_masuk_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0
+                WHERE DATEDIFF(t.tanggal, (SELECT MIN(p2.tgl_masuk) FROM tb_detail_kmr_penghuni dkp2 
+                                           INNER JOIN tb_penghuni p2 ON dkp2.id_penghuni = p2.id 
+                                           WHERE dkp2.id_kmr_penghuni = t.id_kmr_penghuni 
+                                           AND dkp2.tgl_keluar IS NULL)) BETWEEN 0 AND 3
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
