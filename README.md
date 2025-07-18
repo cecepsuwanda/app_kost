@@ -35,6 +35,13 @@ Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 
 ## Changelog
 
+### Version 2.4.4 - **Room Management UI Fix** 🔧
+- ✅ **FIXED**: Edit and delete buttons now working properly in room management interface
+- ✅ **RESOLVED**: JavaScript parsing issues caused by complex nested objects in button data
+- ✅ **ENHANCED**: Improved data handling for edit functionality with minimal data passing
+- ✅ **ADDED**: Missing 'tersedia' status mapping in status badge rendering
+- ✅ **SECURITY**: Better JavaScript string escaping for room numbers and special characters
+
 ### Version 2.4.3 - **Payment Management UI Fix** 🔧
 - ✅ **FIXED**: Tenant belongings (barang bawaan penghuni) now displayed in payment management
 - ✅ **ENHANCED**: Payment report shows aggregated belongings data per room
