@@ -85,19 +85,19 @@ $showSidebar = true;
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3 mb-2">
-                        <a href="<?= APP_URL ?>/admin/penghuni" class="btn btn-outline-primary w-100">
+                        <a href="<?= $baseUrl ?>/admin/penghuni" class="btn btn-outline-primary w-100">
                             <i class="bi bi-person-plus"></i><br>
                             Tambah Penghuni
                         </a>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <a href="<?= APP_URL ?>/admin/kamar" class="btn btn-outline-success w-100">
+                        <a href="<?= $baseUrl ?>/admin/kamar" class="btn btn-outline-success w-100">
                             <i class="bi bi-door-open"></i><br>
                             Kelola Kamar
                         </a>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <form method="POST" action="<?= APP_URL ?>/admin/tagihan" class="w-100">
+                        <form method="POST" action="<?= $baseUrl ?>/admin/tagihan" class="w-100">
                             <input type="hidden" name="action" value="generate">
                             <input type="hidden" name="bulan" value="<?= date('Y-m') ?>">
                             <button type="submit" class="btn btn-outline-warning w-100">
@@ -107,7 +107,7 @@ $showSidebar = true;
                         </form>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <a href="<?= APP_URL ?>/admin/pembayaran" class="btn btn-outline-info w-100">
+                        <a href="<?= $baseUrl ?>/admin/pembayaran" class="btn btn-outline-info w-100">
                             <i class="bi bi-credit-card"></i><br>
                             Catat Pembayaran
                         </a>
@@ -158,7 +158,7 @@ $showSidebar = true;
                     </div>
                     <?php if (count($kamarKosong) > 5): ?>
                         <div class="text-center">
-                            <a href="<?= APP_URL ?>/admin/kamar" class="btn btn-sm btn-outline-success">
+                            <a href="<?= $baseUrl ?>/admin/kamar" class="btn btn-sm btn-outline-success">
                                 Lihat Semua (<?= count($kamarKosong) ?>)
                             </a>
                         </div>
@@ -210,7 +210,7 @@ $showSidebar = true;
                     </div>
                     <?php if (count($kamarMendekatiJatuhTempo) > 5): ?>
                         <div class="text-center">
-                            <a href="<?= APP_URL ?>/admin/tagihan" class="btn btn-sm btn-outline-warning">
+                            <a href="<?= $baseUrl ?>/admin/tagihan" class="btn btn-sm btn-outline-warning">
                                 Lihat Semua (<?= count($kamarMendekatiJatuhTempo) ?>)
                             </a>
                         </div>
@@ -264,7 +264,7 @@ $showSidebar = true;
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="<?= APP_URL ?>/admin/pembayaran?tagihan=<?= $tagihan['id'] ?>" class="btn btn-sm btn-primary">
+                                        <a href="<?= $baseUrl ?>/admin/pembayaran?tagihan=<?= $tagihan['id'] ?>" class="btn btn-sm btn-primary">
                                             <i class="bi bi-credit-card"></i>
                                         </a>
                                     </td>
@@ -275,7 +275,7 @@ $showSidebar = true;
                 </div>
                 <?php if (count($tagihanTerlambat) > 10): ?>
                     <div class="text-center mt-3">
-                        <a href="<?= APP_URL ?>/admin/pembayaran" class="btn btn-outline-danger">
+                        <a href="<?= $baseUrl ?>/admin/pembayaran" class="btn btn-outline-danger">
                             Lihat Semua Tagihan Terlambat (<?= count($tagihanTerlambat) ?>)
                         </a>
                     </div>

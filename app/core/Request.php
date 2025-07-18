@@ -15,93 +15,93 @@ class Request
     }
 
     // Static methods (for backward compatibility)
-    public static function get($key, $default = null)
+    public function get($key, $default = null)
     {
         return $_GET[$key] ?? $default;
     }
 
-    public static function post($key, $default = null)
+    public function post($key, $default = null)
     {
         return $_POST[$key] ?? $default;
     }
 
-    public static function all()
+    public function all()
     {
         return array_merge($_GET, $_POST);
     }
 
-    public static function only($keys)
+    public function only($keys)
     {
-        $data = self::all();
+        $data = $this->all();
         return array_intersect_key($data, array_flip((array) $keys));
     }
 
-    public static function except($keys)
+    public function except($keys)
     {
-        $data = self::all();
+        $data = $this->all();
         return array_diff_key($data, array_flip((array) $keys));
     }
 
-    public static function has($key)
+    public function has($key)
     {
         return isset($_GET[$key]) || isset($_POST[$key]);
     }
 
-    public static function method()
+    public function method()
     {
         return $_SERVER['REQUEST_METHOD'];
     }
 
-    public static function uri()
+    public function uri()
     {
         return $_SERVER['REQUEST_URI'];
     }
 
-    public static function isGet()
+    public function isGet()
     {
-        return self::method() === 'GET';
+        return $this->method() === 'GET';
     }
 
-    public static function isPost()
+    public function isPost()
     {
-        return self::method() === 'POST';
+        return $this->method() === 'POST';
     }
 
-    public static function isPut()
+    public function isPut()
     {
-        return self::method() === 'PUT';
+        return $this->method() === 'PUT';
     }
 
-    public static function isDelete()
+    public function isDelete()
     {
-        return self::method() === 'DELETE';
+        return $this->method() === 'DELETE';
     }
 
-    public static function isAjax()
+    public function isAjax()
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
-    public static function input($key, $default = null)
+    public function input($key, $default = null)
     {
-        return self::post($key, self::get($key, $default));
+        return $this->post($key, $this->get($key, $default));
     }
 
-    public static function file($key)
+    public function file($key)
     {
         return $_FILES[$key] ?? null;
     }
 
-    public static function hasFile($key)
+    public function hasFile($key)
     {
         return isset($_FILES[$key]) && $_FILES[$key]['error'] !== UPLOAD_ERR_NO_FILE;
     }
 
-    public static function validate($rules)
+    public function validate($rules)
     {
         $errors = [];
-        $data = self::all();
+        $data = $this->all();
 
         foreach ($rules as $field => $rule) {
             $value = $data[$field] ?? null;

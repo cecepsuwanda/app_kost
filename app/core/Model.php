@@ -7,26 +7,14 @@ class Model
     protected $db;
     protected $table;
     protected $config;
-    protected $session;
-    protected $request;
-    protected $app;
+    
 
-    public function __construct(?Database $database = null, ?Application $app = null)
-    {
-        // If dependencies are provided via injection, use them
-        if ($database !== null && $app !== null) {
-            $this->app = $app;
-            $this->db = $database;
-            $this->config = $app->getConfig();
-            $this->session = $app->getSession();
-            $this->request = $app->getRequest();
-        } else {
+    public function __construct()
+    {      
             // Fallback to singleton pattern for backward compatibility
             $this->db = Database::getInstance();
-            $this->config = Config::getInstance();
-            $this->session = Session::getInstance();
-            $this->request = Request::getInstance();
-        }
+            $this->config = Config::getInstance();            
+        
     }
 
     public function findAll()

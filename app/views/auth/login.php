@@ -60,7 +60,7 @@
                     <div class="login-header">
                         <i class="bi bi-shield-lock fs-1 mb-3"></i>
                         <h3 class="mb-0">Login Admin</h3>
-                        <p class="mb-0 opacity-75"><?= APP_NAME ?></p>
+                        <p class="mb-0 opacity-75"><?= $appName ?></p>
                     </div>
                     
                     <div class="card-body p-5">
@@ -72,7 +72,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form method="POST" action="<?= APP_URL ?>/login">
+                        <form method="POST" action="<?= $baseUrl ?>/login">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Username</label>
                                 <div class="input-group">
@@ -123,7 +123,7 @@
                     
                     <div class="card-footer text-center bg-transparent">
                         <small class="text-muted">
-                            © <?= date('Y') ?> <?= APP_NAME ?>. All rights reserved.
+                            © <?= date('Y') ?> <?= $appName ?>. All rights reserved.
                         </small>
                     </div>
                 </div>

@@ -14,7 +14,17 @@ class Install extends Controller
 
     public function index()
     {
-        $this->loadView('install/index');
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
+        $data = [
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
+        ];
+        
+        $this->loadView('install/index', $data);
     }
 
     public function run()
@@ -36,8 +46,19 @@ class Install extends Controller
             $message = "Installation failed: " . $e->getMessage();
             $success = false;
         }
-        
-        $this->loadView('install/result', compact('message', 'success'));
+
+        $isLoggedIn = $this->isLoggedIn();  
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
+        $data = [
+            'message' => $message,
+            'success' => $success,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
+        ];
+        $this->loadView('install/result', $data);
     }
 
     private function createDatabase()
@@ -193,10 +214,36 @@ class Install extends Controller
         // Insert sample kamar
         $kamarData = [
             ['nomor' => '101', 'harga' => 500000],
-            ['nomor' => '102', 'harga' => 550000],
-            ['nomor' => '103', 'harga' => 600000],
-            ['nomor' => '201', 'harga' => 650000],
-            ['nomor' => '202', 'harga' => 700000],
+            ['nomor' => '102', 'harga' => 500000],
+            ['nomor' => '103', 'harga' => 500000],
+            ['nomor' => '104', 'harga' => 500000],
+            ['nomor' => '105', 'harga' => 500000],
+            ['nomor' => '106', 'harga' => 500000],
+            ['nomor' => '107', 'harga' => 500000],
+            ['nomor' => '108', 'harga' => 500000],
+            ['nomor' => '109', 'harga' => 500000],
+            ['nomor' => '110', 'harga' => 500000],
+            ['nomor' => '111', 'harga' => 500000],
+            ['nomor' => '112', 'harga' => 500000],
+            ['nomor' => '113', 'harga' => 500000],
+            ['nomor' => '114', 'harga' => 500000],
+            ['nomor' => '115', 'harga' => 500000],
+            ['nomor' => '116', 'harga' => 500000],
+            ['nomor' => '217', 'harga' => 500000],
+            ['nomor' => '218', 'harga' => 500000],
+            ['nomor' => '219', 'harga' => 500000],
+            ['nomor' => '220', 'harga' => 500000],
+            ['nomor' => '221', 'harga' => 500000],
+            ['nomor' => '222', 'harga' => 500000],
+            ['nomor' => '223', 'harga' => 500000],
+            ['nomor' => '224', 'harga' => 500000],
+            ['nomor' => '225', 'harga' => 500000],
+            ['nomor' => '226', 'harga' => 500000],
+            ['nomor' => '227', 'harga' => 500000],
+            ['nomor' => '228', 'harga' => 500000],
+            ['nomor' => '229', 'harga' => 500000],
+            ['nomor' => '230', 'harga' => 500000],
+            ['nomor' => '231', 'harga' => 500000],
         ];
 
         foreach ($kamarData as $kamar) {
@@ -205,11 +252,11 @@ class Install extends Controller
 
         // Insert sample barang
         $barangData = [
-            ['nama' => 'Kulkas', 'harga' => 50000],
-            ['nama' => 'AC', 'harga' => 100000],
-            ['nama' => 'TV', 'harga' => 75000],
-            ['nama' => 'Mesin Cuci', 'harga' => 60000],
-            ['nama' => 'Kompor Gas', 'harga' => 25000],
+            ['nama' => 'TV', 'harga' => 10000],
+            ['nama' => 'DISPENSER', 'harga' => 10000],
+            ['nama' => 'MAGICOM', 'harga' => 10000],
+            ['nama' => 'LEMARI ES', 'harga' => 30000],
+            ['nama' => 'KOMPUTER', 'harga' => 20000],
         ];
 
         foreach ($barangData as $barang) {
@@ -222,13 +269,13 @@ class Install extends Controller
                 'nama' => 'Ahmad Santoso',
                 'no_ktp' => '1234567890123456',
                 'no_hp' => '081234567890',
-                'tgl_masuk' => '2024-01-15'
+                'tgl_masuk' => '2025-07-15'
             ],
             [
                 'nama' => 'Siti Aminah',
                 'no_ktp' => '2345678901234567',
                 'no_hp' => '081234567891',
-                'tgl_masuk' => '2024-02-01'
+                'tgl_masuk' => '2025-07-01'
             ]
         ];
 
@@ -239,25 +286,25 @@ class Install extends Controller
         // Insert sample kamar penghuni
         $this->db->insert('tb_kmr_penghuni', [
             'id_kamar' => 1,
-            'tgl_masuk' => '2024-01-15'
+            'tgl_masuk' => '2025-07-15'
         ]);
 
         $this->db->insert('tb_kmr_penghuni', [
             'id_kamar' => 2,
-            'tgl_masuk' => '2024-02-01'
+            'tgl_masuk' => '2025-07-01'
         ]);
 
         // Insert sample detail kamar penghuni
         $this->db->insert('tb_detail_kmr_penghuni', [
             'id_kmr_penghuni' => 1,
             'id_penghuni' => 1,
-            'tgl_masuk' => '2024-01-15'
+            'tgl_masuk' => '2025-07-15'
         ]);
 
         $this->db->insert('tb_detail_kmr_penghuni', [
             'id_kmr_penghuni' => 2,
             'id_penghuni' => 2,
-            'tgl_masuk' => '2024-02-01'
+            'tgl_masuk' => '2025-07-01'
         ]);
 
         // Insert sample barang bawaan

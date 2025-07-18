@@ -105,7 +105,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Tambah Penghuni Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/admin/penghuni">
+            <form method="POST" action="<?= $baseUrl ?>/admin/penghuni">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="create">
                     

@@ -25,14 +25,21 @@ class Home extends Controller
 
         // Get overdue payments
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
-       
+
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+        
         $data = [
             'title' => 'Selamat Datang - ' . $this->config->appConfig('name'),
             'kamarKosong' => $kamarKosong,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
-            'tagihanTerlambat' => $tagihanTerlambat
+            'tagihanTerlambat' => $tagihanTerlambat,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
-
+            
         $this->loadView('home/index', $data);
     }
 }

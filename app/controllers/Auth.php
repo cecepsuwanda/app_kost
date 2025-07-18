@@ -55,10 +55,14 @@ class Auth extends Controller
                 }
             }
         }
+        $baseUrl = $this->getBaseUrl();
+        $appName = $this->getAppName();
 
         $data = [
-            'title' => 'Login Admin - ' . $this->config->appConfig('name'),
-            'error' => $error
+            'title' => 'Login Admin - ' . $appName,
+            'error' => $error,
+            'baseUrl' => $baseUrl,
+            'appName' => $appName
         ];
 
         $this->loadView('auth/login', $data);
@@ -73,29 +77,5 @@ class Auth extends Controller
         $this->redirect($this->config->appConfig('url').'/login');
     }
 
-    public function isLoggedIn()
-    {
-        return $this->session->sessionHas('user_id') && !empty($this->session->sessionGet('user_id'));
-    }
-
-    public function requireLogin()
-    {
-        if (!$this->isLoggedIn()) {
-            header('Location: ' . $this->config->appConfig('url') . '/login');
-            exit;
-        }
-    }
-
-    public function getUser()
-    {
-        if ($this->isLoggedIn()) {
-            return [
-                'id' => $this->session->sessionGet('user_id'),
-                'username' => $this->session->sessionGet('username'),
-                'nama' => $this->session->sessionGet('nama'),
-                'role' => $this->session->sessionGet('role')
-            ];
-        }
-        return null;
-    }
+    
 }

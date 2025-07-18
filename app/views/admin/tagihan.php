@@ -120,7 +120,7 @@ $showSidebar = true;
                                             <i class="bi bi-eye"></i>
                                         </button>
                                         <?php if ($t['status_bayar'] !== 'Lunas'): ?>
-                                            <a href="<?= APP_URL ?>/admin/pembayaran?tagihan=<?= $t['id'] ?>" 
+                                            <a href="<?= $baseUrl ?>/admin/pembayaran?tagihan=<?= $t['id'] ?>" 
                                                class="btn btn-outline-success">
                                                 <i class="bi bi-credit-card"></i>
                                             </a>
@@ -179,7 +179,7 @@ $showSidebar = true;
                 <h5 class="modal-title">Generate Tagihan Bulanan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="<?= APP_URL ?>/admin/tagihan">
+            <form method="POST" action="<?= $baseUrl ?>/admin/tagihan">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="generate">
                     <div class="mb-3">
@@ -211,7 +211,7 @@ $showSidebar = true;
 <script>
 function viewDetail(id) {
     // Redirect to detail view or show modal with tagihan details
-    window.location.href = '<?= APP_URL ?>/admin/pembayaran?tagihan=' + id;
+    window.location.href = '<?= $baseUrl ?>/admin/pembayaran?tagihan=' + id;
 }
 </script>
 

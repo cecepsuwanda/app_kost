@@ -64,7 +64,7 @@
         <div class="error-description">
             Maaf, terjadi kesalahan pada server. Tim teknis kami telah diberitahu dan sedang memperbaiki masalah ini.
         </div>
-        <a href="<?= APP_URL ?>" class="btn-home">
+        <a href="<?= $baseUrl ?>" class="btn-home">
             <i class="bi bi-house-door"></i> Kembali ke Beranda
         </a>
         

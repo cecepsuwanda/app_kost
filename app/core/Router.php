@@ -38,8 +38,8 @@ class Router
         
         // Find matching route
         $route = $this->findRoute($uri);
-        
-        if ($route) {
+
+        if ($route) {            
             $this->executeRoute($route);
         } else {
             // Default to home if route not found
@@ -68,7 +68,8 @@ class Router
     }
 
     private function findRoute(string $uri): ?array
-    {
+    {   
+               
         // Check for exact match
         if (array_key_exists($uri, $this->routes)) {
             return $this->routes[$uri];

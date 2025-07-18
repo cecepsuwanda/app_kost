@@ -8,24 +8,17 @@ class Controller
     protected $config;
     protected $session;
     protected $request;
-    protected $app;
+    
 
-    public function __construct(?Application $app = null)
+    public function __construct()
     {
-        // If Application instance is provided, use dependency injection
-        if ($app !== null) {
-            $this->app = $app;
-            $this->db = $app->getDatabase();
-            $this->config = $app->getConfig();
-            $this->session = $app->getSession();
-            $this->request = $app->getRequest();
-        } else {
+        
             // Fallback to singleton pattern for backward compatibility
             $this->db = Database::getInstance();
             $this->config = Config::getInstance();
             $this->session = Session::getInstance();
             $this->request = Request::getInstance();
-        }
+        
     }
 
     protected function loadView($view, $data = [])
@@ -51,23 +44,9 @@ class Controller
         $namespacedModel = "App\\Models\\$model";
         if (class_exists($namespacedModel)) {
             // Use dependency injection if Application is available
-            return $this->app ? 
-                new $namespacedModel($this->db, $this->app) : 
-                new $namespacedModel();
+            return new $namespacedModel();
         }
-        
-        // Fallback to non-namespaced (backward compatibility)
-        $modelFile = APP_PATH . '/models/' . $model . '.php';
-        
-        if (file_exists($modelFile)) {
-            require_once $modelFile;
-            // Use dependency injection for fallback models too
-            return $this->app ? 
-                new $model($this->db, $this->app) : 
-                new $model();
-        } else {
-            throw new \RuntimeException("Model $model not found");
-        }
+        return null;
     }
 
     protected function redirect($url)
@@ -83,14 +62,39 @@ class Controller
         exit;
     }
 
-    // Legacy methods (for backward compatibility)
-    protected function post($key, $default = null)
+    public function getBaseUrl()
     {
-        return \App\Core\Request::post($key, $default);
+        return $this->config->appConfig('url');
     }
 
-    protected function get($key, $default = null)
+    public function getAppName()
     {
-        return \App\Core\Request::get($key, $default);
+        return $this->config->appConfig('name');
+    }
+
+    public function isLoggedIn()
+    {
+        return $this->session->sessionHas('user_id') && !empty($this->session->sessionGet('user_id'));
+    }
+
+    public function requireLogin()
+    {
+        if (!$this->isLoggedIn()) {
+            header('Location: ' . $this->config->appConfig('url') . '/login');
+            exit;
+        }
+    }
+
+    public function getUser()
+    {
+        if ($this->isLoggedIn()) {
+            return [
+                'id' => $this->session->sessionGet('user_id'),
+                'username' => $this->session->sessionGet('username'),
+                'nama' => $this->session->sessionGet('nama'),
+                'role' => $this->session->sessionGet('role')
+            ];
+        }
+        return null;
     }
 }

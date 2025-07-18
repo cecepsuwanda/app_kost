@@ -70,8 +70,8 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    <?php if ($auth->isLoggedIn()): ?>
-                        <?php $user = $auth->getUser(); ?>
+                    <?php if ($isLoggedIn): ?>
+                        
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> <?= htmlspecialchars($user['nama']) ?>
@@ -154,13 +154,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Auto hide alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-            alerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
+        //setTimeout(function() {
+        //    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+        //    alerts.forEach(function(alert) {
+        //        const bsAlert = new bootstrap.Alert(alert);
+        //        bsAlert.close();
+        //    });
+        //}, 5000);
 
         // Format currency inputs
         function formatCurrency(input) {

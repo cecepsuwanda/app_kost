@@ -42,13 +42,20 @@ class Admin extends Controller
         $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5);
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
 
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Dashboard Admin - ' . $this->config->appConfig('name'),
             'stats' => $stats,
             'kamarKosong' => $kamarKosong,
             'kamarTersedia' => $kamarTersedia,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
-            'tagihanTerlambat' => $tagihanTerlambat
+            'tagihanTerlambat' => $tagihanTerlambat,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/dashboard', $data);
@@ -154,18 +161,25 @@ class Admin extends Controller
                     break;
             }
             
-            $this->redirect('/admin/penghuni');
+            $this->redirect($this->config->appConfig('url').'/admin/penghuni');
         }
 
         $penghuni = $penghuniModel->getPenghuniWithKamar();
         $kamarTersedia = $kamarModel->getKamarTersedia();
         $barang = $barangModel->findAll();
 
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Kelola Penghuni - ' . $this->config->appConfig('name'),
             'penghuni' => $penghuni,
             'kamarTersedia' => $kamarTersedia,
-            'barang' => $barang
+            'barang' => $barang,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/penghuni', $data);
@@ -198,14 +212,21 @@ class Admin extends Controller
                     break;
             }
             
-            $this->redirect('/admin/kamar');
+            $this->redirect($this->config->appConfig('url').'/admin/kamar');
         }
 
         $kamar = $kamarModel->getKamarWithStatus();
 
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Kelola Kamar - ' . $this->config->appConfig('name'),
-            'kamar' => $kamar
+            'kamar' => $kamar,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/kamar', $data);
@@ -238,14 +259,21 @@ class Admin extends Controller
                     break;
             }
             
-            $this->redirect('/admin/barang');
+            $this->redirect($this->config->appConfig('url').'/admin/barang');
         }
 
         $barang = $barangModel->findAll();
 
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Kelola Barang - ' . $this->config->appConfig('name'),
-            'barang' => $barang
+            'barang' => $barang,
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/barang', $data);
@@ -272,11 +300,18 @@ class Admin extends Controller
         $bulan = $this->request->getParam('bulan', date('Y-m'));
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
 
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Kelola Tagihan - ' . $this->config->appConfig('name'),
             'tagihan' => $tagihan,
             'bulan' => $bulan,
-            'message' => $this->session->sessionFlash('message')
+            'message' => $this->session->sessionFlash('message'),
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/tagihan', $data);
@@ -310,14 +345,21 @@ class Admin extends Controller
         $bulan = $this->request->getParam('bulan', date('Y-m'));
         $laporan = $bayarModel->getLaporanPembayaran($bulan);
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
-        
+
+        $isLoggedIn = $this->isLoggedIn();
+        $user = $this->getUser();   
+        $baseUrl = $this->getBaseUrl();
+
         $data = [
             'title' => 'Kelola Pembayaran - ' . $this->config->appConfig('name'),
             'laporan' => $laporan,
             'tagihan' => $tagihan,
             'bulan' => $bulan,
             'message' => $this->session->sessionFlash('message'),
-            'error' => $this->session->sessionFlash('error')
+            'error' => $this->session->sessionFlash('error'),
+            'isLoggedIn' => $isLoggedIn,
+            'user' => $user,
+            'baseUrl' => $baseUrl
         ];
 
         $this->loadView('admin/pembayaran', $data);
