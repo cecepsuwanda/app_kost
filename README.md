@@ -35,6 +35,16 @@ Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 
 ## Changelog
 
+### Version 2.4.2 - **MVC Architecture Refactoring** 🏗️
+- ✅ **FIXED**: Removed all model-to-model direct dependencies (12 violations fixed)
+- ✅ **REFACTORED**: BayarModel - eliminated direct TagihanModel instantiation
+- ✅ **REFACTORED**: KamarPenghuniModel - removed DetailKamarPenghuniModel dependencies
+- ✅ **REFACTORED**: TagihanModel - replaced model dependencies with direct SQL queries
+- ✅ **ENHANCED**: Controller coordination for all inter-model communication
+- ✅ **IMPROVED**: Method signatures with explicit dependency injection
+- ✅ **OPTIMIZED**: Direct SQL queries for better performance
+- ✅ **ARCHITECTURE**: Proper MVC principles now enforced throughout codebase
+
 ### Version 2.4.1 - **Billing System Critical Fixes** 🔧
 - ✅ **FIXED**: Tagihan now generated per room, not per tenant
 - ✅ **FIXED**: Period validation - only current month and next month allowed
