@@ -29,6 +29,78 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 
 *"Built with the power of AI, designed for human needs"*
 
+## License
+
+Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
+
+## Changelog
+
+### Version 2.4.1 - **Billing System Critical Fixes** 🔧
+- ✅ **FIXED**: Tagihan now generated per room, not per tenant
+- ✅ **FIXED**: Period validation - only current month and next month allowed
+- ✅ **FIXED**: Duplicate billing issues resolved
+- ✅ **ENHANCED**: Comprehensive error handling with try-catch blocks
+- ✅ **ENHANCED**: UI validation with min/max period restrictions
+- ✅ **ENHANCED**: Better tenant and item display per room
+- ✅ **SECURITY**: Prevented manipulation of past/future billing periods
+
+### Version 2.4.0 - **Maintenance Mode System Implementation** 🔧
+- ✅ **NEW**: Comprehensive maintenance mode system with CLI utility
+- ✅ **NEW**: Professional maintenance page with modern UI and animations
+- ✅ **NEW**: Multiple control methods (CLI, web interface, manual config)
+- ✅ **NEW**: Web interface for superadmin users in Database Diagnostic page
+- ✅ **NEW**: Proper HTTP status codes (503) and caching headers
+- ✅ **NEW**: Auto-refresh maintenance page every 30 seconds
+- ✅ **NEW**: Graceful fallback mechanism for error handling
+- ✅ **ENHANCED**: Application core with maintenance mode check
+- ✅ **ENHANCED**: Config class with isMaintenanceMode() method
+- ✅ **SECURITY**: Access control - only superadmin can toggle via web
+- ✅ **DOCS**: Comprehensive documentation with troubleshooting guide
+
+### Version 2.3.0 - **Application-Centric Architecture Implementation** 🎉
+- ✅ **NEW**: Application-Centric Architecture fully implemented (`app/core/Application.php`)
+- ✅ **NEW**: Service Container with dependency injection (`app/core/Container.php`)
+- ✅ **NEW**: Middleware system dengan authentication protection
+- ✅ **NEW**: Centralized error handling & structured logging (`storage/logs/`)
+- ✅ **ENHANCED**: Router dengan middleware support dan type-safe routing
+- ✅ **ENHANCED**: Controllers dengan constructor dependency injection
+- ✅ **ENHANCED**: Models dengan database injection via DI
+- ✅ **IMPROVED**: Complete separation of concerns implementation
+- ✅ **IMPROVED**: Enhanced testability dengan dependency injection pattern
+- ✅ **SECURITY**: Authentication middleware untuk semua admin routes
+- ✅ **COMPATIBILITY**: Graceful fallback system - zero breaking changes
+
+### Version 2.2.0 - **Instance-Based Core Access Pattern**
+- ✅ **BREAKING CHANGE**: Migrated from static method calls to instance-based access for Config, Session, and Request
+- ✅ **NEW**: Instance properties in Controllers and Models (`$this->config`, `$this->session`, `$this->request`)
+- ✅ **NEW**: Backward compatibility maintained with static methods
+- ✅ **NEW**: Improved dependency injection and testability
+- ✅ **NEW**: Enhanced method naming for better clarity
+- ✅ **IMPROVED**: Consistent access patterns across all MVC components
+- ✅ **IMPROVED**: Better separation of concerns and cleaner code architecture
+- ✅ **IMPROVED**: Views now receive config, session, and request instances automatically
+- ✅ **UPDATED**: All controllers, models, and views migrated to new pattern
+
+### Version 2.1.0 - **Multi-Occupancy Support**
+- ✅ **NEW**: Multi-occupancy support (up to 2 tenants per room)
+- ✅ **NEW**: Enhanced room capacity management
+- ✅ **NEW**: Individual tenant tracking within shared rooms
+- ✅ **NEW**: Aggregated billing for multi-tenant rooms
+
+### Version 2.0.0 - **PSR-4 Architecture**
+- ✅ **NEW**: PSR-4 namespace implementation
+- ✅ **NEW**: Enhanced autoloader with namespace support
+- ✅ **NEW**: Comprehensive Tagihan dan Pembayaran views
+- ✅ **NEW**: Modal-based interfaces untuk billing dan payment
+- ✅ **NEW**: Advanced filtering dan status tracking
+- ✅ **IMPROVED**: Better code organization and separation of concerns
+- ✅ **IMPROVED**: Enhanced documentation and code comments
+- ✅ **IMPROVED**: Better error handling and debugging support
+- ✅ **IMPROVED**: Streamlined workflow untuk billing dan payment operations
+
+### Version 1.0.0 - **Initial Release**
+- Initial release with basic MVC structure
+
 ## Daftar Isi
 
 - [Fitur Utama](#fitur-utama)
@@ -64,8 +136,6 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - [Rekomendasi Perbaikan Arsitektur](#rekomendasi-perbaikan-arsitektur)
 - [Critical Fixes Applied](#critical-fixes-applied)
 - [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
 - [Support & Documentation](#support--documentation)
 - [Database Migration Summary](#database-migration-summary)
 - [Index.php Migration to Public Folder](#indexphp-migration-to-public-folder)
@@ -1232,77 +1302,9 @@ Ditambahkan validasi pada method:
 
 ---
 
-## Changelog
 
-### Version 2.4.1 - **Billing System Critical Fixes** 🔧
-- ✅ **FIXED**: Tagihan now generated per room, not per tenant
-- ✅ **FIXED**: Period validation - only current month and next month allowed
-- ✅ **FIXED**: Duplicate billing issues resolved
-- ✅ **ENHANCED**: Comprehensive error handling with try-catch blocks
-- ✅ **ENHANCED**: UI validation with min/max period restrictions
-- ✅ **ENHANCED**: Better tenant and item display per room
-- ✅ **SECURITY**: Prevented manipulation of past/future billing periods
 
-### Version 2.4.0 - **Maintenance Mode System Implementation** 🔧
-- ✅ **NEW**: Comprehensive maintenance mode system with CLI utility
-- ✅ **NEW**: Professional maintenance page with modern UI and animations
-- ✅ **NEW**: Multiple control methods (CLI, web interface, manual config)
-- ✅ **NEW**: Web interface for superadmin users in Database Diagnostic page
-- ✅ **NEW**: Proper HTTP status codes (503) and caching headers
-- ✅ **NEW**: Auto-refresh maintenance page every 30 seconds
-- ✅ **NEW**: Graceful fallback mechanism for error handling
-- ✅ **ENHANCED**: Application core with maintenance mode check
-- ✅ **ENHANCED**: Config class with isMaintenanceMode() method
-- ✅ **SECURITY**: Access control - only superadmin can toggle via web
-- ✅ **DOCS**: Comprehensive documentation with troubleshooting guide
 
-### Version 2.3.0 - **Application-Centric Architecture Implementation** 🎉
-- ✅ **NEW**: Application-Centric Architecture fully implemented (`app/core/Application.php`)
-- ✅ **NEW**: Service Container with dependency injection (`app/core/Container.php`)
-- ✅ **NEW**: Middleware system dengan authentication protection
-- ✅ **NEW**: Centralized error handling & structured logging (`storage/logs/`)
-- ✅ **ENHANCED**: Router dengan middleware support dan type-safe routing
-- ✅ **ENHANCED**: Controllers dengan constructor dependency injection
-- ✅ **ENHANCED**: Models dengan database injection via DI
-- ✅ **IMPROVED**: Complete separation of concerns implementation
-- ✅ **IMPROVED**: Enhanced testability dengan dependency injection pattern
-- ✅ **SECURITY**: Authentication middleware untuk semua admin routes
-- ✅ **COMPATIBILITY**: Graceful fallback system - zero breaking changes
-
-### Version 2.2.0 - **Instance-Based Core Access Pattern**
-- ✅ **BREAKING CHANGE**: Migrated from static method calls to instance-based access for Config, Session, and Request
-- ✅ **NEW**: Instance properties in Controllers and Models (`$this->config`, `$this->session`, `$this->request`)
-- ✅ **NEW**: Backward compatibility maintained with static methods
-- ✅ **NEW**: Improved dependency injection and testability
-- ✅ **NEW**: Enhanced method naming for better clarity
-- ✅ **IMPROVED**: Consistent access patterns across all MVC components
-- ✅ **IMPROVED**: Better separation of concerns and cleaner code architecture
-- ✅ **IMPROVED**: Views now receive config, session, and request instances automatically
-- ✅ **UPDATED**: All controllers, models, and views migrated to new pattern
-
-### Version 2.1.0 - **Multi-Occupancy Support**
-- ✅ **NEW**: Multi-occupancy support (up to 2 tenants per room)
-- ✅ **NEW**: Enhanced room capacity management
-- ✅ **NEW**: Individual tenant tracking within shared rooms
-- ✅ **NEW**: Aggregated billing for multi-tenant rooms
-
-### Version 2.0.0 - **PSR-4 Architecture**
-- ✅ **NEW**: PSR-4 namespace implementation
-- ✅ **NEW**: Enhanced autoloader with namespace support
-- ✅ **NEW**: Comprehensive Tagihan dan Pembayaran views
-- ✅ **NEW**: Modal-based interfaces untuk billing dan payment
-- ✅ **NEW**: Advanced filtering dan status tracking
-- ✅ **IMPROVED**: Better code organization and separation of concerns
-- ✅ **IMPROVED**: Enhanced documentation and code comments
-- ✅ **IMPROVED**: Better error handling and debugging support
-- ✅ **IMPROVED**: Streamlined workflow untuk billing dan payment operations
-
-### Version 1.0.0 - **Initial Release**
-- Initial release with basic MVC structure
-
-## License
-
-Aplikasi ini dilisensikan di bawah [MIT License](LICENSE).
 
 ## Support & Documentation
 
