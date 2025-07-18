@@ -60,22 +60,59 @@ $showSidebar = true;
                                 </td>
                                 <td>
                                     <?php if ($k['nama_penghuni']): ?>
-                                        <?= htmlspecialchars($k['nama_penghuni']) ?>
-                                        <br><small class="text-muted">
-                                            Masuk: <?= date('d/m/Y', strtotime($k['tgl_masuk'])) ?>
-                                        </small>
+                                        <div class="penghuni-list">
+                                            <?php if (!empty($k['penghuni_list'])): ?>
+                                                <?php foreach ($k['penghuni_list'] as $index => $penghuni): ?>
+                                                    <div class="penghuni-item mb-1 <?= $index > 0 ? 'border-top pt-1' : '' ?>">
+                                                        <strong><?= htmlspecialchars($penghuni['nama']) ?></strong>
+                                                        <br><small class="text-muted">
+                                                            Masuk: <?= date('d/m/Y', strtotime($penghuni['tgl_masuk'])) ?>
+                                                        </small>
+                                                        <?php if ($penghuni['no_ktp']): ?>
+                                                            <br><small class="text-muted">
+                                                                KTP: <?= htmlspecialchars($penghuni['no_ktp']) ?>
+                                                            </small>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <?= htmlspecialchars($k['nama_penghuni']) ?>
+                                                <br><small class="text-muted">
+                                                    Masuk: <?= date('d/m/Y', strtotime($k['tgl_masuk'])) ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </div>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($k['nama_penghuni'] && !empty($k['barang_bawaan'])): ?>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($k['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                </span>
-                                            <?php endforeach; ?>
+                                        <div class="barang-bawaan-list">
+                                            <?php if (!empty($k['penghuni_list'])): ?>
+                                                <?php foreach ($k['penghuni_list'] as $index => $penghuni): ?>
+                                                    <?php if (!empty($penghuni['barang_bawaan'])): ?>
+                                                        <div class="penghuni-barang mb-2 <?= $index > 0 ? 'border-top pt-2' : '' ?>">
+                                                            <small class="text-muted fw-bold"><?= htmlspecialchars($penghuni['nama']) ?>:</small>
+                                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                                <?php foreach ($penghuni['barang_bawaan'] as $barang): ?>
+                                                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                                        <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                                    </span>
+                                                                <?php endforeach; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    <?php foreach ($k['barang_bawaan'] as $barang): ?>
+                                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                            <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>

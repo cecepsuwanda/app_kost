@@ -258,14 +258,7 @@ class Admin extends Controller
             $this->redirect($this->config->appConfig('url').'/admin/kamar');
         }
 
-        $kamar = $kamarModel->getKamarWithStatus();
-        
-        // Add barang bawaan data for penghuni in each kamar
-        foreach ($kamar as &$k) {
-            if (isset($k['id_penghuni']) && $k['id_penghuni']) {
-                $k['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($k['id_penghuni']);
-            }
-        }
+        $kamar = $kamarModel->getKamarWithAllOccupantsAndBelongings();
 
         $data = [
             'title' => 'Kelola Kamar - ' . $this->config->appConfig('name'),

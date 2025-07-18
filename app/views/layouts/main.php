@@ -30,6 +30,20 @@
         .alert {
             border-radius: 8px;
         }
+        .penghuni-item {
+            padding: 4px 0;
+        }
+        .penghuni-barang {
+            border-left: 3px solid #ffc107;
+            padding-left: 8px;
+        }
+        .barang-bawaan-list .fw-bold {
+            display: block;
+            margin-bottom: 2px;
+        }
+        .penghuni-list .border-top {
+            border-color: #dee2e6 !important;
+        }
     </style>
 </head>
 <body>
