@@ -32,6 +32,7 @@ $showSidebar = true;
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Gedung</th>
                             <th>Nomor Kamar</th>
                             <th>Harga Sewa</th>
                             <th>Status</th>
@@ -43,6 +44,9 @@ $showSidebar = true;
                     <tbody>
                         <?php foreach ($kamar as $k): ?>
                             <tr>
+                                <td>
+                                    <span class="badge bg-primary">Gedung <?= $k['gedung'] ?></span>
+                                </td>
                                 <td>
                                     <strong><?= htmlspecialchars($k['nomor']) ?></strong>
                                 </td>
@@ -117,6 +121,12 @@ $showSidebar = true;
                     <input type="hidden" name="action" value="create">
                     
                     <div class="mb-3">
+                        <label class="form-label">Nomor Gedung</label>
+                        <input type="number" class="form-control" name="gedung" placeholder="1, 2, 3, dll" min="1" required>
+                        <div class="form-text">Nomor gedung tempat kamar berada</div>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label class="form-label">Nomor Kamar</label>
                         <input type="text" class="form-control" name="nomor" placeholder="Contoh: 101, A1, dll" required>
                         <div class="form-text">Nomor kamar harus unik dan mudah diingat</div>
@@ -154,6 +164,11 @@ $showSidebar = true;
                     <input type="hidden" name="id" id="edit_id">
                     
                     <div class="mb-3">
+                        <label class="form-label">Nomor Gedung</label>
+                        <input type="number" class="form-control" name="gedung" id="edit_gedung" min="1" required>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label class="form-label">Nomor Kamar</label>
                         <input type="text" class="form-control" name="nomor" id="edit_nomor" required>
                     </div>
@@ -178,6 +193,7 @@ $showSidebar = true;
 <script>
 function editKamar(data) {
     document.getElementById('edit_id').value = data.id;
+    document.getElementById('edit_gedung').value = data.gedung;
     document.getElementById('edit_nomor').value = data.nomor;
     document.getElementById('edit_harga').value = data.harga;
     

@@ -249,6 +249,7 @@ class Admin extends Controller
                 case 'create':
                     $kamarModel->create([
                         'nomor' => $this->request->postParam('nomor'),
+                        'gedung' => $this->request->postParam('gedung'),
                         'harga' => $this->request->postParam('harga')
                     ]);
                     break;
@@ -256,6 +257,7 @@ class Admin extends Controller
                 case 'update':
                     $kamarModel->update($this->request->postParam('id'), [
                         'nomor' => $this->request->postParam('nomor'),
+                        'gedung' => $this->request->postParam('gedung'),
                         'harga' => $this->request->postParam('harga')
                     ]);
                     break;

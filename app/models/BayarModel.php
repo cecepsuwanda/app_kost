@@ -102,7 +102,7 @@ class BayarModel extends Model
         }
 
 
-        $sql = "SELECT t.id,t.bulan, t.tahun, t.tanggal, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
+        $sql = "SELECT t.id,t.bulan, t.tahun, t.tanggal, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
                        CASE 
@@ -124,7 +124,37 @@ class BayarModel extends Model
                 LEFT JOIN {$this->table} b ON t.id = b.id_tagihan
                 " . $whereCondition . "
                 GROUP BY t.id
-                ORDER BY t.tahun DESC, t.bulan DESC, k.nomor";
+                ORDER BY t.tahun DESC, t.bulan DESC, k.gedung, k.nomor";
+        
+        return $this->db->fetchAll($sql, $params);
+    }
+
+    public function getTotalBayarPerGedung($periode = null)
+    {
+        $whereCondition = "";
+        $params = [];
+        
+        if ($periode) {
+            $date = date_create_from_format('Y-m', $periode);
+            if ($date) {
+                $bulan = (int)$date->format('n');
+                $tahun = (int)$date->format('Y');
+                $whereCondition = "WHERE t.bulan = :bulan AND t.tahun = :tahun ";
+                $params = ['bulan' => $bulan, 'tahun' => $tahun];
+            }
+        }
+
+        $sql = "SELECT k.gedung,
+                       COUNT(DISTINCT t.id) as jumlah_tagihan,
+                       SUM(COALESCE(b.jml_bayar, 0)) as total_dibayar,
+                       COUNT(DISTINCT b.id) as jumlah_pembayaran
+                FROM tb_tagihan t
+                INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
+                INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN {$this->table} b ON t.id = b.id_tagihan
+                " . $whereCondition . "
+                GROUP BY k.gedung
+                ORDER BY k.gedung";
         
         return $this->db->fetchAll($sql, $params);
     }

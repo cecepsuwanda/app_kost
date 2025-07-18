@@ -18,7 +18,7 @@ class KamarModel extends Model
         $sql = "SELECT k.* FROM tb_kamar k
                 LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
                 WHERE kp.id IS NULL
-                ORDER BY k.nomor";
+                ORDER BY k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql);
     }
@@ -33,7 +33,7 @@ class KamarModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 GROUP BY k.id
                 HAVING slot_tersedia > 0
-                ORDER BY k.nomor";
+                ORDER BY k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql, [$max_occupants]);
     }
@@ -49,7 +49,7 @@ class KamarModel extends Model
                 INNER JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 INNER JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 GROUP BY k.id, kp.id
-                ORDER BY k.nomor";
+                ORDER BY k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql);
     }
@@ -70,7 +70,7 @@ class KamarModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 GROUP BY k.id,kp.tgl_masuk,kp.id
-                ORDER BY k.nomor";
+                ORDER BY k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql, [$max_occupants]);
     }
@@ -89,5 +89,26 @@ class KamarModel extends Model
                 ORDER BY dkp.tgl_masuk";
         
         return $this->db->fetchAll($sql, ['id_kamar' => $id_kamar]);
+    }
+
+    public function getStatistikPerGedung()
+    {
+        $sql = "SELECT k.gedung,
+                       COUNT(k.id) as total_kamar,
+                       COALESCE(COUNT(CASE WHEN dkp.id IS NOT NULL THEN 1 END), 0) as kamar_terisi,
+                       COALESCE(COUNT(CASE WHEN dkp.id IS NULL THEN 1 END), 0) as kamar_kosong
+                FROM tb_kamar k
+                LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                GROUP BY k.gedung
+                ORDER BY k.gedung";
+        
+        return $this->db->fetchAll($sql);
+    }
+
+    public function getGedungList()
+    {
+        $sql = "SELECT DISTINCT gedung FROM tb_kamar ORDER BY gedung";
+        return $this->db->fetchAll($sql);
     }
 }

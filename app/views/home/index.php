@@ -166,6 +166,7 @@ ob_start();
                         <table class="table table-striped">
                             <thead>
                                 <tr>
+                                    <th>Gedung</th>
                                     <th>Kamar</th>
                                     <th>Penghuni</th>
                                     <th>Bulan</th>
@@ -178,6 +179,9 @@ ob_start();
                             <tbody>
                                 <?php foreach (($tagihanTerlambat ?? []) as $tagihan): ?>
                                     <tr>
+                                        <td>
+                                            <span class="badge bg-primary">Gedung <?= $tagihan['gedung'] ?></span>
+                                        </td>
                                         <td>
                                             <i class="bi bi-door-closed"></i>
                                             <?= htmlspecialchars($tagihan['nomor_kamar']) ?>

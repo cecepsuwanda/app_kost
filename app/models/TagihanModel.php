@@ -165,7 +165,7 @@ class TagihanModel extends Model
 
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar,p.no_hp, 
                        GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
-                       k.nomor as nomor_kamar, k.harga as harga_kamar,
+                       k.nomor as nomor_kamar, k.gedung, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
                        CASE 
@@ -187,7 +187,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan
                 " . $whereCondition . "
                 GROUP BY t.id,p.no_hp
-                ORDER BY t.tahun DESC, t.bulan DESC, k.nomor";
+                ORDER BY t.tahun DESC, t.bulan DESC, k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql, $params);
     }
@@ -195,7 +195,7 @@ class TagihanModel extends Model
     public function getTagihanTerlambat()
     {
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
                 FROM {$this->table} t
@@ -207,7 +207,7 @@ class TagihanModel extends Model
                 WHERE DATEDIFF(CURDATE(), t.tanggal) > 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
-                ORDER BY t.tanggal DESC, k.nomor";
+                ORDER BY t.tanggal DESC, k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql);
     }
@@ -215,7 +215,7 @@ class TagihanModel extends Model
     public function getTagihanMendekatiJatuhTempo()
     {
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
                        DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
                 FROM {$this->table} t
@@ -227,8 +227,43 @@ class TagihanModel extends Model
                 WHERE DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
-                ORDER BY t.tanggal DESC, k.nomor";
+                ORDER BY t.tanggal DESC, k.gedung, k.nomor";
         
         return $this->db->fetchAll($sql);
+    }
+
+    public function getTotalTagihanPerGedung($periode = null)
+    {
+        $whereCondition = "";
+        $params = [];
+        
+        if ($periode) {
+            $date = date_create_from_format('Y-m', $periode);
+            if ($date) {
+                $bulan = (int)$date->format('n');
+                $tahun = (int)$date->format('Y');
+                $whereCondition = "WHERE t.bulan = :bulan AND t.tahun = :tahun ";
+                $params = ['bulan' => $bulan, 'tahun' => $tahun];
+            }
+        }
+
+        $sql = "SELECT k.gedung,
+                       COUNT(t.id) as jumlah_tagihan,
+                       SUM(t.jml_tagihan) as total_tagihan,
+                       SUM(COALESCE(byr.total_bayar, 0)) as total_dibayar,
+                       SUM(t.jml_tagihan) - SUM(COALESCE(byr.total_bayar, 0)) as sisa_tagihan
+                FROM tb_tagihan t
+                INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
+                INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN (
+                    SELECT id_tagihan, SUM(jml_bayar) as total_bayar
+                    FROM tb_bayar 
+                    GROUP BY id_tagihan
+                ) byr ON t.id = byr.id_tagihan
+                " . $whereCondition . "
+                GROUP BY k.gedung
+                ORDER BY k.gedung";
+        
+        return $this->db->fetchAll($sql, $params);
     }
 }

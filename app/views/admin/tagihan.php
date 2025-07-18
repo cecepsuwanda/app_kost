@@ -209,11 +209,31 @@ $showSidebar = true;
             $totalTagihan = array_sum(array_column($tagihan, 'jml_tagihan'));
             $totalDibayar = array_sum(array_column($tagihan, 'jml_dibayar'));
             $totalSisa = $totalTagihan - $totalDibayar;
+            
+            // Group by building for building-based summary
+            $tagihanPerGedung = [];
+            foreach ($tagihan as $t) {
+                $gedung = $t['gedung'];
+                if (!isset($tagihanPerGedung[$gedung])) {
+                    $tagihanPerGedung[$gedung] = [
+                        'total_tagihan' => 0,
+                        'total_dibayar' => 0,
+                        'jumlah_kamar' => 0
+                    ];
+                }
+                $tagihanPerGedung[$gedung]['total_tagihan'] += $t['jml_tagihan'];
+                $tagihanPerGedung[$gedung]['total_dibayar'] += $t['jml_dibayar'];
+                $tagihanPerGedung[$gedung]['jumlah_kamar']++;
+            }
+            ksort($tagihanPerGedung);
             ?>
+            
+            <!-- Overall Summary -->
             <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="card bg-light">
                         <div class="card-body">
+                            <h5 class="card-title text-center mb-3">Ringkasan Total</h5>
                             <div class="row text-center">
                                 <div class="col-md-3">
                                     <h6>Total Tagihan</h6>
@@ -238,6 +258,63 @@ $showSidebar = true;
                     </div>
                 </div>
             </div>
+
+            <!-- Building-based Summary -->
+            <?php if (!empty($tagihanPerGedung)): ?>
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ringkasan Per Gedung</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <?php foreach ($tagihanPerGedung as $gedung => $data): ?>
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white text-center">
+                                            <h6 class="mb-0">Gedung <?= $gedung ?></h6>
+                                            <small><?= $data['jumlah_kamar'] ?> Kamar</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-12 mb-2">
+                                                    <small class="text-muted">Tagihan</small>
+                                                    <div class="fw-bold text-primary">
+                                                        Rp <?= number_format($data['total_tagihan'], 0, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <small class="text-muted">Dibayar</small>
+                                                    <div class="fw-bold text-success">
+                                                        Rp <?= number_format($data['total_dibayar'], 0, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <small class="text-muted">Sisa</small>
+                                                    <div class="fw-bold text-danger">
+                                                        Rp <?= number_format($data['total_tagihan'] - $data['total_dibayar'], 0, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-muted">Progress</small>
+                                                    <div class="progress" style="height: 8px;">
+                                                        <?php $progress = $data['total_tagihan'] > 0 ? ($data['total_dibayar'] / $data['total_tagihan']) * 100 : 0; ?>
+                                                        <div class="progress-bar bg-success" style="width: <?= $progress ?>%"></div>
+                                                    </div>
+                                                    <small class="text-muted"><?= round($progress, 1) ?>%</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

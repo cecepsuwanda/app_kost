@@ -77,6 +77,7 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 
 ### 🏠 Manajemen Kamar
 - Data kamar dengan nomor dan harga sewa
+- **🆕 Kolom gedung untuk mengelompokkan kamar berdasarkan bangunan**
 - Status kamar (kosong/tersedia/penuh)
 - **🆕 Kapasitas kamar**: Otomatis tracking slot tersedia
 - Tracking occupancy rates
@@ -93,6 +94,7 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - **🆕 Tanggal jatuh tempo otomatis berdasarkan tanggal masuk penghuni**
 - **🆕 Smart payment status tracking (normal/mendekati/terlambat)**
 - **🆕 Visual indicators untuk status pembayaran dengan color coding**
+- **🆕 Ringkasan tagihan per gedung dengan breakdown detail**
 - Tracking tagihan per periode
 - Status pembayaran (lunas/cicil/belum bayar)
 - **Modal-based interface untuk generate tagihan bulanan**
@@ -105,6 +107,7 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 ### 💳 Manajemen Pembayaran
 - Pencatatan pembayaran dengan sistem cicilan
 - Tracking pembayaran per tagihan
+- **🆕 Ringkasan pembayaran per gedung dengan progress tracking**
 - Laporan pembayaran
 - Auto-update status tagihan
 - **Payment recording dengan modal form dan validation**
@@ -209,6 +212,69 @@ ALTER TABLE tb_tagihan MODIFY tanggal DATE NOT NULL;
 
 ---
 
+### Implementasi Kolom Gedung pada Tabel Kamar (v2.4.0)
+
+#### Deskripsi
+Penambahan kolom `gedung` dengan tipe data INT ke tabel `tb_kamar` untuk mengelompokkan kamar berdasarkan nomor bangunan, serta implementasi ringkasan tagihan dan pembayaran per gedung.
+
+#### Fitur Baru yang Diimplementasikan
+
+**1. Database Schema Enhancement**
+- Kolom `gedung INT NOT NULL` pada tabel `tb_kamar`
+- Sample data dengan pengelompokan gedung berdasarkan pola nomor kamar
+- Index dan constraint yang tepat untuk optimasi query
+
+**2. Building-based Grouping**
+- Semua query kamar diurutkan berdasarkan gedung dan nomor kamar
+- Visual badge untuk menampilkan nomor gedung
+- Formulir kamar include field gedung dengan validasi
+
+**3. Enhanced Reporting**
+- **Ringkasan Tagihan per Gedung**: Total tagihan, dibayar, sisa, dan progress per bangunan
+- **Ringkasan Pembayaran per Gedung**: Status pembayaran (lunas/cicil/belum bayar) per bangunan
+- **Visual Cards**: Tampilan card per gedung dengan color coding dan progress bar
+- **Dashboard Analytics**: Statistik terperinci per bangunan
+
+**4. Improved User Interface**
+- Kolom gedung di semua tabel kamar
+- Building-based sorting di semua views
+- Formulir add/edit kamar dengan field gedung
+- Progressive disclosure untuk building statistics
+
+#### File yang Dimodifikasi:
+- `app/controllers/Install.php` - Schema database dan sample data
+- `app/models/KamarModel.php` - Query sorting dan metode statistik gedung
+- `app/models/TagihanModel.php` - Include gedung di semua query tagihan
+- `app/models/BayarModel.php` - Include gedung di laporan pembayaran
+- `app/controllers/Admin.php` - Handle field gedung di CRUD kamar
+- `app/views/admin/kamar.php` - UI kamar dengan kolom dan form gedung
+- `app/views/admin/tagihan.php` - Ringkasan tagihan per gedung
+- `app/views/admin/pembayaran.php` - Ringkasan pembayaran per gedung
+- `app/views/home/index.php` - Tampilan gedung di dashboard
+
+#### Database Migration:
+```sql
+-- Untuk database existing
+ALTER TABLE tb_kamar ADD COLUMN gedung INT NOT NULL DEFAULT 1;
+
+-- Update existing data berdasarkan pola nomor kamar
+UPDATE tb_kamar SET gedung = 1 WHERE nomor LIKE '1%';
+UPDATE tb_kamar SET gedung = 2 WHERE nomor LIKE '2%';
+UPDATE tb_kamar SET gedung = 3 WHERE nomor LIKE '3%';
+-- dst. sesuai pola yang ada
+
+-- Tambah index untuk optimasi
+CREATE INDEX idx_kamar_gedung ON tb_kamar(gedung);
+```
+
+#### Contoh Tampilan Building Statistics:
+- **Gedung 1**: 16 Kamar | Rp 8,000,000 Tagihan | Rp 6,500,000 Dibayar | 81.3% Progress
+- **Gedung 2**: 15 Kamar | Rp 7,500,000 Tagihan | Rp 7,100,000 Dibayar | 94.7% Progress
+
+**Status**: ✅ **IMPLEMENTED & TESTED** | **Date**: 2025-01-26
+
+---
+
 ### Tagihan dan Pembayaran Views Implementation
 Telah berhasil diimplementasikan comprehensive views untuk modul **Tagihan** (Billing) dan **Pembayaran** (Payment) yang terintegrasi penuh dengan arsitektur MVC yang ada.
 
@@ -295,7 +361,7 @@ App\
 ```sql
 -- Core Tables
 tb_penghuni (id, nama, no_ktp?, no_hp?, tgl_masuk, tgl_keluar)
-tb_kamar (id, nomor, harga)
+tb_kamar (id, nomor, gedung, harga)
 tb_barang (id, nama, harga)
 
 -- Relationship Tables

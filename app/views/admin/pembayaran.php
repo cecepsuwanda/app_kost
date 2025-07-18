@@ -202,6 +202,30 @@ $showSidebar = true;
             $lunas = count(array_filter($laporan, fn($l) => $l['status_bayar'] === 'Lunas'));
             $cicil = count(array_filter($laporan, fn($l) => $l['status_bayar'] === 'Cicil'));
             $belumBayar = count(array_filter($laporan, fn($l) => $l['status_bayar'] === 'Belum Bayar'));
+            
+            // Group by building for building-based summary
+            $pembayaranPerGedung = [];
+            foreach ($laporan as $l) {
+                $gedung = $l['gedung'];
+                if (!isset($pembayaranPerGedung[$gedung])) {
+                    $pembayaranPerGedung[$gedung] = [
+                        'total_tagihan' => 0,
+                        'total_dibayar' => 0,
+                        'jumlah_kamar' => 0,
+                        'lunas' => 0,
+                        'cicil' => 0,
+                        'belum_bayar' => 0
+                    ];
+                }
+                $pembayaranPerGedung[$gedung]['total_tagihan'] += $l['jml_tagihan'];
+                $pembayaranPerGedung[$gedung]['total_dibayar'] += $l['total_bayar'];
+                $pembayaranPerGedung[$gedung]['jumlah_kamar']++;
+                
+                if ($l['status_bayar'] === 'Lunas') $pembayaranPerGedung[$gedung]['lunas']++;
+                elseif ($l['status_bayar'] === 'Cicil') $pembayaranPerGedung[$gedung]['cicil']++;
+                else $pembayaranPerGedung[$gedung]['belum_bayar']++;
+            }
+            ksort($pembayaranPerGedung);
             ?>
             <div class="row mt-4">
                 <div class="col-md-12">
@@ -238,6 +262,69 @@ $showSidebar = true;
                     </div>
                 </div>
             </div>
+
+            <!-- Building-based Summary -->
+            <?php if (!empty($pembayaranPerGedung)): ?>
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ringkasan Pembayaran Per Gedung</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <?php foreach ($pembayaranPerGedung as $gedung => $data): ?>
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white text-center">
+                                            <h6 class="mb-0">Gedung <?= $gedung ?></h6>
+                                            <small><?= $data['jumlah_kamar'] ?> Kamar</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-6 mb-2">
+                                                    <small class="text-muted">Tagihan</small>
+                                                    <div class="fw-bold text-primary">
+                                                        Rp <?= number_format($data['total_tagihan'], 0, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-2">
+                                                    <small class="text-muted">Dibayar</small>
+                                                    <div class="fw-bold text-success">
+                                                        Rp <?= number_format($data['total_dibayar'], 0, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4 mb-2">
+                                                    <small class="text-success">Lunas</small>
+                                                    <div class="fw-bold"><?= $data['lunas'] ?></div>
+                                                </div>
+                                                <div class="col-4 mb-2">
+                                                    <small class="text-warning">Cicil</small>
+                                                    <div class="fw-bold"><?= $data['cicil'] ?></div>
+                                                </div>
+                                                <div class="col-4 mb-2">
+                                                    <small class="text-danger">Belum</small>
+                                                    <div class="fw-bold"><?= $data['belum_bayar'] ?></div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-muted">Progress Pembayaran</small>
+                                                    <div class="progress" style="height: 8px;">
+                                                        <?php $progress = $data['total_tagihan'] > 0 ? ($data['total_dibayar'] / $data['total_tagihan']) * 100 : 0; ?>
+                                                        <div class="progress-bar bg-success" style="width: <?= $progress ?>%"></div>
+                                                    </div>
+                                                    <small class="text-muted"><?= round($progress, 1) ?>%</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
