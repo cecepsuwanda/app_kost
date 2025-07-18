@@ -1163,7 +1163,85 @@ return $this->db->fetch($sql, ['username' => $username]);
 
 **Aplikasi sekarang siap untuk testing dan deployment!**
 
+## Recent Billing System Fixes (v2.4.1)
+
+### 🎯 **Perbaikan Sistem Generate Tagihan** 
+
+#### Masalah yang Ditemukan dan Diperbaiki:
+
+1. **❌ Tagihan digenerate untuk setiap penghuni kamar** - Sistem sebelumnya membuat tagihan terpisah untuk setiap penghuni di kamar yang sama
+2. **❌ Tidak ada validasi periode** - Bisa generate/rekalkulasi tagihan untuk bulan yang sudah lewat atau terlalu jauh ke depan  
+3. **❌ Duplikasi tagihan** - Beberapa penghuni dalam satu kamar mendapat tagihan terpisah
+
+#### Perbaikan yang Telah Diimplementasikan:
+
+##### 1. ✅ **Perubahan Logic Generate Tagihan** (`TagihanModel.php`)
+
+**Sebelum:**
+- Generate tagihan untuk setiap pasangan kamar-penghuni (`$activeKamarPenghuni`)
+- Bisa generate untuk periode apapun
+
+**Sesudah:**
+- Generate tagihan per kamar (group by `kp.id_kamar`)
+- Satu tagihan per kamar untuk semua penghuni yang tinggal di kamar tersebut
+- Validasi periode: hanya bisa generate bulan sekarang atau bulan berikutnya
+
+##### 2. ✅ **Validasi Periode yang Ketat**
+
+Ditambahkan validasi pada method:
+- `generateTagihan()`
+- `recalculateTagihan()`
+- `recalculateAllTagihan()`
+
+**Aturan periode:**
+- `$monthDiff < 0`: Tidak bisa generate/rekalkulasi bulan yang sudah lewat
+- `$monthDiff > 1`: Tidak bisa generate/rekalkulasi bulan yang terlalu jauh ke depan
+- Hanya boleh untuk bulan sekarang (monthDiff = 0) atau bulan berikutnya (monthDiff = 1)
+
+##### 3. ✅ **Perbaikan Query Database**
+
+**Perubahan di `getTagihanDetail()`:**
+- Gunakan `GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ')` untuk menampilkan semua penghuni
+- Tambah `GROUP_CONCAT(DISTINCT p.no_hp SEPARATOR ', ')` untuk nomor HP
+- Group by `t.id` bukan `t.id,p.no_hp`
+
+##### 4. ✅ **Enhanced Error Handling** (`Admin.php`)
+
+- Tambahkan try-catch untuk menangani `InvalidArgumentException`
+- Tampilkan pesan error yang sesuai ke user
+- Ubah logic untuk mengambil detail semua penghuni per kamar
+- Buat array `detail_penghuni` yang berisi info setiap penghuni beserta barang bawaannya
+
+##### 5. ✅ **Improved User Interface** (`tagihan.php`)
+
+- Tambahkan atribut `min` dan `max` pada input month
+- Batasi input hanya untuk bulan sekarang dan bulan berikutnya
+- Tampilkan barang bawaan per penghuni dengan nama penghuni
+- Gunakan separator visual untuk membedakan antar penghuni
+
+#### 🎯 **Hasil Akhir:**
+
+1. **✅ Tagihan Per Kamar**: Setiap kamar hanya mendapat 1 tagihan per bulan dengan jumlah = harga kamar + total harga barang bawaan semua penghuni
+2. **✅ Validasi Periode**: Juli sekarang bisa generate Juli/Agustus, Agustus sekarang tidak bisa generate Juli
+3. **✅ UI Informatif**: Tampilan penghuni dan barang bawaan yang jelas dengan validasi client-side
+
+#### File yang Diubah:
+- `app/models/TagihanModel.php` - Logic utama generate dan validasi
+- `app/controllers/Admin.php` - Error handling dan data processing  
+- `app/views/admin/tagihan.php` - Validasi input dan tampilan
+
+---
+
 ## Changelog
+
+### Version 2.4.1 - **Billing System Critical Fixes** 🔧
+- ✅ **FIXED**: Tagihan now generated per room, not per tenant
+- ✅ **FIXED**: Period validation - only current month and next month allowed
+- ✅ **FIXED**: Duplicate billing issues resolved
+- ✅ **ENHANCED**: Comprehensive error handling with try-catch blocks
+- ✅ **ENHANCED**: UI validation with min/max period restrictions
+- ✅ **ENHANCED**: Better tenant and item display per room
+- ✅ **SECURITY**: Prevented manipulation of past/future billing periods
 
 ### Version 2.4.0 - **Maintenance Mode System Implementation** 🔧
 - ✅ **NEW**: Comprehensive maintenance mode system with CLI utility
