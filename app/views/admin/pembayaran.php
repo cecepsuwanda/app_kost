@@ -72,6 +72,7 @@ $showSidebar = true;
                             <th>Bulan</th>
                             <th>Penghuni</th>
                             <th>Kamar</th>
+                            <th>Barang Bawaan</th>
                             <th>Total Tagihan</th>
                             <th>Total Dibayar</th>
                             <th>Sisa</th>
@@ -98,6 +99,19 @@ $showSidebar = true;
                                     <span class="badge bg-info">
                                         Kamar <?= htmlspecialchars($l['nomor_kamar']) ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($l['barang_bawaan'])): ?>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <?php foreach ($l['barang_bawaan'] as $barang): ?>
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <strong>Rp <?= number_format($l['jml_tagihan'], 0, ',', '.') ?></strong>

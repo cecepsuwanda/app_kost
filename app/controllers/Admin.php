@@ -17,6 +17,28 @@ class Admin extends Controller
         $this->auth->requireLogin();
     }
 
+    // Helper method to add barang bawaan data to penghuni records
+    private function addBarangBawaanToPenghuni($penghuniData)
+    {
+        $barangBawaanModel = $this->loadModel('BarangBawaanModel');
+        
+        if (empty($penghuniData)) {
+            return $penghuniData;
+        }
+        
+        // Handle single record vs array of records
+        $isArray = isset($penghuniData[0]);
+        $dataToProcess = $isArray ? $penghuniData : [$penghuniData];
+        
+        foreach ($dataToProcess as &$record) {
+            if (isset($record['id_penghuni'])) {
+                $record['barang_bawaan'] = $barangBawaanModel->getPenghuniBarangDetail($record['id_penghuni']);
+            }
+        }
+        
+        return $isArray ? $dataToProcess : $dataToProcess[0];
+    }
+
     public function index()
     {
         $kamarModel = $this->loadModel('KamarModel');
@@ -39,8 +61,8 @@ class Admin extends Controller
         // Get data for dashboard
         $kamarKosong = $kamarModel->getKamarKosong();
         $kamarTersedia = $kamarModel->getKamarTersedia();
-        $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5);
-        $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
+        $kamarMendekatiJatuhTempo = $this->addBarangBawaanToPenghuni($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5));
+        $tagihanTerlambat = $this->addBarangBawaanToPenghuni($tagihanModel->getTagihanTerlambat());
 
         $isLoggedIn = $this->isLoggedIn();
         $user = $this->getUser();
@@ -247,6 +269,13 @@ class Admin extends Controller
         }
 
         $kamar = $kamarModel->getKamarWithStatus();
+        
+        // Add barang bawaan data for penghuni in each kamar
+        foreach ($kamar as &$k) {
+            if (isset($k['id_penghuni']) && $k['id_penghuni']) {
+                $k['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($k['id_penghuni']);
+            }
+        }
 
         $isLoggedIn = $this->isLoggedIn();
         $user = $this->getUser();
@@ -330,6 +359,13 @@ class Admin extends Controller
 
         $bulan = $this->request->getParam('bulan', date('Y-m'));
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
+        
+        // Add barang bawaan data for each penghuni in tagihan
+        foreach ($tagihan as &$t) {
+            if (isset($t['id_penghuni']) && $t['id_penghuni']) {
+                $t['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($t['id_penghuni']);
+            }
+        }
 
         $isLoggedIn = $this->isLoggedIn();
         $user = $this->getUser();
@@ -376,6 +412,20 @@ class Admin extends Controller
         $bulan = $this->request->getParam('bulan', date('Y-m'));
         $laporan = $bayarModel->getLaporanPembayaran($bulan);
         $tagihan = $tagihanModel->getTagihanDetail($bulan);
+        
+        // Add barang bawaan data for each penghuni in laporan
+        foreach ($laporan as &$l) {
+            if (isset($l['id_penghuni']) && $l['id_penghuni']) {
+                $l['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($l['id_penghuni']);
+            }
+        }
+        
+        // Add barang bawaan data for each penghuni in tagihan
+        foreach ($tagihan as &$t) {
+            if (isset($t['id_penghuni']) && $t['id_penghuni']) {
+                $t['barang_bawaan'] = $this->loadModel('BarangBawaanModel')->getPenghuniBarangDetail($t['id_penghuni']);
+            }
+        }
 
         $isLoggedIn = $this->isLoggedIn();
         $user = $this->getUser();   

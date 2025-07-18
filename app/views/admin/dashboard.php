@@ -190,6 +190,7 @@ $showSidebar = true;
                                 <tr>
                                     <th>Kamar</th>
                                     <th>Penghuni</th>
+                                    <th>Barang Bawaan</th>
                                     <th>Sisa Hari</th>
                                 </tr>
                             </thead>
@@ -198,6 +199,19 @@ $showSidebar = true;
                                     <tr>
                                         <td><strong><?= htmlspecialchars($item['nomor_kamar']) ?></strong></td>
                                         <td><?= htmlspecialchars($item['nama_penghuni']) ?></td>
+                                        <td>
+                                            <?php if (!empty($item['barang_bawaan'])): ?>
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    <?php foreach ($item['barang_bawaan'] as $barang): ?>
+                                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                            <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <span class="text-muted">-</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <span class="badge bg-warning">
                                                 <?= $item['hari_tersisa'] ?> hari
@@ -239,6 +253,7 @@ $showSidebar = true;
                             <tr>
                                 <th>Kamar</th>
                                 <th>Penghuni</th>
+                                <th>Barang Bawaan</th>
                                 <th>Bulan</th>
                                 <th>Tagihan</th>
                                 <th>Dibayar</th>
@@ -251,6 +266,19 @@ $showSidebar = true;
                                 <tr>
                                     <td><strong><?= htmlspecialchars($tagihan['nomor_kamar']) ?></strong></td>
                                     <td><?= htmlspecialchars($tagihan['nama_penghuni']) ?></td>
+                                    <td>
+                                        <?php if (!empty($tagihan['barang_bawaan'])): ?>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <?php foreach ($tagihan['barang_bawaan'] as $barang): ?>
+                                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                        <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <span class="badge bg-secondary">
                                             <?= date('M Y', mktime(0, 0, 0, $tagihan['bulan'], 1, $tagihan['tahun'])) ?>

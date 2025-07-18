@@ -64,6 +64,7 @@ $showSidebar = true;
                             <th>Bulan</th>
                             <th>Penghuni</th>
                             <th>Kamar</th>
+                            <th>Barang Bawaan</th>
                             <th>Jumlah Tagihan</th>
                             <th>Jumlah Dibayar</th>
                             <th>Sisa</th>
@@ -89,9 +90,20 @@ $showSidebar = true;
                                     <small class="text-muted"><?= htmlspecialchars($t['no_hp']) ?></small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-info">
-                                        Kamar <?= htmlspecialchars($t['nomor_kamar']) ?>
-                                    </span>
+                                    <span class="badge bg-info"><?= htmlspecialchars($t['nomor_kamar']) ?></span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($t['barang_bawaan'])): ?>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <?php foreach ($t['barang_bawaan'] as $barang): ?>
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
+                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <strong>Rp <?= number_format($t['jml_tagihan'], 0, ',', '.') ?></strong>
