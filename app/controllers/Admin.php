@@ -177,6 +177,9 @@ class Admin extends Controller
                     $id = $this->request->postParam('id');
                     $tgl_keluar = $this->request->postParam('tgl_keluar');
                     
+                    // Get room info BEFORE checkout
+                    $kamarPenghuni = $kamarPenghuniModel->findKamarByPenghuni($id);
+                    
                     // Update penghuni
                     $penghuniModel->update($id, ['tgl_keluar' => $tgl_keluar]);
                     
@@ -184,7 +187,6 @@ class Admin extends Controller
                     $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id, $tgl_keluar);
                     
                     // Check if kamar becomes empty and close it
-                    $kamarPenghuni = $kamarPenghuniModel->findKamarByPenghuni($id);
                     if ($kamarPenghuni) {
                         $remainingPenghuni = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamarPenghuni['id']);
                         if (empty($remainingPenghuni)) {

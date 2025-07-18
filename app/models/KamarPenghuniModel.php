@@ -70,6 +70,14 @@ class KamarPenghuniModel extends Model
         // Checkout dari kamar lama
         $detailKamarPenghuniModel->checkoutPenghuniFromKamar($id_penghuni, $tgl_pindah);
 
+        // Check if original room becomes empty and close it
+        if ($kamarPenghuniLama) {
+            $remainingPenghuni = $detailKamarPenghuniModel->findActiveByKamarPenghuni($kamarPenghuniLama['id']);
+            if (empty($remainingPenghuni)) {
+                $this->checkoutKamar($kamarPenghuniLama['id'], $tgl_pindah);
+            }
+        }
+
         // Cek apakah kamar baru sudah ada entry aktif
         $kamarPenghuniAktif = $this->findActiveByKamar($id_kamar_baru);
         
@@ -141,4 +149,6 @@ class KamarPenghuniModel extends Model
         $current_count = $detailKamarPenghuniModel->countActivePenghuniInKamar($id_kamar);
         return $current_count < $max_occupants;
     }
+
+
 }
