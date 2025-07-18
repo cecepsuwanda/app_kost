@@ -102,7 +102,7 @@ $showSidebar = true;
                                 <td>
                                     <strong><?= htmlspecialchars($t['nama_penghuni']) ?></strong>
                                     <br>
-                                    <small class="text-muted"><?= htmlspecialchars($t['no_hp']) ?></small>
+                                    <small class="text-muted"><?= $t['no_hp'] ? htmlspecialchars($t['no_hp']) : 'No HP tidak tersedia' ?></small>
                                 </td>
                                 <td>
                                     <span class="badge bg-info"><?= htmlspecialchars($t['nomor_kamar']) ?></span>

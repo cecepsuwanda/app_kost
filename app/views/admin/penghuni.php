@@ -48,8 +48,8 @@ $showSidebar = true;
                                 <td>
                                     <strong><?= htmlspecialchars($p['nama']) ?></strong>
                                 </td>
-                                <td><?= htmlspecialchars($p['no_ktp']) ?></td>
-                                <td><?= htmlspecialchars($p['no_hp']) ?></td>
+                                <td><?= $p['no_ktp'] ? htmlspecialchars($p['no_ktp']) : '<span class="text-muted">-</span>' ?></td>
+                                <td><?= $p['no_hp'] ? htmlspecialchars($p['no_hp']) : '<span class="text-muted">-</span>' ?></td>
                                 <td>
                                     <?php if ($p['nomor_kamar']): ?>
                                         <span class="badge bg-info">
@@ -129,15 +129,15 @@ $showSidebar = true;
                             <input type="text" class="form-control" name="nama" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">No. KTP</label>
-                            <input type="text" class="form-control" name="no_ktp" required>
+                            <label class="form-label">No. KTP (Opsional)</label>
+                            <input type="text" class="form-control" name="no_ktp" placeholder="Masukkan No. KTP jika ada">
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">No. HP</label>
-                            <input type="text" class="form-control" name="no_hp" required>
+                            <label class="form-label">No. HP (Opsional)</label>
+                            <input type="text" class="form-control" name="no_hp" placeholder="Masukkan No. HP jika ada">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tanggal Masuk</label>
@@ -204,13 +204,13 @@ $showSidebar = true;
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">No. KTP</label>
-                        <input type="text" class="form-control" name="no_ktp" id="edit_no_ktp" required>
+                        <label class="form-label">No. KTP (Opsional)</label>
+                        <input type="text" class="form-control" name="no_ktp" id="edit_no_ktp" placeholder="Masukkan No. KTP jika ada">
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">No. HP</label>
-                        <input type="text" class="form-control" name="no_hp" id="edit_no_hp" required>
+                        <label class="form-label">No. HP (Opsional)</label>
+                        <input type="text" class="form-control" name="no_hp" id="edit_no_hp" placeholder="Masukkan No. HP jika ada">
                     </div>
                     
                     <div class="mb-3">
@@ -299,8 +299,8 @@ $showSidebar = true;
 function editPenghuni(data) {
     document.getElementById('edit_id').value = data.id;
     document.getElementById('edit_nama').value = data.nama;
-    document.getElementById('edit_no_ktp').value = data.no_ktp;
-    document.getElementById('edit_no_hp').value = data.no_hp;
+    document.getElementById('edit_no_ktp').value = data.no_ktp || '';
+    document.getElementById('edit_no_hp').value = data.no_hp || '';
     document.getElementById('edit_tgl_masuk').value = data.tgl_masuk;
     document.getElementById('edit_tgl_keluar').value = data.tgl_keluar || '';
     

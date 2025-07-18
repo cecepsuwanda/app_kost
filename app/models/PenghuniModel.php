@@ -15,6 +15,9 @@ class PenghuniModel extends Model
 
     public function findByKtp($no_ktp)
     {
+        if (empty($no_ktp)) {
+            return null;
+        }
         return $this->db->fetch("SELECT * FROM {$this->table} WHERE no_ktp = :no_ktp", ['no_ktp' => $no_ktp]);
     }
 

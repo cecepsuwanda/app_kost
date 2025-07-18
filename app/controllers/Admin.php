@@ -99,8 +99,8 @@ class Admin extends Controller
                 case 'create':
                     $data = [
                         'nama' => $this->request->postParam('nama'),
-                        'no_ktp' => $this->request->postParam('no_ktp'),
-                        'no_hp' => $this->request->postParam('no_hp'),
+                        'no_ktp' => $this->request->postParam('no_ktp') ?: null,
+                        'no_hp' => $this->request->postParam('no_hp') ?: null,
                         'tgl_masuk' => $this->request->postParam('tgl_masuk')
                     ];
                     
@@ -138,8 +138,8 @@ class Admin extends Controller
                     $id = $this->request->postParam('id');
                     $data = [
                         'nama' => $this->request->postParam('nama'),
-                        'no_ktp' => $this->request->postParam('no_ktp'),
-                        'no_hp' => $this->request->postParam('no_hp'),
+                        'no_ktp' => $this->request->postParam('no_ktp') ?: null,
+                        'no_hp' => $this->request->postParam('no_hp') ?: null,
                         'tgl_masuk' => $this->request->postParam('tgl_masuk')
                     ];
                     

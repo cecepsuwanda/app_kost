@@ -81,7 +81,7 @@ class KamarPenghuniModel extends Model
     public function getPenghuniKamarActive()
     {
         $sql = "SELECT kp.*, k.nomor as nomor_kamar, k.harga as harga_kamar,
-                       GROUP_CONCAT(CONCAT(p.nama, ' (', p.no_ktp, ')') SEPARATOR ', ') as penghuni_list,
+                       GROUP_CONCAT(CONCAT(p.nama, ' (', COALESCE(p.no_ktp, 'No KTP'), ')') SEPARATOR ', ') as penghuni_list,
                        COUNT(dkp.id) as jumlah_penghuni
                 FROM {$this->table} kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id

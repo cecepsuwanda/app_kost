@@ -94,8 +94,8 @@ class Install extends Controller
         CREATE TABLE tb_penghuni (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nama VARCHAR(255) NOT NULL,
-            no_ktp VARCHAR(20) UNIQUE NOT NULL,
-            no_hp VARCHAR(15) NOT NULL,
+            no_ktp VARCHAR(20) UNIQUE NULL,
+            no_hp VARCHAR(15) NULL,
             tgl_masuk DATE NOT NULL,
             tgl_keluar DATE NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -276,6 +276,12 @@ class Install extends Controller
                 'no_ktp' => '2345678901234567',
                 'no_hp' => '081234567891',
                 'tgl_masuk' => '2025-07-01'
+            ],
+            [
+                'nama' => 'Budi Prakoso',
+                'no_ktp' => null,
+                'no_hp' => null,
+                'tgl_masuk' => '2025-07-10'
             ]
         ];
 

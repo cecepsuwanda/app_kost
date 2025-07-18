@@ -209,7 +209,7 @@ App\
 
 ```sql
 -- Core Tables
-tb_penghuni (id, nama, no_ktp, no_hp, tgl_masuk, tgl_keluar)
+tb_penghuni (id, nama, no_ktp?, no_hp?, tgl_masuk, tgl_keluar)
 tb_kamar (id, nomor, harga)
 tb_barang (id, nama, harga)
 
