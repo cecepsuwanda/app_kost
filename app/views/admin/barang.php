@@ -1,6 +1,10 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
+include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -15,39 +19,34 @@ $showSidebar = true;
     </button>
 </div>
 
-<!-- Barang List -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Daftar Barang</h5>
-    </div>
-    <div class="card-body">
-        <?php if (empty($barang)): ?>
-            <div class="text-center py-5">
-                <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
-                <h5 class="text-muted mt-3">Belum ada barang</h5>
-                <p class="text-muted">Klik tombol "Tambah Barang" untuk menambahkan barang baru.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Barang</th>
-                            <th>Harga</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $no = 1; foreach ($barang as $b): ?>
-                            <tr>
-                                <td><?= $no++ ?></td>
-                                <td>
-                                    <strong><?= htmlspecialchars($b['nama']) ?></strong>
-                                </td>
-                                <td>
-                                    <span class="badge bg-success">
-                                        Rp <?= number_format($b['harga'], 0, ',', '.') ?>
+<!-- Barang Table -->
+<?php
+// Prepare table data
+$tableData = [];
+$no = 1;
+foreach ($barang as $b) {
+    $buttons = [
+        ['icon' => '<i class="bi bi-pencil"></i>', 'class' => 'btn-outline-primary', 'onclick' => 'editBarang(' . htmlspecialchars(json_encode($b)) . ')'],
+        ['icon' => '<i class="bi bi-trash"></i>', 'class' => 'btn-outline-danger', 'onclick' => "deleteBarang({$b['id']}, '" . htmlspecialchars($b['nama']) . "')"]
+    ];
+    
+    $tableData[] = [
+        $no++,
+        '<strong>' . htmlspecialchars($b['nama']) . '</strong>',
+        Html::badge(Html::currency($b['harga']), 'success'),
+        renderActionButtons($buttons)
+    ];
+}
+
+echo renderDataTable([
+    'title' => 'Daftar Barang',
+    'headers' => ['No', 'Nama Barang', 'Harga', 'Aksi'],
+    'data' => $tableData,
+    'emptyMessage' => 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.',
+    'actions' => [
+        ['text' => 'Tambah Barang', 'modal' => 'addBarangModal', 'icon' => '<i class="bi bi-plus-circle"></i>', 'class' => 'btn-primary']
+    ]
+]);
                                     </span>
                                 </td>
                                 <td>

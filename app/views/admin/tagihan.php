@@ -1,6 +1,9 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
 ?>
 
 <!-- Page Header -->

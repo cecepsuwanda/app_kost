@@ -1,5 +1,8 @@
 <?php 
 ob_start(); 
+
+use App\Helpers\HtmlHelper as Html;
+use App\Helpers\ViewHelper as View;
 ?>
 
 <div class="container">
@@ -18,31 +21,25 @@ ob_start();
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
-            <div class="card text-center border-success">
-                <div class="card-body">
-                    <i class="bi bi-door-open text-success" style="font-size: 2rem;"></i>
-                    <h5 class="card-title text-success mt-2">Kamar Tersedia</h5>
-                    <h2 class="text-success"><?= count($kamarKosong ?? []) ?></h2>
-                </div>
-            </div>
+            <?= Html::card('', '<div class="text-center">
+                <i class="bi bi-door-open text-success" style="font-size: 2rem;"></i>
+                <h5 class="card-title text-success mt-2">Kamar Tersedia</h5>
+                <h2 class="text-success">' . count($kamarKosong ?? []) . '</h2>
+            </div>', ['bodyClass' => 'border-success']) ?>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center border-warning">
-                <div class="card-body">
-                    <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
-                    <h5 class="card-title text-warning mt-2">Segera Jatuh Tempo</h5>
-                    <h2 class="text-warning"><?= count($kamarMendekatiJatuhTempo ?? []) ?></h2>
-                </div>
-            </div>
+            <?= Html::card('', '<div class="text-center">
+                <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+                <h5 class="card-title text-warning mt-2">Segera Jatuh Tempo</h5>
+                <h2 class="text-warning">' . count($kamarMendekatiJatuhTempo ?? []) . '</h2>
+            </div>', ['bodyClass' => 'border-warning']) ?>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center border-danger">
-                <div class="card-body">
-                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
-                    <h5 class="card-title text-danger mt-2">Terlambat Bayar</h5>
-                    <h2 class="text-danger"><?= count($tagihanTerlambat ?? []) ?></h2>
-                </div>
-            </div>
+            <?= Html::card('', '<div class="text-center">
+                <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                <h5 class="card-title text-danger mt-2">Terlambat Bayar</h5>
+                <h2 class="text-danger">' . count($tagihanTerlambat ?? []) . '</h2>
+            </div>', ['bodyClass' => 'border-danger']) ?>
         </div>
     </div>
 
