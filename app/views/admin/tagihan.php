@@ -14,6 +14,12 @@ $showSidebar = true;
             <i class="bi bi-plus-circle"></i>
             Generate Tagihan
         </button>
+        <?php if (!empty($tagihan)): ?>
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#recalculateAllModal">
+                <i class="bi bi-calculator"></i>
+                Hitung Ulang Semua
+            </button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -40,6 +46,15 @@ $showSidebar = true;
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle"></i>
         <?= htmlspecialchars($message) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<!-- Error Alert -->
+<?php if (isset($error)): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <?= htmlspecialchars($error) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
@@ -131,6 +146,11 @@ $showSidebar = true;
                                                 onclick="viewDetail(<?= $t['id'] ?>)">
                                             <i class="bi bi-eye"></i>
                                         </button>
+                                        <button type="button" class="btn btn-outline-warning" 
+                                                onclick="recalculateTagihan(<?= $t['id'] ?>)"
+                                                title="Hitung Ulang Tagihan">
+                                            <i class="bi bi-calculator"></i>
+                                        </button>
                                         <?php if ($t['status_bayar'] !== 'Lunas'): ?>
                                             <a href="<?= $baseUrl ?>/admin/pembayaran?tagihan=<?= $t['id'] ?>" 
                                                class="btn btn-outline-success">
@@ -220,10 +240,63 @@ $showSidebar = true;
     </div>
 </div>
 
+<!-- Recalculate All Tagihan Modal -->
+<div class="modal fade" id="recalculateAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hitung Ulang Semua Tagihan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="<?= $baseUrl ?>/admin/tagihan">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="recalculate_all">
+                    <input type="hidden" name="bulan" value="<?= $bulan ?>">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Peringatan:</strong> Aksi ini akan menghitung ulang semua tagihan untuk bulan 
+                        <strong><?= date('F Y', strtotime($bulan . '-01')) ?></strong> berdasarkan:
+                        <ul class="mb-0 mt-2">
+                            <li>Harga sewa kamar terkini</li>
+                            <li>Biaya barang bawaan terkini</li>
+                        </ul>
+                        <hr>
+                        <strong>Catatan:</strong> Tagihan yang sudah dibayar sebagian/lunas tetap akan dihitung ulang jumlah tagihannya, 
+                        namun pembayaran yang sudah ada tidak akan berubah.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-calculator"></i>
+                        Hitung Ulang Semua
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 function viewDetail(id) {
     // Redirect to detail view or show modal with tagihan details
     window.location.href = '<?= $baseUrl ?>/admin/pembayaran?tagihan=' + id;
+}
+
+function recalculateTagihan(id) {
+    if (confirm('Apakah Anda yakin ingin menghitung ulang tagihan ini? Jumlah tagihan akan disesuaikan dengan harga terkini.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= $baseUrl ?>/admin/tagihan';
+        
+        form.innerHTML = `
+            <input type="hidden" name="action" value="recalculate">
+            <input type="hidden" name="id_tagihan" value="${id}">
+        `;
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 

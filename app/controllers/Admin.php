@@ -352,6 +352,22 @@ class Admin extends Controller
                     $generated = $tagihanModel->generateTagihan($bulan);
                     $this->session->sessionFlash('message', "Berhasil generate $generated tagihan untuk bulan $bulan");
                     break;
+
+                case 'recalculate':
+                    $id_tagihan = $this->request->postParam('id_tagihan');
+                    $newAmount = $tagihanModel->recalculateTagihan($id_tagihan);
+                    if ($newAmount !== false) {
+                        $this->session->sessionFlash('message', "Berhasil hitung ulang tagihan. Jumlah baru: Rp " . number_format($newAmount, 0, ',', '.'));
+                    } else {
+                        $this->session->sessionFlash('error', "Gagal menghitung ulang tagihan");
+                    }
+                    break;
+
+                case 'recalculate_all':
+                    $bulan = $this->request->postParam('bulan');
+                    $recalculated = $tagihanModel->recalculateAllTagihan($bulan);
+                    $this->session->sessionFlash('message', "Berhasil hitung ulang $recalculated tagihan untuk bulan $bulan");
+                    break;
             }
             
             $this->redirect($this->config->appConfig('url') . '/admin/tagihan');
@@ -376,6 +392,7 @@ class Admin extends Controller
             'tagihan' => $tagihan,
             'bulan' => $bulan,
             'message' => $this->session->sessionFlash('message'),
+            'error' => $this->session->sessionFlash('error'),
             'isLoggedIn' => $isLoggedIn,
             'user' => $user,
             'baseUrl' => $baseUrl

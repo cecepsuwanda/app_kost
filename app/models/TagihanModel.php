@@ -75,6 +75,73 @@ class TagihanModel extends Model
         return $generated;
     }
 
+    public function recalculateTagihan($id_tagihan)
+    {
+        // Get tagihan details
+        $tagihan = $this->find($id_tagihan);
+        if (!$tagihan) {
+            return false;
+        }
+
+        // Get kamar penghuni details
+        $kmrPenghuniModel = new \App\Models\KamarPenghuniModel();
+        $kamarPenghuni = $kmrPenghuniModel->find($tagihan['id_kmr_penghuni']);
+        if (!$kamarPenghuni) {
+            return false;
+        }
+
+        // Get room price
+        $kamarModel = new \App\Models\KamarModel();
+        $kamar = $kamarModel->find($kamarPenghuni['id_kamar']);
+        if (!$kamar) {
+            return false;
+        }
+
+        // Calculate total barang bawaan for all penghuni in this kamar
+        $barangModel = new \App\Models\BarangModel();
+        $detailKamarPenghuniModel = new \App\Models\DetailKamarPenghuniModel();
+        $penghuniList = $detailKamarPenghuniModel->findActiveByKamarPenghuni($tagihan['id_kmr_penghuni']);
+        
+        $totalHargaBarang = 0;
+        foreach ($penghuniList as $penghuni) {
+            $totalHargaBarang += $barangModel->getTotalHargaBarangPenghuni($penghuni['id_penghuni']);
+        }
+        
+        $newTotalTagihan = $kamar['harga'] + $totalHargaBarang;
+
+        // Update tagihan with new calculated amount
+        $result = $this->update($id_tagihan, [
+            'jml_tagihan' => $newTotalTagihan
+        ]);
+
+        return $result ? $newTotalTagihan : false;
+    }
+
+    public function recalculateAllTagihan($periode)
+    {
+        // Parse periode (format: YYYY-MM) to extract bulan and tahun
+        $date = date_create_from_format('Y-m', $periode);
+        if (!$date) {
+            throw new \InvalidArgumentException("Invalid periode format. Expected YYYY-MM");
+        }
+        
+        $bulan = (int)$date->format('n'); // 1-12
+        $tahun = (int)$date->format('Y'); // YYYY
+
+        // Get all tagihan for the specified periode
+        $allTagihan = $this->findByBulanTahun($bulan, $tahun);
+        
+        $recalculated = 0;
+        foreach ($allTagihan as $tagihan) {
+            $result = $this->recalculateTagihan($tagihan['id']);
+            if ($result !== false) {
+                $recalculated++;
+            }
+        }
+
+        return $recalculated;
+    }
+
     public function getTagihanDetail($periode = null)
     {
         $whereCondition = "";
