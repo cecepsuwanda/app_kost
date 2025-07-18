@@ -1,7 +1,7 @@
 <?php
 
-// Define constants
-define('ROOT_PATH', __DIR__);
+// Define constants - ROOT_PATH is now one level up from public
+define('ROOT_PATH', dirname(__DIR__));
 define('APP_PATH', ROOT_PATH . '/app');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 define('PUBLIC_PATH', ROOT_PATH . '/public');
@@ -24,4 +24,3 @@ $autoloader->register();
         error_log("Application failed, falling back to router-centric approach: " . $e->getMessage());
        
     }
-
