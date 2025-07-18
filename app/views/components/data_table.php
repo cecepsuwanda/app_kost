@@ -77,6 +77,7 @@ function renderStatusBadge($status, $mapping = []) {
         'active' => ['text' => 'Aktif', 'class' => 'bg-success'],
         'inactive' => ['text' => 'Tidak Aktif', 'class' => 'bg-danger'],
         'kosong' => ['text' => 'Kosong', 'class' => 'bg-success'],
+        'tersedia' => ['text' => 'Tersedia', 'class' => 'bg-info'],
         'terisi' => ['text' => 'Terisi', 'class' => 'bg-info'],
         'penuh' => ['text' => 'Penuh', 'class' => 'bg-warning text-dark'],
         'lunas' => ['text' => 'Lunas', 'class' => 'bg-success'],

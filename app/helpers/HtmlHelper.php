@@ -231,7 +231,7 @@ class HtmlHelper
         foreach ($buttons as $button) {
             $class = $button['class'] ?? 'btn-outline-primary';
             $onclick = isset($button['onclick']) ? " onclick=\"{$button['onclick']}\"" : '';
-            $title = isset($button['title']) ? " title=\"{$button['title']}\"" : '';
+            $title = isset($button['title']) ? " title=\"" . htmlspecialchars($button['title']) . "\"" : '';
             $disabled = isset($button['disabled']) && $button['disabled'] ? ' disabled' : '';
             
             $html .= "<button type=\"button\" class=\"btn {$class}\"{$onclick}{$title}{$disabled}>";

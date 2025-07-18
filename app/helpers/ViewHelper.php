@@ -129,11 +129,19 @@ class ViewHelper
     {
         $buttons = [];
 
+        // Prepare minimal data for edit function (avoid complex nested objects)
+        $editData = [
+            'id' => $room['id'],
+            'gedung' => $room['gedung'],
+            'nomor' => $room['nomor'],
+            'harga' => $room['harga']
+        ];
+
         // Edit button
         $buttons[] = [
             'icon' => '<i class="bi bi-pencil"></i>',
             'class' => 'btn-outline-primary',
-            'onclick' => "editKamar(" . htmlspecialchars(json_encode($room)) . ")",
+            'onclick' => "editKamar(" . json_encode($editData) . ")",
             'title' => 'Edit Kamar'
         ];
 
@@ -142,7 +150,7 @@ class ViewHelper
             $buttons[] = [
                 'icon' => '<i class="bi bi-trash"></i>',
                 'class' => 'btn-outline-danger',
-                'onclick' => "deleteKamar({$room['id']}, '" . htmlspecialchars($room['nomor']) . "')",
+                'onclick' => "deleteKamar({$room['id']}, '" . addslashes($room['nomor']) . "')",
                 'title' => 'Hapus Kamar'
             ];
         } else {
