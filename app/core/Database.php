@@ -37,6 +37,8 @@ class Database
             $dbUser = $config->db('user');
             $errorMessage = $e->getMessage();
             $baseUrl = $config->appConfig('url');
+            $appName = $config->appConfig('name');
+            $logFileExists = file_exists(ROOT_PATH . '/storage/logs/error.log');
             
             // Include the database error page
             include APP_PATH . '/views/errors/database.php';

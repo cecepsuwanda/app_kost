@@ -9,7 +9,7 @@ ob_start();
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <i class="bi bi-download"></i>
-                        Instalasi <?= APP_NAME ?>
+                        Instalasi <?= $appName ?>
                     </h4>
                 </div>
                 <div class="card-body">

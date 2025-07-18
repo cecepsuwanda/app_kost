@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Error | <?= defined('APP_NAME') ? APP_NAME : 'Sistem Manajemen Kos' ?></title>
+    <title>Database Error | <?= $appName ?? 'Sistem Manajemen Kos' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
@@ -147,8 +147,8 @@
             
             <div class="diagnostic-item">
                 <span>File Log Error</span>
-                <span class="status-badge <?= file_exists(ROOT_PATH . '/storage/logs/error.log') ? 'status-success' : 'status-error' ?>">
-                    <?= file_exists(ROOT_PATH . '/storage/logs/error.log') ? '✓ Tersedia' : '✗ Tidak Ada' ?>
+                <span class="status-badge <?= $logFileExists ? 'status-success' : 'status-error' ?>">
+                    <?= $logFileExists ? '✓ Tersedia' : '✗ Tidak Ada' ?>
                 </span>
             </div>
         </div>
@@ -180,7 +180,7 @@
                 Install Database
             </a>
             
-            <?php if (defined('ROOT_PATH') && file_exists(ROOT_PATH . '/storage/logs/error.log')): ?>
+            <?php if ($logFileExists): ?>
             <button onclick="showErrorLog()" class="btn-custom btn-secondary-custom">
                 <i class="bi bi-file-text"></i>
                 Lihat Log Error
