@@ -90,12 +90,17 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - Generate tagihan bulanan otomatis
 - **🆕 Kalkulasi berdasarkan harga kamar + biaya barang untuk semua penghuni**
 - **🆕 Tagihan terkumpul per kamar untuk multi-occupancy**
+- **🆕 Tanggal jatuh tempo otomatis berdasarkan tanggal masuk penghuni**
+- **🆕 Smart payment status tracking (normal/mendekati/terlambat)**
+- **🆕 Visual indicators untuk status pembayaran dengan color coding**
 - Tracking tagihan per periode
 - Status pembayaran (lunas/cicil/belum bayar)
 - **Modal-based interface untuk generate tagihan bulanan**
 - **Filter berdasarkan bulan dengan comprehensive billing table**
 - **Summary statistics dengan totals dan percentages**
 - **Status badges (Lunas/Paid, Cicil/Installment, Belum Bayar/Unpaid)**
+- **Due date calculation: tahun_tagihan-bulan_tagihan-tanggal_masuk_kamar**
+- **Automatic late payment detection with day counting**
 
 ### 💳 Manajemen Pembayaran
 - Pencatatan pembayaran dengan sistem cicilan
@@ -219,7 +224,7 @@ tb_detail_kmr_penghuni (id, id_kmr_penghuni, id_penghuni, tgl_masuk, tgl_keluar)
 tb_brng_bawaan (id, id_penghuni, id_barang)
 
 -- Transaction Tables
-tb_tagihan (id, bulan, id_kmr_penghuni, jml_tagihan)
+tb_tagihan (id, bulan, tahun, tanggal, id_kmr_penghuni, jml_tagihan)
 tb_bayar (id, id_tagihan, jml_bayar, status)
 
 -- System Tables

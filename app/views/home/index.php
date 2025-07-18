@@ -169,6 +169,7 @@ ob_start();
                                     <th>Kamar</th>
                                     <th>Penghuni</th>
                                     <th>Bulan</th>
+                                    <th>Jatuh Tempo</th>
                                     <th>Tagihan</th>
                                     <th>Dibayar</th>
                                     <th>Sisa</th>
@@ -185,6 +186,13 @@ ob_start();
                                         <td>
                                             <span class="badge bg-secondary">
                                                 <?= date('M Y', mktime(0, 0, 0, $tagihan['bulan'], 1, $tagihan['tahun'])) ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                                <?= date('d/m/Y', strtotime($tagihan['tanggal'])) ?>
+                                                <br><small>Terlambat <?= abs($tagihan['selisih_hari']) ?> hari</small>
                                             </span>
                                         </td>
                                         <td>Rp <?= number_format($tagihan['jml_tagihan'], 0, ',', '.') ?></td>

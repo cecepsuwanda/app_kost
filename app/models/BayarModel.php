@@ -102,13 +102,20 @@ class BayarModel extends Model
         }
 
 
-        $sql = "SELECT t.id,t.bulan, t.tahun, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
+        $sql = "SELECT t.id,t.bulan, t.tahun, t.tanggal, GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
                        t.jml_tagihan, COALESCE(SUM(b.jml_bayar), 0) as total_bayar,
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
                        CASE 
                            WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(b.jml_bayar), 0) > 0 THEN 'Cicil'
                            ELSE 'Belum Bayar'
-                       END as status_bayar
+                       END as status_bayar,
+                       CASE 
+                           WHEN COALESCE(SUM(b.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
+                           ELSE 'normal'
+                       END as status_waktu
                 FROM tb_tagihan t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id

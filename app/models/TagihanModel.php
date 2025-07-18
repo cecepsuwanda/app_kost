@@ -61,10 +61,15 @@ class TagihanModel extends Model
             
             $totalTagihan = $kp['harga_kamar'] + $totalHargaBarang;
 
+            // Calculate tanggal tagihan: tahun_tagihan-bulan_tagihan-tanggal_masuk_kamar
+            $tanggalMasukKamar = date('d', strtotime($kp['tgl_masuk']));
+            $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamar);
+            
             // Create tagihan
             $this->create([
                 'bulan' => $bulan,
                 'tahun' => $tahun,
+                'tanggal' => $tanggalTagihan,
                 'id_kmr_penghuni' => $kp['id'],
                 'jml_tagihan' => $totalTagihan
             ]);
@@ -162,11 +167,18 @@ class TagihanModel extends Model
                        GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
                        k.nomor as nomor_kamar, k.harga as harga_kamar,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'Lunas'
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) > 0 THEN 'Cicil'
                            ELSE 'Belum Bayar'
-                       END as status_bayar
+                       END as status_bayar,
+                       CASE 
+                           WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) > 0 THEN 'terlambat'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0 THEN 'mendekati'
+                           ELSE 'normal'
+                       END as status_waktu"
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
@@ -182,26 +194,41 @@ class TagihanModel extends Model
 
     public function getTagihanTerlambat()
     {
-        $currentMonth = (int)date('n');
-        $currentYear = (int)date('Y');
-        
         $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
                        GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
-                       COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar
+                       COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE (t.tahun < :current_year) OR (t.tahun = :current_year AND t.bulan < :current_month)
+                WHERE DATEDIFF(CURDATE(), t.tanggal) > 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
-                ORDER BY t.tahun DESC, t.bulan DESC, k.nomor";
+                ORDER BY t.tanggal DESC, k.nomor";
         
-        return $this->db->fetchAll($sql, [
-            'current_month' => $currentMonth, 
-            'current_year' => $currentYear
-        ]);
+        return $this->db->fetchAll($sql);
+    }
+
+    public function getTagihanMendekatiJatuhTempo()
+    {
+        $sql = "SELECT t.*, kp.tgl_masuk as tgl_masuk_kamar, 
+                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni, k.nomor as nomor_kamar,
+                       COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
+                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari
+                FROM {$this->table} t
+                INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
+                INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
+                LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
+                WHERE DATEDIFF(CURDATE(), t.tanggal) >= -3 AND DATEDIFF(CURDATE(), t.tanggal) <= 0
+                GROUP BY t.id
+                HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
+                ORDER BY t.tanggal DESC, k.nomor";
+        
+        return $this->db->fetchAll($sql);
     }
 }

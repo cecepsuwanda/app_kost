@@ -167,6 +167,7 @@ class Install extends Controller
             id INT AUTO_INCREMENT PRIMARY KEY,
             bulan INT NOT NULL,
             tahun INT NOT NULL,
+            tanggal DATE NOT NULL,
             id_kmr_penghuni INT NOT NULL,
             jml_tagihan DECIMAL(10,2) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

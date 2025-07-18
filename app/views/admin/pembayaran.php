@@ -70,6 +70,7 @@ $showSidebar = true;
                     <thead>
                         <tr>
                             <th>Bulan</th>
+                            <th>Tanggal Jatuh Tempo</th>
                             <th>Penghuni</th>
                             <th>Kamar</th>
                             <th>Barang Bawaan</th>
@@ -89,9 +90,47 @@ $showSidebar = true;
                                 'Cicil' => 'bg-warning text-dark',
                                 'Belum Bayar' => 'bg-danger'
                             ];
+                            
+                            // Determine due date status color
+                            $dueDateClass = '';
+                            $dueDateIcon = '';
+                            $dueDateTooltip = '';
+                            if (isset($l['status_waktu'])) {
+                                switch ($l['status_waktu']) {
+                                    case 'terlambat':
+                                        $dueDateClass = 'text-danger fw-bold';
+                                        $dueDateIcon = '<i class="bi bi-exclamation-triangle-fill me-1"></i>';
+                                        $dueDateTooltip = 'title="Terlambat ' . abs($l['selisih_hari']) . ' hari"';
+                                        break;
+                                    case 'mendekati':
+                                        $dueDateClass = 'text-warning fw-bold';
+                                        $dueDateIcon = '<i class="bi bi-clock-fill me-1"></i>';
+                                        $sisaHari = abs($l['selisih_hari']);
+                                        if ($sisaHari == 0) {
+                                            $dueDateTooltip = 'title="Jatuh tempo hari ini"';
+                                        } else {
+                                            $dueDateTooltip = 'title="Sisa ' . $sisaHari . ' hari"';
+                                        }
+                                        break;
+                                    case 'lunas':
+                                        $dueDateClass = 'text-success';
+                                        $dueDateIcon = '<i class="bi bi-check-circle-fill me-1"></i>';
+                                        $dueDateTooltip = 'title="Sudah lunas"';
+                                        break;
+                                    default:
+                                        $dueDateClass = 'text-muted';
+                                        $dueDateTooltip = 'title="Masih normal"';
+                                }
+                            }
                             ?>
                             <tr>
                                 <td><?= date('M Y', mktime(0, 0, 0, $l['bulan'], 1, $l['tahun'])) ?></td>
+                                <td>
+                                    <span class="<?= $dueDateClass ?>" <?= $dueDateTooltip ?>>
+                                        <?= $dueDateIcon ?>
+                                        <?= date('d/m/Y', strtotime($l['tanggal'])) ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <strong><?= htmlspecialchars($l['nama_penghuni']) ?></strong>
                                 </td>

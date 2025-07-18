@@ -55,7 +55,7 @@ class Admin extends Controller
             'kamar_tersedia' => count($kamarModel->getKamarTersedia()),
             'total_penghuni' => count($penghuniModel->findActive()),
             'tagihan_terlambat' => count($tagihanModel->getTagihanTerlambat()),
-            'mendekati_jatuh_tempo' => count($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5))
+            'mendekati_jatuh_tempo' => count($tagihanModel->getTagihanMendekatiJatuhTempo())
         ];
 
         // Get data for dashboard
