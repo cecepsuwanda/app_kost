@@ -80,6 +80,7 @@ Aplikasi web berbasis PHP untuk mengelola kos (boarding house) dengan fitur leng
 - **🆕 Kolom gedung untuk mengelompokkan kamar berdasarkan bangunan**
 - Status kamar (kosong/tersedia/penuh)
 - **🆕 Kapasitas kamar**: Otomatis tracking slot tersedia
+- **🆕 Multi-occupancy support**: Contoh data 2 orang dalam 1 kamar
 - Tracking occupancy rates
 
 ### 📦 Manajemen Barang
@@ -270,6 +271,57 @@ CREATE INDEX idx_kamar_gedung ON tb_kamar(gedung);
 #### Contoh Tampilan Building Statistics:
 - **Gedung 1**: 16 Kamar | Rp 8,000,000 Tagihan | Rp 6,500,000 Dibayar | 81.3% Progress
 - **Gedung 2**: 15 Kamar | Rp 7,500,000 Tagihan | Rp 7,100,000 Dibayar | 94.7% Progress
+
+**Status**: ✅ **IMPLEMENTED & TESTED** | **Date**: 2025-01-26
+
+---
+
+### Implementasi Contoh Data Multi-Occupancy (v2.4.1)
+
+#### Deskripsi
+Penambahan contoh data untuk mendemonstrasikan fitur multi-occupancy dimana 1 kamar dapat dihuni oleh 2 orang atau lebih.
+
+#### Sample Data yang Ditambahkan
+
+**Penghuni Baru:**
+- **Andi Wijaya** (KTP: 3456789012345678, HP: 081234567892)
+- **Rina Sari** (KTP: 4567890123456789, HP: 081234567893)
+
+**Room Sharing Example:**
+- **Kamar 103 (Gedung 1)** - Dihuni bersama oleh Andi Wijaya & Rina Sari
+- **Tanggal Masuk**: 20 Juli 2025 (bersamaan)
+
+**Barang Bawaan:**
+- **Andi Wijaya**: MAGICOM (Rp 10,000) + KOMPUTER (Rp 20,000)
+- **Rina Sari**: LEMARI ES (Rp 30,000)
+- **Total Biaya Barang**: Rp 60,000 untuk kamar tersebut
+
+#### Struktur Data Multi-Occupancy:
+```
+tb_kmr_penghuni (Room Occupancy Record)
+├── id: 3
+├── id_kamar: 3 (Kamar 103)
+└── tgl_masuk: 2025-07-20
+
+tb_detail_kmr_penghuni (Individual Residents)
+├── [id_kmr_penghuni: 3, id_penghuni: 4] → Andi Wijaya
+└── [id_kmr_penghuni: 3, id_penghuni: 5] → Rina Sari
+
+tb_brng_bawaan (Personal Items)
+├── Andi: MAGICOM + KOMPUTER = Rp 30,000
+└── Rina: LEMARI ES = Rp 30,000
+```
+
+#### Perhitungan Tagihan Multi-Occupancy:
+- **Harga Kamar 103**: Rp 500,000
+- **Total Barang Bawaan**: Rp 60,000 (semua penghuni)
+- **Total Tagihan per Bulan**: Rp 560,000
+
+#### Manfaat Sample Data:
+- ✅ **Testing Multi-Occupancy**: Verifikasi perhitungan tagihan untuk multiple residents
+- ✅ **UI Testing**: Tampilan multiple names dalam views
+- ✅ **Business Logic Testing**: Logika barang bawaan multiple people
+- ✅ **Report Accuracy**: Validasi laporan dengan room sharing scenarios
 
 **Status**: ✅ **IMPLEMENTED & TESTED** | **Date**: 2025-01-26
 
