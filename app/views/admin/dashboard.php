@@ -1,9 +1,6 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
-
-use App\Helpers\HtmlHelper as Html;
-use App\Helpers\ViewHelper as View;
 ?>
 
 <!-- Page Header -->
@@ -20,22 +17,82 @@ use App\Helpers\ViewHelper as View;
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Total Kamar', $stats['total_kamar'], 'door-open', 'primary') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-door-open text-primary" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-primary"><?= $stats['total_kamar'] ?></h4>
+                        <small>Total Kamar</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Kamar Terisi', $stats['kamar_terisi'], 'door-closed', 'success') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-door-closed text-success" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-success"><?= $stats['kamar_terisi'] ?></h4>
+                        <small>Kamar Terisi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Kamar Kosong', $stats['kamar_kosong'], 'door-open', 'info') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-door-open text-info" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-info"><?= $stats['kamar_kosong'] ?></h4>
+                        <small>Kamar Kosong</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Total Penghuni', $stats['total_penghuni'], 'people', 'secondary') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-people text-secondary" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-secondary"><?= $stats['total_penghuni'] ?></h4>
+                        <small>Total Penghuni</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Jatuh Tempo', $stats['mendekati_jatuh_tempo'], 'clock', 'warning') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-clock text-warning" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-warning"><?= $stats['mendekati_jatuh_tempo'] ?></h4>
+                        <small>Jatuh Tempo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-2 mb-3">
-        <?= View::summaryCard('Terlambat', $stats['tagihan_terlambat'], 'exclamation-triangle', 'danger') ?>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0"><i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i></div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mt-2 text-danger"><?= $stats['tagihan_terlambat'] ?></h4>
+                        <small>Terlambat</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

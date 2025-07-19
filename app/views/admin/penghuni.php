@@ -1,10 +1,6 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
-
-use App\Helpers\HtmlHelper as Html;
-use App\Helpers\ViewHelper as View;
-include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -25,21 +21,25 @@ include APP_PATH . '/views/components/data_table.php';
 $tableData = [];
 foreach ($penghuni as $p) {
     // Room badge
-    $roomBadge = $p['nomor_kamar'] ? Html::badge($p['nomor_kamar'], 'info') : Html::badge('Belum ada kamar', 'secondary');
+    $roomBadge = $p['nomor_kamar'] ? 
+        '<span class="badge bg-info">' . htmlspecialchars($p['nomor_kamar']) . '</span>' : 
+        '<span class="badge bg-secondary">Belum ada kamar</span>';
     
     // Belongings badges
     $belongings = '<span class="text-muted">-</span>';
     if (!empty($p['barang_bawaan'])) {
         $belongingsBadges = [];
         foreach ($p['barang_bawaan'] as $br) {
-            $title = htmlspecialchars($br['nama_barang']) . ' (+' . Html::currency($br['harga_barang']) . ')';
-            $belongingsBadges[] = Html::badge(htmlspecialchars($br['nama_barang']), 'warning text-dark', ['title' => $title]);
+            $title = htmlspecialchars($br['nama_barang']) . ' (+Rp ' . number_format($br['harga_barang'], 0, ',', '.') . ')';
+            $belongingsBadges[] = '<span class="badge bg-warning text-dark" title="' . $title . '">' . htmlspecialchars($br['nama_barang']) . '</span>';
         }
         $belongings = '<div class="d-flex flex-wrap gap-1">' . implode('', $belongingsBadges) . '</div>';
     }
     
     // Status badge
-    $status = $p['tgl_keluar'] ? Html::badge('Keluar', 'danger') : Html::badge('Aktif', 'success');
+    $status = $p['tgl_keluar'] ? 
+        '<span class="badge bg-danger">Keluar</span>' : 
+        '<span class="badge bg-success">Aktif</span>';
     
     // Action buttons
     $buttons = [
@@ -53,55 +53,145 @@ foreach ($penghuni as $p) {
     
     $buttons[] = ['icon' => '<i class="bi bi-trash"></i>', 'class' => 'btn-outline-danger', 'onclick' => "deletePenghuni({$p['id']}, '" . htmlspecialchars($p['nama']) . "')"];
     
+    // Generate action buttons HTML
+    $actionButtonsHtml = '<div class="btn-group btn-group-sm">';
+    foreach ($buttons as $button) {
+        $class = $button['class'] ?? 'btn-outline-primary';
+        $title = isset($button['title']) ? ' title="' . htmlspecialchars($button['title']) . '"' : '';
+        $onclick = isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '';
+        $disabled = isset($button['disabled']) && $button['disabled'] ? ' disabled' : '';
+        
+        $actionButtonsHtml .= "<button type=\"button\" class=\"btn {$class}\"{$title}{$onclick}{$disabled}>";
+        $actionButtonsHtml .= $button['icon'] ?? '';
+        $actionButtonsHtml .= isset($button['text']) ? ' ' . $button['text'] : '';
+        $actionButtonsHtml .= '</button>';
+    }
+    $actionButtonsHtml .= '</div>';
+    
     $tableData[] = [
         '<strong>' . htmlspecialchars($p['nama']) . '</strong>',
         $p['no_ktp'] ? htmlspecialchars($p['no_ktp']) : '<span class="text-muted">-</span>',
         $p['no_hp'] ? htmlspecialchars($p['no_hp']) : '<span class="text-muted">-</span>',
         $roomBadge,
         $belongings,
-        Html::date($p['tgl_masuk']),
+        date('d/m/Y', strtotime($p['tgl_masuk'])),
         $status,
-        renderActionButtons($buttons)
+        $actionButtonsHtml
     ];
 }
 
-echo renderDataTable([
-    'title' => 'Daftar Penghuni',
-    'headers' => ['Nama', 'No. KTP', 'No. HP', 'Kamar', 'Barang Bawaan', 'Tgl Masuk', 'Status', 'Aksi'],
-    'data' => $tableData,
-    'emptyMessage' => 'Belum ada penghuni. Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.'
-    
-]);
+// Render data table directly
+$headers = ['Nama', 'No. KTP', 'No. HP', 'Kamar', 'Barang Bawaan', 'Tgl Masuk', 'Status', 'Aksi'];
+$emptyMessage = 'Belum ada penghuni. Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.';
 ?>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Daftar Penghuni</h5>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($tableData)): ?>
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3"><?= $emptyMessage ?></h5>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table mb-0 table-striped">
+                    <thead>
+                        <tr>
+                            <?php foreach ($headers as $header): ?>
+                                <th><?= $header ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tableData as $row): ?>
+                            <tr>
+                                <?php foreach ($row as $cell): ?>
+                                    <td><?= $cell ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <!-- Add Penghuni Modal -->
-<?php
-// Prepare room options
-$roomOptions = ['' => '-- Belum pilih kamar --'];
-foreach ($kamarTersedia as $kamar) {
-    $roomOptions[$kamar['id']] = "Kamar {$kamar['nomor']} - " . Html::currency($kamar['harga']) . " ({$kamar['slot_tersedia']} slot tersedia)";
-}
-
-$addModalBody = '<input type="hidden" name="action" value="create">' .
-    '<div class="row">' .
-        Html::formGroup('Nama Lengkap', Html::input('text', 'nama', ['required' => true]), ['col' => 'col-md-6 mb-3']) .
-        Html::formGroup('No. KTP (Opsional)', Html::input('text', 'no_ktp', ['placeholder' => 'Masukkan No. KTP jika ada']), ['col' => 'col-md-6 mb-3']) .
-    '</div>' .
-    '<div class="row">' .
-        Html::formGroup('No. HP (Opsional)', Html::input('text', 'no_hp', ['placeholder' => 'Masukkan No. HP jika ada']), ['col' => 'col-md-6 mb-3']) .
-        Html::formGroup('Tanggal Masuk', Html::input('date', 'tgl_masuk', ['value' => date('Y-m-d'), 'required' => true]), ['col' => 'col-md-6 mb-3']) .
-    '</div>' .
-    Html::formGroup('Pilih Kamar (Opsional)', Html::select('id_kamar', $roomOptions)) .
-    Html::formGroup('Barang Bawaan (Opsional)', View::belongingsCheckboxes($barang));
-
-$addModalFooter = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>' .
-                  '<button type="submit" class="btn btn-primary">Simpan</button>';
-
-echo '<form method="POST" action="' . $baseUrl . '/admin/penghuni">';
-echo Html::modal('addPenghuniModal', 'Tambah Penghuni Baru', $addModalBody, $addModalFooter, ['size' => 'lg']);
-echo '</form>';
-?>
-
+<div class="modal fade" id="addPenghuniModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Penghuni Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="<?= $baseUrl ?>/admin/penghuni">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="create">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" name="nama" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">No. KTP (Opsional)</label>
+                            <input type="text" class="form-control" name="no_ktp" placeholder="Masukkan No. KTP jika ada">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">No. HP (Opsional)</label>
+                            <input type="text" class="form-control" name="no_hp" placeholder="Masukkan No. HP jika ada">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Masuk</label>
+                            <input type="date" class="form-control" name="tgl_masuk" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Kamar (Opsional)</label>
+                        <select class="form-select" name="id_kamar">
+                            <option value="">-- Belum pilih kamar --</option>
+                            <?php foreach ($kamarTersedia as $kamar): ?>
+                                <option value="<?= $kamar['id'] ?>">
+                                    Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?> 
+                                    (<?= $kamar['slot_tersedia'] ?> slot tersedia)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Barang Bawaan (Opsional)</label>
+                        <div class="row">
+                            <?php foreach ($barang as $item): ?>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="barang_ids[]" value="<?= $item['id'] ?>" id="barang<?= $item['id'] ?>">
+                                        <label class="form-check-label" for="barang<?= $item['id'] ?>">
+                                            <?= htmlspecialchars($item['nama']) ?>
+                                            <small class="text-muted">(+Rp <?= number_format($item['harga'], 0, ',', '.') ?>)</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Edit Penghuni Modal -->
 <div class="modal fade" id="editPenghuniModal" tabindex="-1">

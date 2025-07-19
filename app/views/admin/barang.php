@@ -1,10 +1,6 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
-
-use App\Helpers\HtmlHelper as Html;
-use App\Helpers\ViewHelper as View;
-include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -30,21 +26,68 @@ foreach ($barang as $b) {
         ['icon' => '<i class="bi bi-trash"></i>', 'class' => 'btn-outline-danger', 'onclick' => "deleteBarang({$b['id']}, '" . htmlspecialchars($b['nama']) . "')"]
     ];
     
+    // Generate action buttons HTML
+    $actionButtonsHtml = '<div class="btn-group btn-group-sm">';
+    foreach ($buttons as $button) {
+        $class = $button['class'] ?? 'btn-outline-primary';
+        $title = isset($button['title']) ? ' title="' . htmlspecialchars($button['title']) . '"' : '';
+        $onclick = isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '';
+        $disabled = isset($button['disabled']) && $button['disabled'] ? ' disabled' : '';
+        
+        $actionButtonsHtml .= "<button type=\"button\" class=\"btn {$class}\"{$title}{$onclick}{$disabled}>";
+        $actionButtonsHtml .= $button['icon'] ?? '';
+        $actionButtonsHtml .= isset($button['text']) ? ' ' . $button['text'] : '';
+        $actionButtonsHtml .= '</button>';
+    }
+    $actionButtonsHtml .= '</div>';
+    
     $tableData[] = [
         $no++,
         '<strong>' . htmlspecialchars($b['nama']) . '</strong>',
-        Html::badge(Html::currency($b['harga']), 'success'),
-        renderActionButtons($buttons)
+        '<span class="badge bg-success">Rp ' . number_format($b['harga'], 0, ',', '.') . '</span>',
+        $actionButtonsHtml
     ];
 }
 
-echo renderDataTable([
-    'title' => 'Daftar Barang',
-    'headers' => ['No', 'Nama Barang', 'Harga', 'Aksi'],
-    'data' => $tableData,
-    'emptyMessage' => 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.'
-]);
+// Render data table directly
+$headers = ['No', 'Nama Barang', 'Harga', 'Aksi'];
+$emptyMessage = 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.';
 ?>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Daftar Barang</h5>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($tableData)): ?>
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3"><?= $emptyMessage ?></h5>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table mb-0 table-striped">
+                    <thead>
+                        <tr>
+                            <?php foreach ($headers as $header): ?>
+                                <th><?= $header ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tableData as $row): ?>
+                            <tr>
+                                <?php foreach ($row as $cell): ?>
+                                    <td><?= $cell ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <!-- Add Barang Modal -->
 <div class="modal fade" id="addBarangModal" tabindex="-1">

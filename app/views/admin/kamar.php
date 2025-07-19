@@ -1,10 +1,6 @@
 <?php 
 ob_start(); 
 $showSidebar = true;
-
-use App\Helpers\HtmlHelper as Html;
-use App\Helpers\ViewHelper as View;
-include APP_PATH . '/views/components/data_table.php';
 ?>
 
 <!-- Page Header -->
@@ -21,77 +17,224 @@ include APP_PATH . '/views/components/data_table.php';
 
 <!-- Kamar Table -->
 <?php
+// Helper function for occupant list
+function renderOccupantList($occupants) {
+    if (empty($occupants)) {
+        return '<span class="text-muted">-</span>';
+    }
+
+    $html = '<div class="penghuni-list">';
+    foreach ($occupants as $index => $occupant) {
+        $borderClass = $index > 0 ? 'border-top pt-1' : '';
+        $html .= "<div class=\"penghuni-item mb-1 {$borderClass}\">";
+        $html .= "<strong>" . htmlspecialchars($occupant['nama']) . "</strong>";
+        $html .= "<br><small class=\"text-muted\">";
+        $html .= "Masuk: " . date('d/m/Y', strtotime($occupant['tgl_masuk']));
+        $html .= "</small>";
+        if (!empty($occupant['no_ktp'])) {
+            $html .= "<br><small class=\"text-muted\">";
+            $html .= "KTP: " . htmlspecialchars($occupant['no_ktp']);
+            $html .= "</small>";
+        }
+        $html .= "</div>";
+    }
+    $html .= '</div>';
+
+    return $html;
+}
+
+// Helper function for belongings list
+function renderBelongingsList($occupants) {
+    $html = '<div class="barang-bawaan-list">';
+    $hasItems = false;
+
+    foreach ($occupants as $index => $occupant) {
+        if (!empty($occupant['barang_bawaan'])) {
+            $hasItems = true;
+            $borderClass = $index > 0 ? 'border-top pt-2' : '';
+            $html .= "<div class=\"penghuni-barang mb-2 {$borderClass}\">";
+            $html .= "<small class=\"text-muted fw-bold\">" . htmlspecialchars($occupant['nama']) . ":</small>";
+            $html .= '<div class="d-flex flex-wrap gap-1 mt-1">';
+            
+            foreach ($occupant['barang_bawaan'] as $item) {
+                $title = htmlspecialchars($item['nama_barang']) . " (+Rp " . number_format($item['harga_barang'], 0, ',', '.') . ")";
+                $html .= "<span class=\"badge bg-warning text-dark\" style=\"font-size: 0.7rem;\" title=\"{$title}\">";
+                $html .= htmlspecialchars($item['nama_barang']);
+                $html .= "</span>";
+            }
+            
+            $html .= '</div></div>';
+        }
+    }
+
+    $html .= '</div>';
+
+    return $hasItems ? $html : '<span class="text-muted">-</span>';
+}
+
+// Function to render status badge
+function getStatusBadge($status) {
+    $statusMapping = [
+        'active' => ['text' => 'Aktif', 'class' => 'bg-success'],
+        'inactive' => ['text' => 'Tidak Aktif', 'class' => 'bg-danger'],
+        'kosong' => ['text' => 'Kosong', 'class' => 'bg-success'],
+        'tersedia' => ['text' => 'Tersedia', 'class' => 'bg-info'],
+        'terisi' => ['text' => 'Terisi', 'class' => 'bg-info'],
+        'penuh' => ['text' => 'Penuh', 'class' => 'bg-warning text-dark'],
+        'lunas' => ['text' => 'Lunas', 'class' => 'bg-success'],
+        'terlambat' => ['text' => 'Terlambat', 'class' => 'bg-danger'],
+        'mendekati' => ['text' => 'Mendekati', 'class' => 'bg-warning text-dark'],
+        'normal' => ['text' => 'Normal', 'class' => 'bg-secondary']
+    ];
+    
+    $config = $statusMapping[$status] ?? ['text' => $status, 'class' => 'bg-secondary'];
+    
+    return "<span class=\"badge {$config['class']}\">{$config['text']}</span>";
+}
+
 // Prepare table data
 $tableData = [];
 foreach ($kamar as $k) {
+    // Status badge
+    $statusBadge = getStatusBadge($k['status']);
+    
+    // Action buttons
+    $buttons = [
+        [
+            'icon' => '<i class="bi bi-pencil"></i>',
+            'class' => 'btn-outline-primary',
+            'onclick' => 'editKamar(' . json_encode([
+                'id' => $k['id'],
+                'gedung' => $k['gedung'],
+                'nomor' => $k['nomor'],
+                'harga' => $k['harga']
+            ]) . ')',
+            'title' => 'Edit Kamar'
+        ],
+        $k['status'] == 'kosong' ? [
+            'icon' => '<i class="bi bi-trash"></i>',
+            'class' => 'btn-outline-danger',
+            'onclick' => "deleteKamar({$k['id']}, '" . addslashes($k['nomor']) . "')",
+            'title' => 'Hapus Kamar'
+        ] : [
+            'icon' => '<i class="bi bi-lock"></i>',
+            'class' => 'btn-outline-secondary',
+            'disabled' => true,
+            'title' => 'Kamar sedang terisi'
+        ]
+    ];
+    
+    // Generate action buttons HTML
+    $actionButtonsHtml = '<div class="btn-group btn-group-sm">';
+    foreach ($buttons as $button) {
+        $class = $button['class'] ?? 'btn-outline-primary';
+        $title = isset($button['title']) ? ' title="' . htmlspecialchars($button['title']) . '"' : '';
+        $onclick = isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '';
+        $disabled = isset($button['disabled']) && $button['disabled'] ? ' disabled' : '';
+        
+        $actionButtonsHtml .= "<button type=\"button\" class=\"btn {$class}\"{$title}{$onclick}{$disabled}>";
+        $actionButtonsHtml .= $button['icon'] ?? '';
+        $actionButtonsHtml .= isset($button['text']) ? ' ' . $button['text'] : '';
+        $actionButtonsHtml .= '</button>';
+    }
+    $actionButtonsHtml .= '</div>';
+    
     $tableData[] = [
-        View::buildingBadge($k['gedung']),
+        '<span class="badge bg-primary">Gedung ' . $k['gedung'] . '</span>',
         '<strong>' . htmlspecialchars($k['nomor']) . '</strong>',
-        Html::currency($k['harga']),
-        renderStatusBadge($k['status']),
-        $k['nama_penghuni'] ? View::occupantList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
-        $k['nama_penghuni'] ? View::belongingsList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
-        renderActionButtons([
-            [
-                'icon' => '<i class="bi bi-pencil"></i>',
-                'class' => 'btn-outline-primary',
-                'onclick' => 'editKamar(' . json_encode([
-                    'id' => $k['id'],
-                    'gedung' => $k['gedung'],
-                    'nomor' => $k['nomor'],
-                    'harga' => $k['harga']
-                ]) . ')',
-                'title' => 'Edit Kamar'
-            ],
-            $k['status'] == 'kosong' ? [
-                'icon' => '<i class="bi bi-trash"></i>',
-                'class' => 'btn-outline-danger',
-                'onclick' => "deleteKamar({$k['id']}, '" . addslashes($k['nomor']) . "')",
-                'title' => 'Hapus Kamar'
-            ] : [
-                'icon' => '<i class="bi bi-lock"></i>',
-                'class' => 'btn-outline-secondary',
-                'disabled' => true,
-                'title' => 'Kamar sedang terisi'
-            ]
-        ])
+        'Rp ' . number_format($k['harga'], 0, ',', '.'),
+        $statusBadge,
+        $k['nama_penghuni'] ? renderOccupantList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
+        $k['nama_penghuni'] ? renderBelongingsList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
+        $actionButtonsHtml
     ];
 }
 
-echo renderDataTable([
-    'title' => 'Daftar Kamar',
-    'headers' => ['Gedung', 'Nomor Kamar', 'Harga Sewa', 'Status', 'Penghuni', 'Barang Bawaan', 'Aksi'],
-    'data' => $tableData,
-    'emptyMessage' => 'Belum ada kamar. Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.'
-]);
+// Render data table directly
+$headers = ['Gedung', 'Nomor Kamar', 'Harga Sewa', 'Status', 'Penghuni', 'Barang Bawaan', 'Aksi'];
+$emptyMessage = 'Belum ada kamar. Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.';
 ?>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Daftar Kamar</h5>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($tableData)): ?>
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3"><?= $emptyMessage ?></h5>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table mb-0 table-striped">
+                    <thead>
+                        <tr>
+                            <?php foreach ($headers as $header): ?>
+                                <th><?= $header ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tableData as $row): ?>
+                            <tr>
+                                <?php foreach ($row as $cell): ?>
+                                    <td><?= $cell ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <!-- Add Kamar Modal -->
 <?php
 $addModalBody = '<input type="hidden" name="action" value="create">' .
-    Html::formGroup('Nomor Gedung', Html::input('number', 'gedung', [
-        'placeholder' => '1, 2, 3, dll',
-        'required' => true,
-        'min' => '1'
-    ]), ['help' => 'Nomor gedung tempat kamar berada']) .
-    Html::formGroup('Nomor Kamar', Html::input('text', 'nomor', [
-        'placeholder' => 'Contoh: 101, A1, dll',
-        'required' => true
-    ]), ['help' => 'Nomor kamar harus unik dan mudah diingat']) .
-    '<div class="mb-3">
-        <label class="form-label">Harga Sewa per Bulan</label>
-        <div class="input-group">
-            <span class="input-group-text">Rp</span>
-            <input type="number" class="form-control" name="harga" placeholder="500000" min="0" required>
-        </div>
-        <div class="form-text">Masukkan harga sewa bulanan dalam rupiah</div>
-    </div>';
+    '<div class="mb-3">' .
+        '<label class="form-label">Nomor Gedung</label>' .
+        '<input type="number" class="form-control" name="gedung" placeholder="1, 2, 3, dll" required>' .
+        '<div class="form-text">Nomor gedung tempat kamar berada</div>' .
+    '</div>' .
+    '<div class="mb-3">' .
+        '<label class="form-label">Nomor Kamar</label>' .
+        '<input type="text" class="form-control" name="nomor" placeholder="Contoh: 101, A1, dll" required>' .
+        '<div class="form-text">Nomor kamar harus unik dan mudah diingat</div>' .
+    '</div>' .
+    '<div class="mb-3">' .
+        '<label class="form-label">Harga Sewa per Bulan</label>' .
+        '<div class="input-group">' .
+            '<span class="input-group-text">Rp</span>' .
+            '<input type="number" class="form-control" name="harga" placeholder="500000" min="0" required>' .
+        '</div>' .
+        '<div class="form-text">Masukkan harga sewa bulanan dalam rupiah</div>' .
+    '</div>';
 
 $addModalFooter = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>' .
                   '<button type="submit" class="btn btn-primary">Simpan</button>';
 
 echo '<form method="POST" action="/admin/kamar">';
-echo Html::modal('addKamarModal', 'Tambah Kamar Baru', $addModalBody, $addModalFooter);
+echo '<div class="modal fade" id="addKamarModal" tabindex="-1">' .
+     '<div class="modal-dialog">' .
+       '<div class="modal-content">' .
+         '<div class="modal-header">' .
+           '<h5 class="modal-title">Tambah Kamar Baru</h5>' .
+           '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>' .
+         '</div>' .
+         '<form method="POST" action="/admin/kamar">' .
+           '<div class="modal-body">' .
+             '<input type="hidden" name="action" value="create">' .
+             $addModalBody .
+           '</div>' .
+           '<div class="modal-footer">' .
+             $addModalFooter .
+           '</div>' .
+         '</form>' .
+       '</div>' .
+     '</div>' .
+   '</div>';
 echo '</form>';
 ?>
 
