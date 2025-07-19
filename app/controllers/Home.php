@@ -22,7 +22,7 @@ class Home extends Controller
         $kamarKosong = $kamarModel->getKamarKosong();
 
         // Get rooms approaching payment due date (next 5 days)
-        $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5);
+        $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(3);
         
         // Add barang bawaan data for each penghuni
         foreach ($kamarMendekatiJatuhTempo as &$kamar) {

@@ -61,7 +61,7 @@ class Admin extends Controller
         // Get data for dashboard
         $kamarKosong = $kamarModel->getKamarKosong();
         $kamarTersedia = $kamarModel->getKamarTersedia();
-        $kamarMendekatiJatuhTempo = $this->addBarangBawaanToPenghuni($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5));
+        $kamarMendekatiJatuhTempo = $this->addBarangBawaanToPenghuni($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(3));
         $tagihanTerlambat = $this->addBarangBawaanToPenghuni($tagihanModel->getTagihanTerlambat());
         
         // Get building statistics
