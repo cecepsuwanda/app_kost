@@ -133,17 +133,21 @@ class KamarPenghuniModel extends Model
 
     public function getKamarSewaanMendekatiJatuhTempo($days = 30)
     {
-        $sql = "SELECT kp.*, k.nomor as nomor_kamar,
-                       GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
-                       DATEDIFF(CURDATE(), t.tanggal) as hari_tersisa
+        $sql = "SELECT kp.*, k.nomor as nomor_kamar, k.gedung,
+                       GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni,
+                       GROUP_CONCAT(DISTINCT p.id SEPARATOR ',') as id_penghuni,
+                       t.tanggal as tanggal_tagihan,
+                       t.bulan, t.tahun,
+                       DATEDIFF(t.tanggal, CURDATE()) as hari_tersisa
                 FROM {$this->table} kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_tagihan t ON kp.id = t.id_kmr_penghuni                    
                 WHERE kp.tgl_keluar IS NULL
-                AND DATEDIFF(CURDATE(), t.tanggal) BETWEEN 0 AND :days
-                GROUP BY kp.id,k.nomor,p.nama,t.tanggal
+                AND t.tanggal IS NOT NULL
+                AND DATEDIFF(t.tanggal, CURDATE()) BETWEEN 0 AND :days
+                GROUP BY kp.id, k.nomor, k.gedung, t.tanggal, t.bulan, t.tahun
                 ORDER BY hari_tersisa ASC";
         
         return $this->db->fetchAll($sql, ['days' => $days]);

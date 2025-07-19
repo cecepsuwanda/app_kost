@@ -286,24 +286,29 @@ $showSidebar = true;
                                 <tr>
                                     <th>Kamar</th>
                                     <th>Penghuni</th>
-                                    <th>Barang Bawaan</th>
+                                    <th>Tanggal Tagihan</th>
                                     <th>Sisa Hari</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach (array_slice($kamarMendekatiJatuhTempo, 0, 5) as $item): ?>
                                     <tr>
-                                        <td><strong><?= htmlspecialchars($item['nomor_kamar']) ?></strong></td>
+                                        <td>
+                                            <strong><?= htmlspecialchars($item['nomor_kamar']) ?></strong>
+                                            <?php if (!empty($item['gedung'])): ?>
+                                                <br><small class="text-muted">Gedung <?= htmlspecialchars($item['gedung']) ?></small>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= htmlspecialchars($item['nama_penghuni']) ?></td>
                                         <td>
-                                            <?php if (!empty($item['barang_bawaan'])): ?>
-                                                <div class="d-flex flex-wrap gap-1">
-                                                    <?php foreach ($item['barang_bawaan'] as $barang): ?>
-                                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                            <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                        </span>
-                                                    <?php endforeach; ?>
-                                                </div>
+                                            <?php if (!empty($item['tanggal_tagihan'])): ?>
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                    <?= date('d/m/Y', strtotime($item['tanggal_tagihan'])) ?>
+                                                </span>
+                                                <br><small class="text-muted">
+                                                    <?= date('M Y', mktime(0, 0, 0, $item['bulan'], 1, $item['tahun'])) ?>
+                                                </small>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>

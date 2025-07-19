@@ -215,7 +215,7 @@ ob_start();
                                 <tr>
                                     <th>Kamar</th>
                                     <th>Penghuni</th>
-                                    <th>Barang Bawaan</th>
+                                    <th>Tanggal Tagihan</th>
                                     <th>Hari Tersisa</th>
                                     <th>Status</th>
                                 </tr>
@@ -226,17 +226,20 @@ ob_start();
                                         <td>
                                             <i class="bi bi-door-closed"></i>
                                             <?= htmlspecialchars($kamar['nomor_kamar']) ?>
+                                            <?php if (!empty($kamar['gedung'])): ?>
+                                                <br><small class="text-muted">Gedung <?= htmlspecialchars($kamar['gedung']) ?></small>
+                                            <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($kamar['nama_penghuni']) ?></td>
                                         <td>
-                                            <?php if (!empty($kamar['barang_bawaan'])): ?>
-                                                <div class="d-flex flex-wrap gap-1">
-                                                    <?php foreach ($kamar['barang_bawaan'] as $barang): ?>
-                                                        <span class="badge bg-warning text-dark" style="font-size: 0.75rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                            <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                        </span>
-                                                    <?php endforeach; ?>
-                                                </div>
+                                            <?php if (!empty($kamar['tanggal_tagihan'])): ?>
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                    <?= date('d/m/Y', strtotime($kamar['tanggal_tagihan'])) ?>
+                                                </span>
+                                                <br><small class="text-muted">
+                                                    <?= date('M Y', mktime(0, 0, 0, $kamar['bulan'], 1, $kamar['tahun'])) ?>
+                                                </small>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>

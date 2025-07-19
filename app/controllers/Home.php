@@ -23,13 +23,6 @@ class Home extends Controller
 
         // Get rooms approaching payment due date (next 5 days)
         $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(3);
-        
-        // Add barang bawaan data for each penghuni
-        foreach ($kamarMendekatiJatuhTempo as &$kamar) {
-            if (isset($kamar['id_penghuni']) && $kamar['id_penghuni']) {
-                $kamar['barang_bawaan'] = $barangBawaanModel->getPenghuniBarangDetail($kamar['id_penghuni']);
-            }
-        }
 
         // Get overdue payments
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
