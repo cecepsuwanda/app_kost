@@ -44,7 +44,8 @@ return [
             'HtmlHelper',
             'ViewHelper',
             'FormHelper',
-            'TableHelper'
+            'TableHelper',
+            'BootstrapHelper'
         ],
         
         // Load all helpers in directory (set to true for convenience)
@@ -61,7 +62,8 @@ return [
             'Html' => 'App\\Helpers\\HtmlHelper',
             'View' => 'App\\Helpers\\ViewHelper',
             'Form' => 'App\\Helpers\\FormHelper',
-            'Table' => 'App\\Helpers\\TableHelper'
+            'Table' => 'App\\Helpers\\TableHelper',
+            'Bootstrap' => 'App\\Helpers\\BootstrapHelper'
         ],
         
         // Conditional loading based on routes/controllers

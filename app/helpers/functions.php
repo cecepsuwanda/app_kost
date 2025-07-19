@@ -307,10 +307,131 @@ if (!function_exists('table_date_column')) {
 
 if (!function_exists('table_empty_state')) {
     /**
-     * Empty state shortcut
+ * Empty state shortcut
+ */
+function table_empty_state(string $message, string $icon = 'inbox', int $colspan = 1): string
+{
+    return \App\Helpers\TableHelper::emptyState($message, $icon, $colspan);
+}
+}
+
+// BootstrapHelper global functions
+if (!function_exists('bootstrap_alert')) {
+    /**
+     * Bootstrap alert shortcut
      */
-    function table_empty_state(string $message, string $icon = 'inbox', int $colspan = 1): string
+    function bootstrap_alert(string $message, string $type = 'info', array $options = []): string
     {
-        return \App\Helpers\TableHelper::emptyState($message, $icon, $colspan);
+        return \App\Helpers\BootstrapHelper::alert($message, $type, $options);
+    }
+}
+
+if (!function_exists('bootstrap_badge')) {
+    /**
+     * Bootstrap badge shortcut
+     */
+    function bootstrap_badge(string $text, string $type = 'primary', array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::badge($text, $type, $options);
+    }
+}
+
+if (!function_exists('bootstrap_button')) {
+    /**
+     * Bootstrap button shortcut
+     */
+    function bootstrap_button(string $text, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::button($text, $options);
+    }
+}
+
+if (!function_exists('bootstrap_card')) {
+    /**
+     * Bootstrap card shortcut
+     */
+    function bootstrap_card(string $content, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::card($content, $options);
+    }
+}
+
+if (!function_exists('bootstrap_modal')) {
+    /**
+     * Bootstrap modal shortcut
+     */
+    function bootstrap_modal(string $id, string $title, string $body, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::modal($id, $title, $body, $options);
+    }
+}
+
+if (!function_exists('bootstrap_dropdown')) {
+    /**
+     * Bootstrap dropdown shortcut
+     */
+    function bootstrap_dropdown(string $buttonText, array $items, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::dropdown($buttonText, $items, $options);
+    }
+}
+
+if (!function_exists('bootstrap_breadcrumb')) {
+    /**
+     * Bootstrap breadcrumb shortcut
+     */
+    function bootstrap_breadcrumb(array $items, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::breadcrumb($items, $options);
+    }
+}
+
+if (!function_exists('bootstrap_pagination')) {
+    /**
+     * Bootstrap pagination shortcut
+     */
+    function bootstrap_pagination(int $currentPage, int $totalPages, string $baseUrl, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::pagination($currentPage, $totalPages, $baseUrl, $options);
+    }
+}
+
+if (!function_exists('bootstrap_progress')) {
+    /**
+     * Bootstrap progress bar shortcut
+     */
+    function bootstrap_progress(float $value, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::progressBar($value, $options);
+    }
+}
+
+if (!function_exists('bootstrap_spinner')) {
+    /**
+     * Bootstrap spinner shortcut
+     */
+    function bootstrap_spinner(array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::spinner($options);
+    }
+}
+
+if (!function_exists('bootstrap_toast')) {
+    /**
+     * Bootstrap toast shortcut
+     */
+    function bootstrap_toast(string $title, string $message, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::toast($title, $message, $options);
+    }
+}
+
+if (!function_exists('bootstrap_tooltip')) {
+    /**
+     * Bootstrap tooltip shortcut
+     */
+    function bootstrap_tooltip(string $content, string $text, array $options = []): string
+    {
+        return \App\Helpers\BootstrapHelper::tooltip($content, $text, $options);
     }
 }
