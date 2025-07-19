@@ -86,8 +86,8 @@ class TagihanModel extends Model
             // Calculate total harga barang for all penghuni in this kamar via direct SQL
             $totalHargaBarang = 0;
             foreach ($penghuniList as $penghuni) {
-                $barangSql = "SELECT COALESCE(SUM(bb.jumlah * b.harga), 0) as total_harga
-                             FROM tb_barang_bawaan bb
+                $barangSql = "SELECT COALESCE(SUM(b.harga), 0) as total_harga
+                             FROM tb_brng_bawaan bb
                              INNER JOIN tb_barang b ON bb.id_barang = b.id
                              WHERE bb.id_penghuni = :id_penghuni";
                 $barangResult = $this->db->fetch($barangSql, ['id_penghuni' => $penghuni['id_penghuni']]);
@@ -158,8 +158,8 @@ class TagihanModel extends Model
         // Calculate total barang bawaan for all penghuni in this kamar via direct SQL
         $totalHargaBarang = 0;
         foreach ($penghuniList as $penghuni) {
-            $barangSql = "SELECT COALESCE(SUM(bb.jumlah * b.harga), 0) as total_harga
-                         FROM tb_barang_bawaan bb
+            $barangSql = "SELECT COALESCE(SUM(b.harga), 0) as total_harga
+                         FROM tb_brng_bawaan bb
                          INNER JOIN tb_barang b ON bb.id_barang = b.id
                          WHERE bb.id_penghuni = :id_penghuni";
             $barangResult = $this->db->fetch($barangSql, ['id_penghuni' => $penghuni['id_penghuni']]);
