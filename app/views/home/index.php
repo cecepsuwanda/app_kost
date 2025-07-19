@@ -306,7 +306,7 @@ ob_start();
                                             <span class="badge bg-danger">
                                                 <i class="bi bi-exclamation-triangle-fill me-1"></i>
                                                 <?= date('d/m/Y', strtotime($tagihan['tanggal'])) ?>
-                                                <br><small>Terlambat <?= abs($tagihan['selisih_hari']) ?> hari dari tanggal masuk kamar</small>
+                                                <br><small>Terlambat <?= abs($tagihan['selisih_hari']) ?> hari dari tanggal tagihan</small>
                                             </span>
                                         </td>
                                         <td>Rp <?= number_format($tagihan['jml_tagihan'], 0, ',', '.') ?></td>
