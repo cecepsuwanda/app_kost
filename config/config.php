@@ -41,8 +41,6 @@ return [
     'helpers' => [
         // Auto-load specific helpers (recommended for performance)
         'autoload' => [
-            'HtmlHelper',
-            'ViewHelper',
             'FormHelper',
             'TableHelper',
             'BootstrapHelper'
@@ -59,8 +57,6 @@ return [
         
         // Global aliases for easier access in views
         'aliases' => [
-            'Html' => 'App\\Helpers\\HtmlHelper',
-            'View' => 'App\\Helpers\\ViewHelper',
             'Form' => 'App\\Helpers\\FormHelper',
             'Table' => 'App\\Helpers\\TableHelper',
             'Bootstrap' => 'App\\Helpers\\BootstrapHelper'
@@ -68,7 +64,7 @@ return [
         
         // Conditional loading based on routes/controllers
         'conditional' => [
-            'admin' => ['ViewHelper'], // Load only for admin routes
+            'admin' => [], // Load only for admin routes
             'api' => [], // No helpers for API routes
         ]
     ],

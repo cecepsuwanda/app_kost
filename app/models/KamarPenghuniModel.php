@@ -135,14 +135,15 @@ class KamarPenghuniModel extends Model
     {
         $sql = "SELECT kp.*, k.nomor as nomor_kamar,
                        GROUP_CONCAT(p.nama SEPARATOR ', ') as nama_penghuni,
-                       DATEDIFF(DATE_ADD(kp.tgl_masuk, INTERVAL 1 MONTH), CURDATE()) as hari_tersisa
+                       DATEDIFF(CURDATE(), t.tanggal) as hari_tersisa
                 FROM {$this->table} kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
+                LEFT JOIN tb_tagihan t ON kp.id = t.id_kmr_penghuni                    
                 WHERE kp.tgl_keluar IS NULL
-                AND DATEDIFF(DATE_ADD(kp.tgl_masuk, INTERVAL 1 MONTH), CURDATE()) <= :days
-                GROUP BY kp.id
+                AND DATEDIFF(CURDATE(), t.tanggal) BETWEEN 0 AND :days
+                GROUP BY kp.id,k.nomor,p.nama,t.tanggal
                 ORDER BY hari_tersisa ASC";
         
         return $this->db->fetchAll($sql, ['days' => $days]);

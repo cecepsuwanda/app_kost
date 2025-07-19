@@ -248,8 +248,8 @@ class TagihanModel extends Model
                        END as status_bayar,
                        CASE 
                            WHEN COALESCE(SUM(byr.jml_bayar), 0) >= t.jml_tagihan THEN 'lunas'
-                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) < 0 THEN 'terlambat'
-                           WHEN DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3 THEN 'mendekati'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) < 0 THEN 'terlambat'
+                           WHEN DATEDIFF(CURDATE(), t.tanggal) BETWEEN 0 AND 3 THEN 'mendekati'
                            ELSE 'normal'
                        END as status_waktu
                 FROM {$this->table} t
