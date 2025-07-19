@@ -527,3 +527,156 @@ class DatabaseDiagnostic extends Controller
         return $formatted;
     }
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: DatabaseDiagnostic
+ * PURPOSE: Comprehensive database health monitoring, diagnostics, and optimization
+ * EXTENDS: Controller (base controller class)
+ * AUTHENTICATION: Requires admin login and elevated privileges
+ * 
+ * BUSINESS_CONTEXT:
+ * This controller provides comprehensive database diagnostic capabilities for
+ * system administrators. It monitors database health, identifies potential issues,
+ * provides performance metrics, and suggests optimizations. Critical for maintaining
+ * system performance and preventing database-related problems in production.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. index()
+ *    PURPOSE: Display main database diagnostic dashboard
+ *    FEATURES:
+ *      - Database connection status
+ *      - Overall health summary
+ *      - Critical issues alerts
+ *      - Performance overview
+ *    USED_IN: System administration, health monitoring
+ *    AI_CONTEXT: Main entry point for database health assessment
+ * 
+ * 2. checkTableIntegrity()
+ *    PURPOSE: Verify database table integrity and structure
+ *    CHECKS_PERFORMED:
+ *      - Table structure validation
+ *      - Foreign key constraint verification
+ *      - Index integrity checking
+ *      - Data consistency validation
+ *    USED_IN: Database maintenance, troubleshooting
+ *    AI_CONTEXT: Ensures database structural integrity
+ * 
+ * 3. analyzePerformance()
+ *    PURPOSE: Analyze database performance metrics and identify bottlenecks
+ *    METRICS_ANALYZED:
+ *      - Query execution times
+ *      - Index usage statistics
+ *      - Table scan frequency
+ *      - Connection pool usage
+ *    USED_IN: Performance optimization, capacity planning
+ *    AI_CONTEXT: Database performance analysis and optimization
+ * 
+ * 4. checkDataConsistency()
+ *    PURPOSE: Validate data consistency across related tables
+ *    VALIDATIONS:
+ *      - Orphaned record detection
+ *      - Referential integrity checking
+ *      - Business rule validation
+ *      - Data quality assessment
+ *    USED_IN: Data integrity maintenance, troubleshooting
+ *    AI_CONTEXT: Ensures business data consistency and quality
+ * 
+ * 5. generateHealthReport()
+ *    PURPOSE: Generate comprehensive database health report
+ *    REPORT_INCLUDES:
+ *      - Overall health score
+ *      - Issue summary and recommendations
+ *      - Performance metrics
+ *      - Optimization suggestions
+ *    USED_IN: Regular health assessments, management reporting
+ *    AI_CONTEXT: Comprehensive database health documentation
+ * 
+ * 6. optimizeTables()
+ *    PURPOSE: Perform database optimization operations
+ *    OPTIMIZATIONS:
+ *      - Table optimization and defragmentation
+ *      - Index rebuilding
+ *      - Statistics updates
+ *      - Query cache optimization
+ *    USED_IN: Regular maintenance, performance tuning
+ *    AI_CONTEXT: Automated database optimization procedures
+ * 
+ * 7. monitorConnections()
+ *    PURPOSE: Monitor database connection usage and health
+ *    MONITORING:
+ *      - Active connection count
+ *      - Connection pool status
+ *      - Long-running query detection
+ *      - Resource usage tracking
+ *    USED_IN: Performance monitoring, resource management
+ *    AI_CONTEXT: Database connection and resource monitoring
+ * 
+ * 8. getSystemVariables()
+ *    PURPOSE: Retrieve and format database system configuration
+ *    INFORMATION:
+ *      - Database version and configuration
+ *      - Performance tuning parameters
+ *      - Security settings
+ *      - Resource limits and allocations
+ *    USED_IN: System configuration review, troubleshooting
+ *    AI_CONTEXT: Database configuration analysis and documentation
+ * 
+ * DIAGNOSTIC_CATEGORIES:
+ * 
+ * 1. STRUCTURAL_HEALTH:
+ *    - Table structure integrity
+ *    - Index effectiveness
+ *    - Foreign key constraints
+ *    - Schema consistency
+ * 
+ * 2. PERFORMANCE_METRICS:
+ *    - Query execution statistics
+ *    - Index usage analysis
+ *    - Resource utilization
+ *    - Response time monitoring
+ * 
+ * 3. DATA_QUALITY:
+ *    - Data consistency checks
+ *    - Orphaned record detection
+ *    - Business rule validation
+ *    - Data integrity verification
+ * 
+ * 4. SECURITY_ASSESSMENT:
+ *    - Access control validation
+ *    - Permission verification
+ *    - Security configuration review
+ *    - Vulnerability assessment
+ * 
+ * BUSINESS_VALUE:
+ * - Proactive issue identification and prevention
+ * - Performance optimization and tuning
+ * - Data integrity assurance
+ * - System reliability improvement
+ * - Capacity planning support
+ * 
+ * USAGE_PATTERNS:
+ * 1. Regular Health Checks:
+ *    Scheduled monitoring -> DatabaseDiagnostic::generateHealthReport()
+ * 
+ * 2. Performance Troubleshooting:
+ *    Issue detection -> DatabaseDiagnostic::analyzePerformance()
+ * 
+ * 3. Maintenance Operations:
+ *    Routine maintenance -> DatabaseDiagnostic::optimizeTables()
+ * 
+ * 4. Data Quality Assurance:
+ *    Quality monitoring -> DatabaseDiagnostic::checkDataConsistency()
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - Critical for maintaining system performance and reliability
+ * - Provides comprehensive database health insights
+ * - Enables proactive maintenance and optimization
+ * - Supports data-driven decision making for system improvements
+ * - Essential for production system monitoring and maintenance
+ * - Helps prevent database-related downtime and performance issues
+ */

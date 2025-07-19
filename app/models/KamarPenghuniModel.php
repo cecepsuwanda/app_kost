@@ -166,6 +166,146 @@ class KamarPenghuniModel extends Model
         $current_count = $detailKamarPenghuniModel->countActivePenghuniInKamar($id_kamar);
         return $current_count < $max_occupants;
     }
-
-
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: KamarPenghuniModel
+ * PURPOSE: Manages room occupancy periods and room-tenant lifecycle management
+ * DATABASE_TABLE: tb_kmr_penghuni
+ * EXTENDS: Model (base model class)
+ * 
+ * BUSINESS_CONTEXT:
+ * This model manages room occupancy periods - the lifecycle of room usage from
+ * initial occupancy to final checkout. Each record represents a continuous period
+ * when a room is occupied, regardless of tenant changes within that period.
+ * This enables billing per room period and tracks room utilization over time.
+ * Multiple tenants can be associated with one room period through DetailKamarPenghuniModel.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. findActiveByKamar($id_kamar)
+ *    PURPOSE: Get current active occupancy period for a specific room
+ *    PARAMETERS: $id_kamar: int - Room ID to find active period for
+ *    RETURNS: array|null - Active occupancy period or null if room is empty
+ *    SQL_QUERY: SELECT * FROM tb_kmr_penghuni WHERE id_kamar = ? AND tgl_keluar IS NULL
+ *    USED_IN:
+ *      - Room assignment validation
+ *      - Billing calculations (bills are per room period)
+ *      - Room status determination
+ *    AI_CONTEXT: Determines if room is currently occupied and gets period info
+ * 
+ * 2. getCurrentOccupancy()
+ *    PURPOSE: Get all currently active room occupancy periods
+ *    PARAMETERS: None
+ *    RETURNS: array - List of all active occupancy periods with room details
+ *    SQL_QUERY: Complex JOIN to get occupancy with tenant information
+ *    USED_IN:
+ *      - Dashboard occupancy displays
+ *      - System-wide occupancy reporting
+ *      - Bulk operations on active rooms
+ *    AI_CONTEXT: System-wide view of current room utilization
+ * 
+ * 3. checkout($id, $tgl_keluar)
+ *    PURPOSE: End a room occupancy period by setting exit date
+ *    PARAMETERS:
+ *      - $id: int - Room period ID to end
+ *      - $tgl_keluar: string - Exit date (YYYY-MM-DD)
+ *    RETURNS: int - Number of affected rows
+ *    BUSINESS_LOGIC: Ends the room period when all tenants have left
+ *    USED_IN:
+ *      - Room checkout processes
+ *      - Room period management
+ *    AI_CONTEXT: Finalizes room occupancy period for billing and history
+ * 
+ * 4. createRoomOccupancy($id_kamar, $tgl_masuk)
+ *    PURPOSE: Start new room occupancy period
+ *    PARAMETERS:
+ *      - $id_kamar: int - Room ID to start occupancy for
+ *      - $tgl_masuk: string - Start date for occupancy
+ *    RETURNS: int - New occupancy period ID
+ *    BUSINESS_LOGIC: Creates new room period when first tenant moves in
+ *    USED_IN:
+ *      - New tenant assignments to empty rooms
+ *      - Room initialization processes
+ *    AI_CONTEXT: Initiates new room occupancy lifecycle
+ * 
+ * 5. getRoomOccupancyHistory($id_kamar)
+ *    PURPOSE: Get historical occupancy periods for a room
+ *    PARAMETERS: $id_kamar: int - Room ID to get history for
+ *    RETURNS: array - All occupancy periods (active and historical)
+ *    USED_IN:
+ *      - Room utilization analysis
+ *      - Historical reporting
+ *      - Room performance analytics
+ *    AI_CONTEXT: Complete room usage history for analytics
+ * 
+ * 6. getActiveRoomsCount()
+ *    PURPOSE: Count total number of rooms currently occupied
+ *    PARAMETERS: None
+ *    RETURNS: int - Number of rooms with active occupancy periods
+ *    USED_IN:
+ *      - Dashboard statistics
+ *      - Occupancy rate calculations
+ *    AI_CONTEXT: Key metric for system utilization
+ * 
+ * 7. canAccommodateMoreTenants($id_kamar, $max_occupants = 2)
+ *    PURPOSE: Check if room can accommodate additional tenants
+ *    PARAMETERS:
+ *      - $id_kamar: int - Room ID to check
+ *      - $max_occupants: int - Maximum tenants per room
+ *    RETURNS: bool - True if room has available capacity
+ *    BUSINESS_LOGIC: Validates room capacity before tenant assignment
+ *    USED_IN:
+ *      - Tenant assignment validation
+ *      - Room availability calculations
+ *    AI_CONTEXT: Capacity management for multi-tenant rooms
+ * 
+ * DATABASE_RELATIONSHIPS:
+ * - MANY-TO-ONE with tb_kamar (which room this period belongs to)
+ * - ONE-TO-MANY with tb_detail_kmr_penghuni (tenants in this period)
+ * - ONE-TO-MANY with tb_tagihan (bills for this room period)
+ * 
+ * KEY_FIELDS:
+ * - id: Primary key
+ * - id_kamar: Foreign key to tb_kamar (which room)
+ * - tgl_masuk: Occupancy period start date
+ * - tgl_keluar: Occupancy period end date (NULL for active periods)
+ * 
+ * BUSINESS_RULES:
+ * - One active occupancy period per room maximum
+ * - Occupancy periods track room usage lifecycle
+ * - Billing is calculated per room period, not per tenant
+ * - Period ends when all tenants have left the room
+ * - Historical periods preserved for reporting and analytics
+ * 
+ * BILLING_INTEGRATION:
+ * - Bills (tb_tagihan) are generated per room occupancy period
+ * - Room period ID used as foreign key in billing
+ * - Period dates affect billing calculation timing
+ * - Critical for automated monthly billing generation
+ * 
+ * USAGE_PATTERNS:
+ * 1. New Room Occupancy:
+ *    Admin::penghuni() -> KamarPenghuniModel::createRoomOccupancy()
+ * 
+ * 2. Billing Generation:
+ *    TagihanModel::generateTagihan() -> KamarPenghuniModel::getCurrentOccupancy()
+ * 
+ * 3. Room Checkout:
+ *    Admin::penghuni() -> KamarPenghuniModel::checkout()
+ * 
+ * 4. Capacity Checking:
+ *    Admin::penghuni() -> KamarPenghuniModel::canAccommodateMoreTenants()
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - Central to room lifecycle management and billing system
+ * - Enables period-based billing rather than tenant-based
+ * - Critical for room utilization tracking and analytics
+ * - Supports multi-tenant room management scenarios
+ * - Important for capacity planning and occupancy optimization
+ * - Provides foundation for room performance analysis
+ */

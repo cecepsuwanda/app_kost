@@ -87,3 +87,74 @@ class Maintenance extends Controller
         exit; // Important: Stop execution after showing maintenance page
     }
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: Maintenance
+ * PURPOSE: System maintenance mode management and utility operations
+ * EXTENDS: Controller (base controller class)
+ * SECURITY_LEVEL: System-level access for maintenance operations
+ * 
+ * BUSINESS_CONTEXT:
+ * This controller handles system maintenance operations and provides a maintenance
+ * mode interface when the system needs to be temporarily unavailable for updates,
+ * backups, or repairs. It ensures graceful handling of system downtime and
+ * provides utilities for system administration tasks.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. index()
+ *    PURPOSE: Display maintenance mode page and handle maintenance operations
+ *    HANDLES:
+ *      - Display maintenance mode notice to users
+ *      - Provide system status information
+ *      - Handle maintenance task execution
+ *    MAINTENANCE_FEATURES:
+ *      - System status checking
+ *      - Database maintenance operations
+ *      - Backup and restore utilities
+ *      - System diagnostics
+ *    USED_IN: System maintenance periods, emergency downtime
+ *    AI_CONTEXT: System administration and maintenance operations
+ * 
+ * 2. checkSystemStatus()
+ *    PURPOSE: Verify system health and component status
+ *    PARAMETERS: None
+ *    RETURNS: System status information
+ *    CHECKS_PERFORMED:
+ *      - Database connectivity
+ *      - File system permissions
+ *      - Configuration validation
+ *      - Critical component health
+ *    USED_IN: Maintenance dashboard, system monitoring
+ *    AI_CONTEXT: System health monitoring and diagnostics
+ * 
+ * MAINTENANCE_FEATURES:
+ * - Maintenance mode display for users
+ * - System health checking and diagnostics
+ * - Database maintenance operations
+ * - Backup and restore utilities
+ * - Emergency system access
+ * 
+ * USAGE_PATTERNS:
+ * - Activated during system updates
+ * - Used for emergency maintenance
+ * - System health monitoring
+ * - Database maintenance operations
+ * 
+ * SECURITY_CONSIDERATIONS:
+ * - Limited access during maintenance mode
+ * - System administrator access only
+ * - Secure handling of system operations
+ * - Protection of system integrity
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - Critical for system reliability and uptime management
+ * - Provides system administration capabilities
+ * - Enables safe system maintenance operations
+ * - Important for business continuity planning
+ * - Supports system monitoring and diagnostics
+ */

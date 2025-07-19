@@ -527,3 +527,172 @@ class Install extends Controller
         ]);
     }
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: Install
+ * PURPOSE: System installation, database setup, and sample data population
+ * EXTENDS: Controller (base controller class)
+ * SECURITY_LEVEL: Public access during installation only
+ * 
+ * BUSINESS_CONTEXT:
+ * This controller handles the initial system setup when the boarding house
+ * management system is first deployed. It creates the database schema,
+ * populates tables with sample data, and sets up the initial admin user.
+ * This is a one-time setup process that prepares the system for production use.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. index()
+ *    PURPOSE: Display installation interface and handle installation process
+ *    HANDLES:
+ *      - GET: Show installation form
+ *      - POST: Execute complete installation process
+ *    INSTALLATION_STEPS:
+ *      - Validate database connection
+ *      - Create all required tables
+ *      - Insert sample data
+ *      - Create default admin user
+ *      - Verify installation success
+ *    USED_IN: Initial system deployment
+ *    AI_CONTEXT: One-time system initialization process
+ * 
+ * 2. createTables()
+ *    PURPOSE: Create all database tables with proper schema and relationships
+ *    PARAMETERS: None (private method)
+ *    RETURNS: bool - Success status
+ *    TABLES_CREATED:
+ *      - users: Authentication and user management
+ *      - tb_penghuni: Tenant information
+ *      - tb_kamar: Room information
+ *      - tb_barang: Billable items catalog
+ *      - tb_kmr_penghuni: Room occupancy periods
+ *      - tb_detail_kmr_penghuni: Tenant-room relationships
+ *      - tb_brng_bawaan: Tenant belongings relationships
+ *      - tb_tagihan: Billing/invoices
+ *      - tb_bayar: Payments
+ *    DDL_FEATURES:
+ *      - Primary keys and auto-increment
+ *      - Foreign key constraints
+ *      - Indexes for performance
+ *      - Default values and constraints
+ *    USED_IN: Installation process
+ *    AI_CONTEXT: Complete database schema creation
+ * 
+ * 3. insertSampleData()
+ *    PURPOSE: Populate tables with realistic sample data for testing
+ *    PARAMETERS: None (private method)
+ *    RETURNS: bool - Success status
+ *    SAMPLE_DATA_INCLUDES:
+ *      - Multiple rooms across different buildings
+ *      - Sample tenants with realistic information
+ *      - Various billable items (motorcycles, bicycles, etc.)
+ *      - Active room assignments and tenant relationships
+ *      - Sample belongings assignments
+ *    BUSINESS_VALUE:
+ *      - Enables immediate system testing
+ *      - Demonstrates system capabilities
+ *      - Provides realistic data scenarios
+ *    USED_IN: Installation process after table creation
+ *    AI_CONTEXT: System demonstration and testing data
+ * 
+ * 4. createSampleRooms()
+ *    PURPOSE: Create sample room data across multiple buildings
+ *    PARAMETERS: None (private method)
+ *    ROOM_STRUCTURE:
+ *      - Building 1: Rooms 101-105
+ *      - Building 2: Rooms 201-205  
+ *      - Building 3: Rooms 301-305
+ *    PRICING: Rooms have different prices for demonstration
+ *    USED_IN: Sample data insertion process
+ *    AI_CONTEXT: Demonstrates multi-building room management
+ * 
+ * 5. createSampleTenants()
+ *    PURPOSE: Create realistic tenant data with Indonesian names and information
+ *    PARAMETERS: None (private method)
+ *    TENANT_DATA:
+ *      - Realistic Indonesian names
+ *      - Valid phone numbers and KTP numbers
+ *      - Mix of active and historical tenants
+ *    USED_IN: Sample data insertion process
+ *    AI_CONTEXT: Demonstrates tenant management capabilities
+ * 
+ * 6. createSampleItems()
+ *    PURPOSE: Create billable items catalog with realistic pricing
+ *    PARAMETERS: None (private method)
+ *    ITEMS_INCLUDED:
+ *      - MOTOR (Motorcycle): 50,000/month
+ *      - SEPEDA (Bicycle): 10,000/month
+ *      - KULKAS_MINI (Mini Fridge): 25,000/month
+ *      - AC (Air Conditioner): 100,000/month
+ *      - KOMPUTER (Computer): 30,000/month
+ *    USED_IN: Sample data insertion process
+ *    AI_CONTEXT: Demonstrates additional billing capabilities
+ * 
+ * 7. createSampleRoomAssignments()
+ *    PURPOSE: Create realistic room assignments and tenant relationships
+ *    PARAMETERS: None (private method)
+ *    ASSIGNMENTS_CREATED:
+ *      - Multiple tenants in some rooms
+ *      - Various room occupancy scenarios
+ *      - Different entry dates for realistic history
+ *    USED_IN: Sample data insertion process
+ *    AI_CONTEXT: Demonstrates multi-tenant room management
+ * 
+ * 8. createSampleBelongings()
+ *    PURPOSE: Assign belongings to tenants for billing demonstration
+ *    PARAMETERS: None (private method)
+ *    BELONGINGS_ASSIGNMENTS:
+ *      - Various tenants with different items
+ *      - Multiple items per tenant scenarios
+ *      - Realistic item distribution
+ *    USED_IN: Sample data insertion process
+ *    AI_CONTEXT: Demonstrates additional billing calculations
+ * 
+ * INSTALLATION_WORKFLOW:
+ * 1. User accesses /install URL
+ * 2. Installation form displayed with database configuration
+ * 3. User submits installation request
+ * 4. System validates database connection
+ * 5. createTables() - Database schema creation
+ * 6. insertSampleData() - Sample data population
+ * 7. Default admin user creation
+ * 8. Installation success confirmation
+ * 9. Redirect to login page
+ * 
+ * SECURITY_CONSIDERATIONS:
+ * - Should be disabled after successful installation
+ * - No authentication required during installation
+ * - Database credentials validation
+ * - Error handling without exposing sensitive information
+ * 
+ * DATABASE_SCHEMA_DESIGN:
+ * - Normalized table structure
+ * - Proper foreign key relationships
+ * - Indexes for performance optimization
+ * - Constraints for data integrity
+ * - Support for soft deletes (tgl_keluar fields)
+ * 
+ * SAMPLE_DATA_REALISM:
+ * - Indonesian boarding house context
+ * - Realistic pricing and room numbers
+ * - Authentic names and contact information
+ * - Varied scenarios for comprehensive testing
+ * 
+ * ERROR_HANDLING:
+ * - Database connection validation
+ * - Table creation error handling
+ * - Data insertion error management
+ * - Rollback capabilities for failed installations
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - Critical for system deployment and setup
+ * - Creates foundation for all other system operations
+ * - Demonstrates complete system capabilities through sample data
+ * - Essential for testing and development environments
+ * - Provides realistic scenarios for AI training and understanding
+ * - Should be secured or removed in production after initial setup
+ */
