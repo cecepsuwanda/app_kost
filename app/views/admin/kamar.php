@@ -36,8 +36,6 @@ $showSidebar = true;
                             <th>Nomor Kamar</th>
                             <th>Harga Sewa</th>
                             <th>Status</th>
-                            <th>Penghuni</th>
-                            <th>Barang Bawaan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -56,29 +54,6 @@ $showSidebar = true;
                                         <span class="badge bg-success">Kosong</span>
                                     <?php else: ?>
                                         <span class="badge bg-info">Terisi</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($k['nama_penghuni']): ?>
-                                        <?= htmlspecialchars($k['nama_penghuni']) ?>
-                                        <br><small class="text-muted">
-                                            Masuk: <?= date('d/m/Y', strtotime($k['tgl_masuk'])) ?>
-                                        </small>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($k['nama_penghuni'] && !empty($k['barang_bawaan'])): ?>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($k['barang_bawaan'] as $barang): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                    <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>

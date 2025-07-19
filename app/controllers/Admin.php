@@ -262,7 +262,7 @@ class Admin extends Controller
             $this->redirect($this->config->appConfig('url').'/admin/kamar');
         }
 
-        $kamar = $kamarModel->getKamarWithAllOccupantsAndBelongings();
+        $kamar = $kamarModel->getKamarWithBasicStatus();
 
         $data = [
             'title' => 'Kelola Kamar - ' . $this->config->appConfig('name'),
