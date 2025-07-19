@@ -374,8 +374,8 @@ foreach ($diagnostics as $section => $data) {
                             foreach ($diagnostics['performance']['table_sizes'] as $table): 
                             ?>
                             <tr>
-                                <td><code><?= htmlspecialchars($table['table_name']) ?></code></td>
-                                <td><?= number_format($table['table_rows']) ?></td>
+                                <td><code><?= htmlspecialchars($table['TABLE_NAME']) ?></code></td>
+                                <td><?= number_format($table['TABLE_ROWS']) ?></td>
                                 <td><?= $table['size_mb'] ?></td>
                                 <td>
                                     <div class="progress" style="height: 20px;">

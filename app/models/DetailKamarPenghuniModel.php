@@ -16,7 +16,7 @@ class DetailKamarPenghuniModel extends Model
 
     public function findActiveByKamarPenghuni($id_kmr_penghuni)
     {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE id_kmr_penghuni = :id_kmr_penghuni AND tgl_keluar IS NULL", 
+        return $this->db->fetchAll("SELECT dkp.*, p.nama, p.no_ktp, p.no_hp FROM {$this->table} dkp INNER JOIN tb_penghuni p ON dkp.id_penghuni = p.id WHERE dkp.id_kmr_penghuni = :id_kmr_penghuni AND dkp.tgl_keluar IS NULL", 
                                    ['id_kmr_penghuni' => $id_kmr_penghuni]);
     }
 

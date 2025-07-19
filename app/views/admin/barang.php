@@ -15,71 +15,60 @@ $showSidebar = true;
     </button>
 </div>
 
-<!-- Barang Table -->
-<?php
-// Prepare table data
-$tableData = [];
-$no = 1;
-foreach ($barang as $b) {
-    $buttons = [
-        ['icon' => '<i class="bi bi-pencil"></i>', 'class' => 'btn-outline-primary', 'onclick' => 'editBarang(' . htmlspecialchars(json_encode($b)) . ')'],
-        ['icon' => '<i class="bi bi-trash"></i>', 'class' => 'btn-outline-danger', 'onclick' => "deleteBarang({$b['id']}, '" . htmlspecialchars($b['nama']) . "')"]
-    ];
-    
-    // Generate action buttons HTML
-    $actionButtonsHtml = '<div class="btn-group btn-group-sm">';
-    foreach ($buttons as $button) {
-        $class = $button['class'] ?? 'btn-outline-primary';
-        $title = isset($button['title']) ? ' title="' . htmlspecialchars($button['title']) . '"' : '';
-        $onclick = isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '';
-        $disabled = isset($button['disabled']) && $button['disabled'] ? ' disabled' : '';
-        
-        $actionButtonsHtml .= "<button type=\"button\" class=\"btn {$class}\"{$title}{$onclick}{$disabled}>";
-        $actionButtonsHtml .= $button['icon'] ?? '';
-        $actionButtonsHtml .= isset($button['text']) ? ' ' . $button['text'] : '';
-        $actionButtonsHtml .= '</button>';
-    }
-    $actionButtonsHtml .= '</div>';
-    
-    $tableData[] = [
-        $no++,
-        '<strong>' . htmlspecialchars($b['nama']) . '</strong>',
-        '<span class="badge bg-success">Rp ' . number_format($b['harga'], 0, ',', '.') . '</span>',
-        $actionButtonsHtml
-    ];
-}
-
-// Render data table directly
-$headers = ['No', 'Nama Barang', 'Harga', 'Aksi'];
-$emptyMessage = 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.';
-?>
-
+<!-- Barang List -->
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
         <h5 class="mb-0">Daftar Barang</h5>
     </div>
-    <div class="card-body p-0">
-        <?php if (empty($tableData)): ?>
+    <div class="card-body">
+        <?php if (empty($barang)): ?>
             <div class="text-center py-5">
-                <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                <h5 class="text-muted mt-3"><?= $emptyMessage ?></h5>
+                <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3">Belum ada barang</h5>
+                <p class="text-muted">Klik tombol "Tambah Barang" untuk menambahkan barang baru.</p>
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table mb-0 table-striped">
+                <table class="table table-striped">
                     <thead>
                         <tr>
-                            <?php foreach ($headers as $header): ?>
-                                <th><?= $header ?></th>
-                            <?php endforeach; ?>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Harga</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($tableData as $row): ?>
+                        <?php $no = 1; foreach ($barang as $b): ?>
                             <tr>
-                                <?php foreach ($row as $cell): ?>
-                                    <td><?= $cell ?></td>
-                                <?php endforeach; ?>
+                                <td><?= $no++ ?></td>
+                                <td>
+                                    <strong><?= htmlspecialchars($b['nama']) ?></strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        Rp <?= number_format($b['harga'], 0, ',', '.') ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editBarangModal"
+                                                data-id="<?= $b['id'] ?>"
+                                                data-nama="<?= htmlspecialchars($b['nama']) ?>"
+                                                data-harga="<?= $b['harga'] ?>">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteBarangModal"
+                                                data-id="<?= $b['id'] ?>"
+                                                data-nama="<?= htmlspecialchars($b['nama']) ?>">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

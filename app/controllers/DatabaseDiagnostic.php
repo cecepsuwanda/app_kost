@@ -35,7 +35,7 @@ class DatabaseDiagnostic extends Controller
             'diagnostics' => $diagnostics,
             'showSidebar' => true
         ];
-
+        
         $this->loadView('admin/database-diagnostic', $data);
     }
 

@@ -223,6 +223,7 @@ ob_start();
     </div>
     <?php endif; ?>
 
+    <?php if ($isLoggedIn && isset($user)): ?>   
     <!-- Quick Actions -->
     <div class="row mb-4">
         <div class="col-12">
@@ -264,6 +265,7 @@ ob_start();
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <?php 

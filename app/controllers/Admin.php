@@ -458,7 +458,8 @@ class Admin extends Controller
                             'jumlah' => 0
                         ];
                     }
-                    $barangNames[$itemKey]['jumlah'] += $barang['jumlah'];
+                    
+                    $barangNames[$itemKey]['jumlah'] += 1;
                 }
             }
             
