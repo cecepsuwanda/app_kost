@@ -42,7 +42,8 @@ return [
         // Auto-load specific helpers (recommended for performance)
         'autoload' => [
             'HtmlHelper',
-            'ViewHelper'
+            'ViewHelper',
+            'FormHelper'
         ],
         
         // Load all helpers in directory (set to true for convenience)
@@ -57,7 +58,8 @@ return [
         // Global aliases for easier access in views
         'aliases' => [
             'Html' => 'App\\Helpers\\HtmlHelper',
-            'View' => 'App\\Helpers\\ViewHelper'
+            'View' => 'App\\Helpers\\ViewHelper',
+            'Form' => 'App\\Helpers\\FormHelper'
         ],
         
         // Conditional loading based on routes/controllers

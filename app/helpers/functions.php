@@ -134,3 +134,93 @@ if (!function_exists('is_helper_loaded')) {
         return \App\Core\HelperManager::getInstance()->isHelperLoaded($helperName);
     }
 }
+
+if (!function_exists('form_helper')) {
+    /**
+     * Get FormHelper instance or call method directly
+     */
+    function form_helper(string $method = null, ...$args)
+    {
+        $className = 'App\\Helpers\\FormHelper';
+        
+        if ($method === null) {
+            return $className;
+        }
+        
+        if (method_exists($className, $method)) {
+            return call_user_func_array([$className, $method], $args);
+        }
+        
+        throw new BadMethodCallException("Method {$method} not found in FormHelper");
+    }
+}
+
+if (!function_exists('form_open')) {
+    /**
+     * Open form tag shortcut
+     */
+    function form_open(string $action = '', array $options = []): string
+    {
+        return \App\Helpers\FormHelper::open($action, $options);
+    }
+}
+
+if (!function_exists('form_close')) {
+    /**
+     * Close form tag shortcut
+     */
+    function form_close(): string
+    {
+        return \App\Helpers\FormHelper::close();
+    }
+}
+
+if (!function_exists('form_text')) {
+    /**
+     * Text input shortcut
+     */
+    function form_text(string $name, string $value = '', array $options = []): string
+    {
+        return \App\Helpers\FormHelper::text($name, $value, $options);
+    }
+}
+
+if (!function_exists('form_select')) {
+    /**
+     * Select dropdown shortcut
+     */
+    function form_select(string $name, array $options = [], string $selected = '', array $attributes = []): string
+    {
+        return \App\Helpers\FormHelper::select($name, $options, $selected, $attributes);
+    }
+}
+
+if (!function_exists('form_checkbox')) {
+    /**
+     * Checkbox input shortcut
+     */
+    function form_checkbox(string $name, string $value = '1', bool $checked = false, array $options = []): string
+    {
+        return \App\Helpers\FormHelper::checkbox($name, $value, $checked, $options);
+    }
+}
+
+if (!function_exists('form_submit')) {
+    /**
+     * Submit button shortcut
+     */
+    function form_submit(string $text = 'Submit', array $options = []): string
+    {
+        return \App\Helpers\FormHelper::submit($text, $options);
+    }
+}
+
+if (!function_exists('form_group')) {
+    /**
+     * Form group shortcut
+     */
+    function form_group(string $label, string $input, array $options = []): string
+    {
+        return \App\Helpers\FormHelper::group($label, $input, $options);
+    }
+}
