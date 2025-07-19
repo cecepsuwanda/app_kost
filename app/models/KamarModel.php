@@ -114,10 +114,29 @@ class KamarModel extends Model
         $sql = "SELECT k.gedung,
                        COUNT(k.id) as total_kamar,
                        COALESCE(COUNT(CASE WHEN dkp.id IS NOT NULL THEN 1 END), 0) as kamar_terisi,
-                       COALESCE(COUNT(CASE WHEN dkp.id IS NULL THEN 1 END), 0) as kamar_kosong
+                       COALESCE(COUNT(CASE WHEN dkp.id IS NULL THEN 1 END), 0) as kamar_kosong,
+                       MIN(k.harga) as harga_terendah,
+                       MAX(k.harga) as harga_tertinggi,
+                       AVG(k.harga) as harga_rata_rata
                 FROM tb_kamar k
                 LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+                GROUP BY k.gedung
+                ORDER BY k.gedung";
+        
+        return $this->db->fetchAll($sql);
+    }
+
+    public function getStatistikKamarKosongPerGedung()
+    {
+        $sql = "SELECT k.gedung,
+                       COUNT(k.id) as jumlah_tersedia,
+                       MIN(k.harga) as harga_terendah,
+                       MAX(k.harga) as harga_tertinggi,
+                       AVG(k.harga) as harga_rata_rata
+                FROM tb_kamar k
+                LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
+                WHERE kp.id IS NULL
                 GROUP BY k.gedung
                 ORDER BY k.gedung";
         

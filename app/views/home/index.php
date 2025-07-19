@@ -52,6 +52,73 @@ ob_start();
         </div>
     </div>
 
+    <!-- Building Statistics -->
+    <?php if (!empty($kamarKosong ?? [])): ?>
+        <?php
+        // Calculate statistics per building for available rooms
+        $statistikGedung = [];
+        foreach ($kamarKosong as $kamar) {
+            $gedung = $kamar['gedung'];
+            if (!isset($statistikGedung[$gedung])) {
+                $statistikGedung[$gedung] = [
+                    'jumlah_tersedia' => 0,
+                    'harga_terendah' => $kamar['harga'],
+                    'harga_tertinggi' => $kamar['harga']
+                ];
+            }
+            $statistikGedung[$gedung]['jumlah_tersedia']++;
+            $statistikGedung[$gedung]['harga_terendah'] = min($statistikGedung[$gedung]['harga_terendah'], $kamar['harga']);
+            $statistikGedung[$gedung]['harga_tertinggi'] = max($statistikGedung[$gedung]['harga_tertinggi'], $kamar['harga']);
+        }
+        ksort($statistikGedung);
+        ?>
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-building"></i>
+                            Ringkasan Per Gedung
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <?php foreach ($statistikGedung as $gedung => $data): ?>
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-info h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="bi bi-building"></i>
+                                                Gedung <?= $gedung ?>
+                                            </h6>
+                                            <div class="row text-center">
+                                                <div class="col-12 mb-2">
+                                                    <span class="badge bg-success" style="font-size: 1rem;">
+                                                        <?= $data['jumlah_tersedia'] ?> Kamar Tersedia
+                                                    </span>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-muted">
+                                                        <strong>Harga:</strong><br>
+                                                        Rp <?= number_format($data['harga_terendah'], 0, ',', '.') ?>
+                                                        <?php if ($data['harga_terendah'] != $data['harga_tertinggi']): ?>
+                                                            - Rp <?= number_format($data['harga_tertinggi'], 0, ',', '.') ?>
+                                                        <?php endif; ?>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Available Rooms Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -69,24 +136,61 @@ ob_start();
                             <p class="text-muted mt-2">Tidak ada kamar yang tersedia saat ini.</p>
                         </div>
                     <?php else: ?>
-                        <div class="row">
-                            <?php foreach (($kamarKosong ?? []) as $kamar): ?>
-                                <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="card border-success">
-                                        <div class="card-body">
-                                            <h6 class="card-title">
-                                                <i class="bi bi-door-closed"></i>
-                                                Kamar <?= htmlspecialchars($kamar['nomor']) ?>
-                                            </h6>
-                                            <p class="card-text">
-                                                <strong>Harga:</strong> Rp <?= number_format($kamar['harga'], 0, ',', '.') ?>/bulan
-                                            </p>
-                                            <span class="badge bg-success">Tersedia</span>
-                                        </div>
-                                    </div>
+                        <?php
+                        // Group rooms by building
+                        $kamarPerGedung = [];
+                        foreach ($kamarKosong as $kamar) {
+                            $gedung = $kamar['gedung'];
+                            if (!isset($kamarPerGedung[$gedung])) {
+                                $kamarPerGedung[$gedung] = [];
+                            }
+                            $kamarPerGedung[$gedung][] = $kamar;
+                        }
+                        ksort($kamarPerGedung); // Sort by building number
+                        ?>
+                        
+                        <?php foreach ($kamarPerGedung as $gedung => $kamarList): ?>
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="badge bg-primary me-2" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                                        <i class="bi bi-building"></i>
+                                        Gedung <?= $gedung ?>
+                                    </span>
+                                    <span class="text-muted">
+                                        (<?= count($kamarList) ?> kamar tersedia)
+                                    </span>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
+                                
+                                <div class="row">
+                                    <?php foreach ($kamarList as $kamar): ?>
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="card border-success h-100">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">
+                                                        <i class="bi bi-door-closed"></i>
+                                                        Kamar <?= htmlspecialchars($kamar['nomor']) ?>
+                                                    </h6>
+                                                    <p class="card-text">
+                                                        <strong>Harga:</strong> Rp <?= number_format($kamar['harga'], 0, ',', '.') ?>/bulan
+                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="badge bg-success">Tersedia</span>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-building"></i>
+                                                            Gedung <?= $gedung ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            
+                            <?php if ($gedung !== array_key_last($kamarPerGedung)): ?>
+                                <hr class="my-4">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>

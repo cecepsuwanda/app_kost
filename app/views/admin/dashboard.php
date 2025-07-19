@@ -96,6 +96,78 @@ $showSidebar = true;
     </div>
 </div>
 
+<!-- Building Statistics -->
+<?php if (!empty($statistikPerGedung)): ?>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-building"></i>
+                    Statistik Per Gedung
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <?php foreach ($statistikPerGedung as $stat): ?>
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-info h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-building"></i>
+                                        Gedung <?= $stat['gedung'] ?>
+                                    </h6>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <h5 class="text-primary"><?= $stat['total_kamar'] ?></h5>
+                                            <small class="text-muted">Total</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="text-success"><?= $stat['kamar_terisi'] ?></h5>
+                                            <small class="text-muted">Terisi</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="text-info"><?= $stat['kamar_kosong'] ?></h5>
+                                            <small class="text-muted">Kosong</small>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="text-center">
+                                        <small class="text-muted">
+                                            <strong>Rentang Harga:</strong><br>
+                                            Rp <?= number_format($stat['harga_terendah'], 0, ',', '.') ?>
+                                            <?php if ($stat['harga_terendah'] != $stat['harga_tertinggi']): ?>
+                                                - Rp <?= number_format($stat['harga_tertinggi'], 0, ',', '.') ?>
+                                            <?php endif; ?>
+                                            <br>
+                                            <small>(Rata-rata: Rp <?= number_format($stat['harga_rata_rata'], 0, ',', '.') ?>)</small>
+                                        </small>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="progress" style="height: 10px;">
+                                            <?php 
+                                            $occupancyRate = $stat['total_kamar'] > 0 ? ($stat['kamar_terisi'] / $stat['total_kamar']) * 100 : 0;
+                                            $progressColor = $occupancyRate > 80 ? 'bg-success' : ($occupancyRate > 50 ? 'bg-warning' : 'bg-danger');
+                                            ?>
+                                            <div class="progress-bar <?= $progressColor ?>" role="progressbar" 
+                                                 style="width: <?= $occupancyRate ?>%" 
+                                                 aria-valuenow="<?= $occupancyRate ?>" aria-valuemin="0" aria-valuemax="100">
+                                                <?= round($occupancyRate, 1) ?>%
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Tingkat Hunian</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Quick Actions -->
 <div class="row mb-4">
     <div class="col-12">

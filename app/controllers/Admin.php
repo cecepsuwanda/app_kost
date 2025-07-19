@@ -63,6 +63,9 @@ class Admin extends Controller
         $kamarTersedia = $kamarModel->getKamarTersedia();
         $kamarMendekatiJatuhTempo = $this->addBarangBawaanToPenghuni($kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(5));
         $tagihanTerlambat = $this->addBarangBawaanToPenghuni($tagihanModel->getTagihanTerlambat());
+        
+        // Get building statistics
+        $statistikPerGedung = $kamarModel->getStatistikPerGedung();
 
         $data = [
             'title' => 'Dashboard Admin - ' . $this->config->appConfig('name'),
@@ -71,6 +74,7 @@ class Admin extends Controller
             'kamarTersedia' => $kamarTersedia,
             'kamarMendekatiJatuhTempo' => $kamarMendekatiJatuhTempo,
             'tagihanTerlambat' => $tagihanTerlambat,
+            'statistikPerGedung' => $statistikPerGedung,
             'showSidebar' => true
         ];
 
