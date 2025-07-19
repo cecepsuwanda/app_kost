@@ -100,9 +100,14 @@ class TagihanModel extends Model
             $tanggalMasukKamarPenghuniDay = date('d', strtotime($tglMasukKamarPenghuni));
             
             // Validate if the date is valid for the target month/year
-            // If not valid (e.g., Feb 30), subtract one day from room entry date
-            if (!checkdate($bulan, $tanggalMasukKamarPenghuniDay, $tahun)) {
+            // Keep subtracting one day until we get a valid date
+            while (!checkdate($bulan, $tanggalMasukKamarPenghuniDay, $tahun)) {
                 $tanggalMasukKamarPenghuniDay = $tanggalMasukKamarPenghuniDay - 1;
+                // Safety check to prevent infinite loop (should never reach 0)
+                if ($tanggalMasukKamarPenghuniDay < 1) {
+                    $tanggalMasukKamarPenghuniDay = 1;
+                    break;
+                }
             }
             
             $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamarPenghuniDay);
