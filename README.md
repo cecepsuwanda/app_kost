@@ -2148,3 +2148,121 @@ BootstrapHelper menyediakan 12 global functions untuk akses yang lebih mudah:
 ```
 
 **Hasil: 70% pengurangan kode, maintainability lebih baik, dan UI yang konsisten!** 🎉
+
+---
+
+## Fitur Kelola Data (Data Management)
+
+### Deskripsi
+Fitur Kelola Data memungkinkan admin untuk mengekspor dan mengimpor data dari/ke database dalam format SQL dengan interface yang user-friendly dan aman.
+
+### Fitur yang Tersedia
+
+#### 1. Menu Navigation
+- **Lokasi**: Menu Admin → Kelola Data
+- **URL**: `/admin/data-management`
+- **Akses**: Hanya untuk user yang sudah login sebagai admin
+
+#### 2. Export Data ke SQL
+- **Fungsi**: Mengekspor seluruh data dari semua tabel ke file SQL
+- **URL**: `/admin/export-sql`
+- **Format file**: `kos_data_export_YYYY-MM-DD_HH-mm-ss.sql`
+- **Data yang diekspor**:
+  - Data Pengguna (users)
+  - Data Penghuni (tb_penghuni)
+  - Data Kamar (tb_kamar)
+  - Data Barang (tb_barang)
+  - Data Hunian (tb_kmr_penghuni)
+  - Detail Hunian (tb_detail_kmr_penghuni)
+  - Barang Bawaan (tb_brng_bawaan)
+  - Data Tagihan (tb_tagihan)
+  - Data Pembayaran (tb_bayar)
+
+#### 3. Import Data dari SQL
+- **Fungsi**: Mengimpor data dari file SQL ke database
+- **URL**: `/admin/import-sql`
+- **Format yang diterima**: File .sql (maksimal 50MB)
+- **Validasi**: Format file, ukuran file, dan syntax SQL
+- **Keamanan**: Menggunakan transaction untuk keamanan data
+
+### Cara Penggunaan
+
+#### Export Data:
+1. Login sebagai admin
+2. Akses menu "Admin" → "Kelola Data"
+3. Klik tombol "Download File SQL" pada card Export Data
+4. File akan didownload otomatis dengan nama timestamp
+
+#### Import Data:
+1. Login sebagai admin
+2. Akses menu "Admin" → "Kelola Data"
+3. Pilih file SQL pada form Import Data
+4. Klik tombol "Import Data SQL"
+5. Sistem akan memberikan konfirmasi hasil import
+
+### Fitur Keamanan
+
+#### Export:
+- Hanya user yang sudah login dan memiliki akses admin
+- Data disanitasi dengan proper quoting
+- Foreign key handling yang aman
+
+#### Import:
+- Validasi file format (.sql only)
+- Validasi ukuran file (maksimal 50MB)
+- Transaction-based import untuk data integrity
+- SQL parsing yang aman untuk mencegah injection
+- Error handling yang komprehensif
+
+### File yang Ditambahkan/Dimodifikasi
+
+#### Controller
+- **File**: `app/controllers/Admin.php`
+- **Method baru**:
+  - `dataManagement()` - Menampilkan halaman kelola data
+  - `exportSql()` - Mengekspor data ke file SQL
+  - `importSql()` - Mengimpor data dari file SQL
+  - `parseSqlStatements()` - Parsing SQL statements dengan aman
+
+#### View
+- **File**: `app/views/admin/data-management.php`
+- **Konten**: Interface lengkap untuk export/import dengan validasi JavaScript
+
+#### Routing
+- **File**: `app/core/Application.php`
+- **Routes baru**:
+  - `/admin/data-management` → `Admin@dataManagement`
+  - `/admin/export-sql` → `Admin@exportSql`
+  - `/admin/import-sql` → `Admin@importSql`
+
+#### Navigation
+- **File**: `app/views/layouts/main.php`
+- **Penambahan**: Menu "Kelola Data" di dropdown Admin dan sidebar
+
+### Technical Details
+
+#### Export Process:
+1. Ambil daftar semua tabel
+2. Generate CREATE TABLE statements
+3. Export data dengan INSERT statements
+4. Handle foreign key constraints
+5. Generate downloadable file
+
+#### Import Process:
+1. Validasi file upload
+2. Parse SQL statements dengan aman
+3. Disable foreign key checks
+4. Execute statements dalam transaction
+5. Re-enable foreign key checks
+6. Commit atau rollback based on success
+
+#### SQL Parsing:
+- Handle quoted strings dengan benar
+- Remove comments (-- dan /* */)
+- Split statements pada semicolon
+- Filter empty statements
+
+### Backup Recommendations
+- Lakukan export secara berkala sebagai backup
+- Test import di environment development sebelum production
+- Simpan backup file di lokasi yang aman
