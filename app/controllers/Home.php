@@ -33,7 +33,7 @@ class Home extends Controller
 
         // Get overdue payments
         $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
-        
+                
         // Add barang bawaan data for each penghuni in tagihan
         foreach ($tagihanTerlambat as &$tagihan) {
             if (isset($tagihan['id_penghuni']) && $tagihan['id_penghuni']) {

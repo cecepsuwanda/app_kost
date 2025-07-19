@@ -281,7 +281,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(t.tanggal, kp.tgl_masuk) < 0
+                WHERE DATEDIFF(CURDATE(), kp.tgl_masuk) < 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
@@ -305,7 +305,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(t.tanggal, kp.tgl_masuk) BETWEEN 0 AND 3
+                WHERE DATEDIFF(CURDATE(), kp.tgl_masuk) BETWEEN 0 AND 3
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
