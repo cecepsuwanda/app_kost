@@ -8,7 +8,18 @@
  * php maintenance.php       - Show current status
  */
 
-require_once __DIR__ . '/app/bootstrap.php';
+// Define constants
+define('ROOT_PATH', __DIR__);
+define('APP_PATH', ROOT_PATH . '/app');
+define('CONFIG_PATH', ROOT_PATH . '/config');
+define('PUBLIC_PATH', ROOT_PATH . '/public');
+
+// Include autoloader
+require_once APP_PATH . '/core/Autoloader.php';
+
+// Create autoloader instance
+$autoloader = new App\Core\Autoloader();
+$autoloader->register();
 
 use App\Core\Config;
 
