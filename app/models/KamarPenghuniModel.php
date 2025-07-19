@@ -133,22 +133,27 @@ class KamarPenghuniModel extends Model
 
     public function getKamarSewaanMendekatiJatuhTempo($days = 30)
     {
-        $sql = "SELECT kp.*, k.nomor as nomor_kamar, k.gedung,
-                       GROUP_CONCAT(DISTINCT p.nama SEPARATOR ', ') as nama_penghuni,
-                       GROUP_CONCAT(DISTINCT p.id SEPARATOR ',') as id_penghuni,
-                       t.tanggal as tanggal_tagihan,
-                       t.bulan, t.tahun,
-                       DATEDIFF(t.tanggal, CURDATE()) as hari_tersisa
+        $sql = "SELECT kp.id as id_kmr_penghuni, 
+                       kp.tgl_masuk, kp.tgl_keluar,
+                       k.id as id_kamar, k.nomor as nomor_kamar, k.gedung, k.harga,
+                       GROUP_CONCAT(DISTINCT p.nama ORDER BY p.nama SEPARATOR ', ') as nama_penghuni,
+                       GROUP_CONCAT(DISTINCT p.id ORDER BY p.nama SEPARATOR ',') as id_penghuni,
+                       GROUP_CONCAT(DISTINCT p.no_hp ORDER BY p.nama SEPARATOR ', ') as no_hp,
+                       t.id as id_tagihan, t.tanggal as tanggal_tagihan,
+                       t.bulan, t.tahun, t.jml_tagihan,
+                       DATEDIFF(t.tanggal, CURDATE()) as hari_tersisa,
+                       COUNT(DISTINCT p.id) as jumlah_penghuni
                 FROM {$this->table} kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                INNER JOIN tb_tagihan t ON kp.id = t.id_kmr_penghuni
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
-                LEFT JOIN tb_tagihan t ON kp.id = t.id_kmr_penghuni                    
                 WHERE kp.tgl_keluar IS NULL
                 AND t.tanggal IS NOT NULL
                 AND DATEDIFF(t.tanggal, CURDATE()) BETWEEN 0 AND :days
-                GROUP BY kp.id, k.nomor, k.gedung, t.tanggal, t.bulan, t.tahun
-                ORDER BY hari_tersisa ASC";
+                GROUP BY kp.id, k.id, k.nomor, k.gedung, k.harga, t.id, t.tanggal, t.bulan, t.tahun, t.jml_tagihan, kp.tgl_masuk, kp.tgl_keluar
+                HAVING COUNT(DISTINCT p.id) > 0
+                ORDER BY hari_tersisa ASC, k.nomor";
         
         return $this->db->fetchAll($sql, ['days' => $days]);
     }

@@ -299,7 +299,32 @@ $showSidebar = true;
                                                 <br><small class="text-muted">Gedung <?= htmlspecialchars($item['gedung']) ?></small>
                                             <?php endif; ?>
                                         </td>
-                                        <td><?= htmlspecialchars($item['nama_penghuni']) ?></td>
+                                        <td>
+                                            <?php if (!empty($item['nama_penghuni'])): ?>
+                                                <?php 
+                                                $nama_list = explode(', ', $item['nama_penghuni']);
+                                                $jumlah_penghuni = $item['jumlah_penghuni'] ?? count($nama_list);
+                                                ?>
+                                                <?php if (count($nama_list) == 1): ?>
+                                                    <span class="fw-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($nama_list[0]) ?></span>
+                                                <?php else: ?>
+                                                    <div class="d-flex flex-column gap-1">
+                                                        <?php foreach ($nama_list as $index => $nama): ?>
+                                                            <span class="badge bg-primary text-white" style="font-size: 0.7rem;">
+                                                                <i class="bi bi-person"></i>
+                                                                <?= htmlspecialchars(trim($nama)) ?>
+                                                            </span>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-people"></i> 
+                                                        <?= $jumlah_penghuni ?> penghuni
+                                                    </small>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="text-muted" style="font-size: 0.8rem;">Tidak ada penghuni</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <?php if (!empty($item['tanggal_tagihan'])): ?>
                                                 <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">
