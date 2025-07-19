@@ -354,7 +354,7 @@ $showSidebar = true;
                             <tr>
                                 <th>Kamar</th>
                                 <th>Penghuni</th>
-                                <th>Barang Bawaan</th>
+                                <th>Tanggal Tagihan</th>
                                 <th>Bulan</th>
                                 <th>Tagihan</th>
                                 <th>Dibayar</th>
@@ -368,14 +368,14 @@ $showSidebar = true;
                                     <td><strong><?= htmlspecialchars($tagihan['nomor_kamar']) ?></strong></td>
                                     <td><?= htmlspecialchars($tagihan['nama_penghuni']) ?></td>
                                     <td>
-                                        <?php if (!empty($tagihan['barang_bawaan'])): ?>
-                                            <div class="d-flex flex-wrap gap-1">
-                                                <?php foreach ($tagihan['barang_bawaan'] as $barang): ?>
-                                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem;" title="<?= htmlspecialchars($barang['nama_barang']) ?> (+Rp <?= number_format($barang['harga_barang'], 0, ',', '.') ?>)">
-                                                        <?= htmlspecialchars($barang['nama_barang']) ?>
-                                                    </span>
-                                                <?php endforeach; ?>
-                                            </div>
+                                        <?php if (!empty($tagihan['tanggal'])): ?>
+                                            <span class="badge bg-danger text-white" style="font-size: 0.8rem;">
+                                                <i class="bi bi-calendar-event"></i>
+                                                <?= date('d/m/Y', strtotime($tagihan['tanggal'])) ?>
+                                            </span>
+                                            <br><small class="text-muted">
+                                                <?= date('M Y', mktime(0, 0, 0, $tagihan['bulan'], 1, $tagihan['tahun'])) ?>
+                                            </small>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>

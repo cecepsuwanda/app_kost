@@ -62,7 +62,7 @@ class Admin extends Controller
         $kamarKosong = $kamarModel->getKamarKosong();
         $kamarTersedia = $kamarModel->getKamarTersedia();
         $kamarMendekatiJatuhTempo = $kamarPenghuniModel->getKamarSewaanMendekatiJatuhTempo(3);
-        $tagihanTerlambat = $this->addBarangBawaanToPenghuni($tagihanModel->getTagihanTerlambat());
+        $tagihanTerlambat = $tagihanModel->getTagihanTerlambat();
         
         // Get building statistics
         $statistikPerGedung = $kamarModel->getStatistikPerGedung();
