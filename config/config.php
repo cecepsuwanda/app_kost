@@ -37,6 +37,42 @@ return [
         'upload_path' => ROOT_PATH . '/uploads'
     ],
     
+    // Helpers configuration
+    'helpers' => [
+        // Auto-load specific helpers (recommended for performance)
+        'autoload' => [
+            'HtmlHelper',
+            'ViewHelper',
+            'FormHelper',
+            'TableHelper',
+            'BootstrapHelper'
+        ],
+        
+        // Load all helpers in directory (set to true for convenience)
+        'load_all' => false,
+        
+        // Helpers directory path (relative to APP_PATH)
+        'path' => '/helpers/',
+        
+        // Load global helper functions for easier access
+        'load_functions' => true,
+        
+        // Global aliases for easier access in views
+        'aliases' => [
+            'Html' => 'App\\Helpers\\HtmlHelper',
+            'View' => 'App\\Helpers\\ViewHelper',
+            'Form' => 'App\\Helpers\\FormHelper',
+            'Table' => 'App\\Helpers\\TableHelper',
+            'Bootstrap' => 'App\\Helpers\\BootstrapHelper'
+        ],
+        
+        // Conditional loading based on routes/controllers
+        'conditional' => [
+            'admin' => ['ViewHelper'], // Load only for admin routes
+            'api' => [], // No helpers for API routes
+        ]
+    ],
+    
     // Error reporting and debugging
     'error_reporting' => E_ALL,
     'display_errors' => 1,

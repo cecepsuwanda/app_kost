@@ -90,6 +90,11 @@ class Router
     private function executeRoute(array $route): void
     {
         try {
+            // Load helpers for current route (optional optimization)
+            $helperManager = HelperManager::getInstance();
+            $currentRoute = $this->getCurrentUri();
+            $helperManager->loadHelpersForRoute($currentRoute);
+
             // Execute global middleware first
             foreach ($this->globalMiddleware as $middleware) {
                 $result = $middleware();

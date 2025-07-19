@@ -13,6 +13,7 @@ class Autoloader
             'App\\Core\\' => APP_PATH . '/core/',
             'App\\Controllers\\' => APP_PATH . '/controllers/',
             'App\\Models\\' => APP_PATH . '/models/',
+            'App\\Helpers\\' => APP_PATH . '/helpers/',
         ];
     }
 

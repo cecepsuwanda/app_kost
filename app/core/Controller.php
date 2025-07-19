@@ -8,6 +8,7 @@ class Controller
     protected $config;
     protected $session;
     protected $request;
+    protected $helperManager;
     
 
     public function __construct()
@@ -18,24 +19,37 @@ class Controller
             $this->config = Config::getInstance();
             $this->session = Session::getInstance();
             $this->request = Request::getInstance();
+            $this->helperManager = HelperManager::getInstance();
             
-            // Load helpers
+            // Load helpers using new system
             $this->loadHelpers();
         
     }
     
     /**
-     * Load application helpers
+     * Load application helpers using HelperManager
      */
     protected function loadHelpers()
     {
-        $helpersPath = APP_PATH . '/helpers/';
-        if (is_dir($helpersPath)) {
-            $helpers = glob($helpersPath . '*.php');
-            foreach ($helpers as $helper) {
-                require_once $helper;
-            }
-        }
+        // Get current route context for conditional loading
+        $currentRoute = $_SERVER['REQUEST_URI'] ?? '/';
+        $this->helperManager->loadHelpersForRoute($currentRoute);
+    }
+
+    /**
+     * Load specific helpers on demand
+     */
+    protected function loadSpecificHelpers(array $helperNames)
+    {
+        $this->helperManager->loadSpecificHelpers($helperNames);
+    }
+
+    /**
+     * Check if helper is loaded
+     */
+    protected function isHelperLoaded(string $helperName): bool
+    {
+        return $this->helperManager->isHelperLoaded($helperName);
     }
 
     protected function loadView($view, $data = [])

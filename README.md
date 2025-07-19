@@ -1179,3 +1179,972 @@ The development team now has a **clean**, **maintainable**, and **highly efficie
 - **Scalability**: Easy to extend with new features
 
 **This implementation represents a major milestone in application modernization and sets the foundation for future development efficiency!** 🚀
+
+---
+
+# 🛠️ Sistem Helper Terkonfigurasi
+
+## 📖 Overview
+
+Implementasi sistem helper yang fleksibel dan performant dengan konfigurasi melalui config file. Sistem ini memungkinkan:
+
+- ✅ **Conditional Loading** - Load helper berdasarkan route/controller
+- ✅ **Performance Optimization** - Hanya load yang diperlukan
+- ✅ **Multiple Access Methods** - Berbagai cara akses helper
+- ✅ **Global Functions** - Function shortcuts untuk kemudahan
+- ✅ **Debugging Support** - Monitor helper yang ter-load
+
+## 🏗️ Arsitektur
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Config File   │───▶│  HelperManager   │───▶│     Views       │
+│  config.php     │    │                  │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │   Controllers    │
+                       │                  │
+                       └──────────────────┘
+```
+
+## ⚙️ Konfigurasi Helper System
+
+### 📄 config/config.php
+
+```php
+'helpers' => [
+    // Auto-load specific helpers (recommended for performance)
+    'autoload' => [
+        'HtmlHelper',
+        'ViewHelper'
+    ],
+    
+    // Load all helpers in directory (set to true for convenience)
+    'load_all' => false,
+    
+    // Helpers directory path (relative to APP_PATH)
+    'path' => '/helpers/',
+    
+    // Load global helper functions for easier access
+    'load_functions' => true,
+    
+    // Global aliases for easier access in views
+    'aliases' => [
+        'Html' => 'App\\Helpers\\HtmlHelper',
+        'View' => 'App\\Helpers\\ViewHelper'
+    ],
+    
+    // Conditional loading based on routes/controllers
+    'conditional' => [
+        'admin' => ['ViewHelper'], // Load only for admin routes
+        'api' => [], // No helpers for API routes
+    ]
+]
+```
+
+## 🎯 Opsi Konfigurasi
+
+| Setting | Type | Description | Default |
+|---------|------|-------------|---------|
+| `autoload` | array | Helper yang selalu di-load | `[]` |
+| `load_all` | bool | Load semua helper di directory | `false` |
+| `path` | string | Path ke folder helpers | `/helpers/` |
+| `load_functions` | bool | Load global functions | `false` |
+| `aliases` | array | Alias untuk class helper | `[]` |
+| `conditional` | array | Loading berdasarkan route | `[]` |
+
+## 🔄 Flow Loading Helper
+
+```
+1. Application starts
+   ↓
+2. Router determines current route
+   ↓  
+3. HelperManager.loadHelpersForRoute()
+   ↓
+4. Check conditional config for route context
+   ↓
+5. Load specific helpers OR autoload helpers
+   ↓
+6. Load global functions (if enabled)
+   ↓
+7. Setup aliases
+   ↓
+8. Helpers ready for use in Controller/Views
+```
+
+## 💡 Cara Penggunaan Helper
+
+### 1️⃣ **Full Namespace (Selalu Work)**
+
+```php
+<!-- Di View -->
+<td><?= \App\Helpers\HtmlHelper::currency($harga) ?></td>
+<td><?= \App\Helpers\ViewHelper::roomStatusBadge($status) ?></td>
+
+// Di Controller
+$price = \App\Helpers\HtmlHelper::currency(150000);
+```
+
+### 2️⃣ **Global Functions (Jika load_functions = true)**
+
+```php
+<!-- Di View -->
+<td><?= currency($harga) ?></td>
+<td><?= status_badge($status) ?></td>
+<td><?= room_status_badge($status) ?></td>
+
+// Di Controller
+$price = currency(150000);
+```
+
+### 3️⃣ **Helper Function dengan Method Call**
+
+```php
+<!-- Di View -->
+<td><?= html('currency', $harga) ?></td>
+<td><?= view_helper('roomStatusBadge', $status) ?></td>
+
+// Di Controller
+$price = html('currency', 150000);
+```
+
+### 4️⃣ **Load On Demand**
+
+```php
+// Di Controller
+$this->loadSpecificHelpers(['CustomHelper']);
+
+// Anywhere
+load_helper('CustomHelper');
+
+// Check if loaded
+if (is_helper_loaded('ViewHelper')) {
+    // Use the helper
+}
+```
+
+## 🚀 Skenario Penggunaan
+
+### 🎯 **Skenario 1: Performance Optimized**
+
+```php
+'helpers' => [
+    'autoload' => ['HtmlHelper'], // Basic HTML helper always loaded
+    'conditional' => [
+        'admin' => ['ViewHelper'], // Complex helpers only for admin
+        'api' => [], // No UI helpers for API
+    ]
+]
+```
+
+**Hasil:**
+- Route `/` → Load HtmlHelper saja
+- Route `/admin/dashboard` → Load HtmlHelper + ViewHelper  
+- Route `/api/data` → Load tidak ada helper
+
+### 🎯 **Skenario 2: Development Mode**
+
+```php
+'helpers' => [
+    'load_all' => true,
+    'load_functions' => true,
+]
+```
+
+**Hasil:**
+- Semua helper di-load
+- Global functions tersedia
+- Easy development experience
+
+## 📊 Perbandingan Performance
+
+| Metric | Old System | New System |
+|--------|------------|------------|
+| **Memory Usage** | Load all helpers | Load only needed |
+| **Load Time** | Fixed overhead | Conditional loading |
+| **API Routes** | Load UI helpers | Load nothing |
+| **Flexibility** | No configuration | Full configuration |
+| **Maintainability** | Manual includes | Automatic management |
+
+## 🔧 Global Functions Available
+
+```php
+// Currency formatting
+currency($amount) // → \App\Helpers\HtmlHelper::currency()
+
+// Badge generation  
+badge($text, $type) // → \App\Helpers\HtmlHelper::badge()
+status_badge($status) // → \App\Helpers\HtmlHelper::statusBadge()
+
+// Date formatting
+format_date($date, $format) // → \App\Helpers\HtmlHelper::date()
+
+// Boarding house specific
+room_status_badge($status) // → \App\Helpers\ViewHelper::roomStatusBadge()
+payment_status_badge($status) // → \App\Helpers\ViewHelper::paymentStatusBadge()
+
+// Helper management
+load_helper($name) // Load specific helper
+is_helper_loaded($name) // Check if loaded
+helper_manager() // Get HelperManager instance
+
+// Dynamic helper calls
+html($method, ...$args) // Call HtmlHelper methods
+view_helper($method, ...$args) // Call ViewHelper methods
+```
+
+## ✅ Migration Guide
+
+### From Old System to New System
+
+1. **Update config.php** - Add helpers configuration
+2. **No view changes needed** - Existing code still works
+3. **Optional optimization** - Use global functions for cleaner code
+4. **Test conditional loading** - Configure based on your routes
+
+### Backward Compatibility
+
+✅ **Existing code tetap berjalan** - Full namespace calls masih work  
+✅ **No breaking changes** - Semua helper method masih tersedia  
+✅ **Gradual migration** - Bisa pindah bertahap ke global functions  
+
+## 🏆 Best Practices
+
+1. **Use conditional loading** untuk performance
+2. **Enable global functions** untuk development 
+3. **Use full namespace** untuk production critical code
+4. **Monitor loaded helpers** dengan debugging
+5. **Load on demand** untuk helper yang jarang dipakai
+
+## 🎉 Benefits
+
+- 🚀 **Better Performance** - Load only what you need
+- 🎛️ **Full Control** - Configure loading behavior
+- 🛠️ **Multiple Access Methods** - Choose what works best
+- 📊 **Debugging Support** - Monitor and optimize
+- 🔄 **Backward Compatible** - No breaking changes
+- 🎯 **Route-Aware** - Smart conditional loading
+
+---
+
+# 📝 FormHelper - Complete Form Generation System
+
+## 📖 Overview
+
+FormHelper adalah class helper yang comprehensive untuk generate elemen-elemen form HTML dengan mudah dan konsisten. Terintegrasi penuh dengan Bootstrap 5 dan sistem helper yang sudah ada.
+
+## 🎯 **Core Features**
+
+- ✅ **30+ Form Methods** - Complete form element generation
+- ✅ **Bootstrap 5 Ready** - Automatic responsive classes
+- ✅ **XSS Protection** - Built-in HTML escaping
+- ✅ **Type-Safe Inputs** - Method-specific input types
+- ✅ **Advanced Components** - Input groups, modals, floating labels
+- ✅ **Global Functions** - Easy-to-use shortcuts
+- ✅ **Configurable** - Part of helper management system
+
+## 🛠️ **Basic Form Elements**
+
+### **Form Tags**
+
+```php
+// Traditional
+<form method="POST" action="<?= $baseUrl ?>/admin/penghuni">
+
+// FormHelper
+<?= \App\Helpers\FormHelper::open($baseUrl . '/admin/penghuni') ?>
+<?= \App\Helpers\FormHelper::close() ?>
+
+// Global functions
+<?= form_open($baseUrl . '/admin/penghuni') ?>
+<?= form_close() ?>
+
+// With options
+<?= form_open($baseUrl . '/admin/penghuni', [
+    'method' => 'POST',
+    'class' => 'row g-3',
+    'enctype' => 'multipart/form-data'
+]) ?>
+```
+
+### **Input Types**
+
+```php
+// Text inputs
+<?= \App\Helpers\FormHelper::text('nama', '', ['required' => true]) ?>
+<?= form_text('nama', '', ['required' => true, 'placeholder' => 'Masukkan nama']) ?>
+
+// Number inputs  
+<?= \App\Helpers\FormHelper::number('harga', '', [
+    'min' => '0',
+    'step' => '1000',
+    'required' => true
+]) ?>
+
+// Date inputs
+<?= \App\Helpers\FormHelper::date('tgl_masuk', date('Y-m-d'), ['required' => true]) ?>
+<?= \App\Helpers\FormHelper::month('bulan', date('Y-m')) ?>
+
+// Other input types
+<?= \App\Helpers\FormHelper::email('email', '', ['required' => true]) ?>
+<?= \App\Helpers\FormHelper::password('password', ['required' => true]) ?>
+<?= \App\Helpers\FormHelper::tel('no_hp', '', ['placeholder' => 'Nomor HP']) ?>
+<?= \App\Helpers\FormHelper::hidden('action', 'create') ?>
+```
+
+### **Select Dropdowns**
+
+```php
+// Traditional
+<select class="form-select" name="id_kamar">
+    <option value="">-- Belum pilih kamar --</option>
+    <?php foreach ($kamarTersedia as $kamar): ?>
+        <option value="<?= $kamar['id'] ?>">
+            Kamar <?= htmlspecialchars($kamar['nomor']) ?> - Rp <?= number_format($kamar['harga'], 0, ',', '.') ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
+// FormHelper
+<?php
+$roomOptions = ['' => '-- Belum pilih kamar --'];
+foreach ($kamarTersedia as $kamar) {
+    $roomOptions[$kamar['id']] = "Kamar {$kamar['nomor']} - " . currency($kamar['harga']);
+}
+?>
+<?= \App\Helpers\FormHelper::select('id_kamar', $roomOptions) ?>
+<?= form_select('id_kamar', $roomOptions, $selectedRoomId, ['required' => true]) ?>
+```
+
+### **Checkboxes & Radio Buttons**
+
+```php
+// Checkbox
+<?= \App\Helpers\FormHelper::checkbox('remember', '1', false, ['id' => 'remember']) ?>
+<?= form_checkbox('barang_ids[]', $item['id'], $isChecked) ?>
+
+// Radio button
+<?= \App\Helpers\FormHelper::radio('status', 'active', true, ['id' => 'status_active']) ?>
+
+// With label wrapper
+<?php
+$checkbox = form_checkbox('remember', '1', false, ['id' => 'remember']);
+echo \App\Helpers\FormHelper::check($checkbox, 'Ingat saya', ['input_id' => 'remember']);
+?>
+```
+
+## 🎨 **Advanced Components**
+
+### **Form Groups with Labels**
+
+```php
+// Traditional
+<div class="mb-3">
+    <label for="nama" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" id="nama" name="nama" required>
+    <div class="form-text">Masukkan nama lengkap penghuni</div>
+</div>
+
+// FormHelper
+<?php
+$nameInput = form_text('nama', '', ['required' => true, 'id' => 'nama']);
+echo \App\Helpers\FormHelper::group('Nama Lengkap', $nameInput, [
+    'required' => true,
+    'input_id' => 'nama',
+    'help' => 'Masukkan nama lengkap penghuni'
+]);
+?>
+
+// Global function shortcut
+<?= form_group(
+    'Nama Lengkap',
+    form_text('nama', '', ['required' => true, 'id' => 'nama']),
+    ['required' => true, 'input_id' => 'nama']
+) ?>
+```
+
+### **Input Groups with Icons/Prefixes**
+
+```php
+// Traditional currency input
+<div class="input-group">
+    <span class="input-group-text">Rp</span>
+    <input type="number" class="form-control" name="harga" min="0" step="1000" required>
+</div>
+
+// FormHelper currency
+<?= \App\Helpers\FormHelper::currency('harga', '', ['required' => true]) ?>
+
+// Phone with icon
+<?= \App\Helpers\FormHelper::phone('no_hp', '', ['placeholder' => 'Masukkan nomor HP']) ?>
+
+// Search with icon
+<?= \App\Helpers\FormHelper::search('q', $searchTerm, ['placeholder' => 'Cari penghuni...']) ?>
+
+// Custom input group
+<?php
+$priceInput = \App\Helpers\FormHelper::number('harga', '', ['min' => '0', 'step' => '1000']);
+echo \App\Helpers\FormHelper::inputGroup($priceInput, [
+    'prefix' => 'Rp',
+    'suffix' => '/bulan'
+]);
+?>
+```
+
+### **Buttons**
+
+```php
+// Submit buttons
+<?= \App\Helpers\FormHelper::submit('Simpan', ['class' => 'btn-primary']) ?>
+<?= form_submit('Simpan Data') ?>
+
+// Regular buttons
+<?= \App\Helpers\FormHelper::button('Batal', [
+    'class' => 'btn-secondary',
+    'data-bs-dismiss' => 'modal'
+]) ?>
+```
+
+## 🔄 **Real-World Examples**
+
+### **Complete Login Form**
+
+```php
+<?= form_open($baseUrl . '/login') ?>
+    <?php
+    // Username with icon
+    $usernameInput = \App\Helpers\FormHelper::text('username', '', [
+        'placeholder' => 'Masukkan username',
+        'required' => true,
+        'autofocus' => true,
+        'id' => 'username'
+    ]);
+    $usernameWithIcon = \App\Helpers\FormHelper::inputGroup($usernameInput, [
+        'prefix' => '<i class="bi bi-person"></i>'
+    ]);
+    echo \App\Helpers\FormHelper::group('Username', $usernameWithIcon, [
+        'col' => 'mb-4',
+        'input_id' => 'username'
+    ]);
+    
+    // Password with icon
+    $passwordInput = \App\Helpers\FormHelper::password('password', [
+        'placeholder' => 'Masukkan password',
+        'required' => true,
+        'id' => 'password'
+    ]);
+    $passwordWithIcon = \App\Helpers\FormHelper::inputGroup($passwordInput, [
+        'prefix' => '<i class="bi bi-lock"></i>'
+    ]);
+    echo \App\Helpers\FormHelper::group('Password', $passwordWithIcon, [
+        'col' => 'mb-4',
+        'input_id' => 'password'
+    ]);
+    ?>
+    
+    <?= \App\Helpers\FormHelper::submit('Masuk', ['class' => 'btn-primary w-100']) ?>
+<?= form_close() ?>
+```
+
+### **Add Item Form**
+
+```php
+<?= form_open($baseUrl . '/admin/barang', ['id' => 'addBarangForm']) ?>
+    <?= \App\Helpers\FormHelper::hidden('action', 'create') ?>
+    
+    <?php
+    // Nama barang
+    echo form_group(
+        'Nama Barang',
+        form_text('nama', '', ['placeholder' => 'Masukkan nama barang', 'required' => true, 'id' => 'nama']),
+        ['required' => true, 'input_id' => 'nama']
+    );
+    
+    // Harga with currency prefix
+    echo form_group(
+        'Harga',
+        \App\Helpers\FormHelper::currency('harga', '', ['required' => true, 'id' => 'harga']),
+        [
+            'required' => true,
+            'input_id' => 'harga',
+            'help' => 'Masukkan harga dalam rupiah'
+        ]
+    );
+    ?>
+    
+    <div class="modal-footer">
+        <?= \App\Helpers\FormHelper::button('Batal', [
+            'class' => 'btn-secondary',
+            'data-bs-dismiss' => 'modal'
+        ]) ?>
+        <?= form_submit('Simpan', ['class' => 'btn-primary']) ?>
+    </div>
+<?= form_close() ?>
+```
+
+### **Search/Filter Form**
+
+```php
+<?= form_open('', ['method' => 'GET', 'class' => 'row g-3 align-items-end']) ?>
+    <div class="col-md-6">
+        <?php
+        echo form_group(
+            'Pencarian',
+            \App\Helpers\FormHelper::search('q', $request->getParam('q', ''), [
+                'placeholder' => 'Cari penghuni...'
+            ])
+        );
+        ?>
+    </div>
+    
+    <div class="col-md-4">
+        <?php
+        echo form_group(
+            'Filter Bulan',
+            \App\Helpers\FormHelper::month('bulan', $bulan),
+            ['help' => 'Pilih bulan untuk filter data']
+        );
+        ?>
+    </div>
+    
+    <div class="col-md-2">
+        <?= \App\Helpers\FormHelper::submit('Filter', ['class' => 'btn-outline-primary']) ?>
+    </div>
+<?= form_close() ?>
+```
+
+## 📱 **Modal Forms**
+
+```php
+<?php
+$modalBody = 
+    \App\Helpers\FormHelper::hidden('action', 'create') .
+    form_group(
+        'Nama Lengkap',
+        form_text('nama', '', ['required' => true, 'id' => 'nama']),
+        ['required' => true, 'input_id' => 'nama']
+    ) .
+    form_group(
+        'No. HP',
+        \App\Helpers\FormHelper::phone('no_hp', '', ['id' => 'no_hp']),
+        ['input_id' => 'no_hp']
+    ) .
+    form_group(
+        'Tanggal Masuk',
+        \App\Helpers\FormHelper::date('tgl_masuk', date('Y-m-d'), ['required' => true, 'id' => 'tgl_masuk']),
+        ['required' => true, 'input_id' => 'tgl_masuk']
+    );
+
+echo \App\Helpers\FormHelper::modal('addPenghuniModal', 'Tambah Penghuni Baru', $modalBody, [
+    'action' => $baseUrl . '/admin/penghuni',
+    'footer_buttons' => [
+        'cancel' => 'Batal',
+        'submit' => 'Simpan Data'
+    ]
+]);
+?>
+```
+
+## 🚀 **Available Methods**
+
+### **Form Structure**
+- `open($action, $options)` - Open form tag
+- `close()` - Close form tag
+- `group($label, $input, $options)` - Form group with label
+- `modal($id, $title, $body, $options)` - Complete modal form
+
+### **Input Types**
+- `text($name, $value, $options)` - Text input
+- `password($name, $options)` - Password input
+- `email($name, $value, $options)` - Email input
+- `number($name, $value, $options)` - Number input
+- `date($name, $value, $options)` - Date input
+- `month($name, $value, $options)` - Month input
+- `tel($name, $value, $options)` - Phone input
+- `url($name, $value, $options)` - URL input
+- `hidden($name, $value, $options)` - Hidden input
+- `file($name, $options)` - File input
+
+### **Form Controls**
+- `textarea($name, $value, $options)` - Textarea
+- `select($name, $options, $selected, $attributes)` - Select dropdown
+- `checkbox($name, $value, $checked, $options)` - Checkbox
+- `radio($name, $value, $checked, $options)` - Radio button
+
+### **Buttons**
+- `button($text, $options)` - Regular button
+- `submit($text, $options)` - Submit button
+
+### **Advanced Components**
+- `inputGroup($input, $options)` - Input with prefix/suffix
+- `check($input, $label, $options)` - Checkbox/radio with label
+- `floating($input, $label, $options)` - Floating label
+- `currency($name, $value, $options)` - Currency input with Rp prefix
+- `phone($name, $value, $options)` - Phone input with icon
+- `search($name, $value, $options)` - Search input with icon
+
+### **Utilities**
+- `label($for, $text, $options)` - Label element
+- `csrf()` - CSRF token (placeholder)
+- `method($method)` - Method spoofing for PUT/DELETE
+
+## 📊 **Global Functions Available**
+
+```php
+// Core functions
+form_helper($method, ...$args)  // Dynamic method calls
+form_open($action, $options)    // Open form
+form_close()                    // Close form
+
+// Common inputs
+form_text($name, $value, $options)
+form_select($name, $options, $selected, $attributes)
+form_checkbox($name, $value, $checked, $options)
+form_submit($text, $options)
+
+// Advanced
+form_group($label, $input, $options)
+```
+
+## 🏆 **Benefits of FormHelper**
+
+1. **🔧 Consistent Bootstrap Classes** - Automatic form-control, form-select, etc.
+2. **🛡️ Built-in Security** - HTML escaping and XSS protection
+3. **⚡ Faster Development** - 70% less repetitive HTML writing
+4. **🎨 Better Maintainability** - Centralized form element generation
+5. **📱 Mobile-Friendly** - Bootstrap responsive classes included
+6. **🔄 Reusable Components** - Input groups, form groups, modals
+7. **✅ Validation Ready** - Easy to add required, patterns, etc.
+8. **🎯 Type Safety** - Method-specific inputs (email, tel, number, etc.)
+
+## 🔄 **Migration Example**
+
+```php
+// BEFORE (Traditional - 12 lines)
+<div class="mb-3">
+    <label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
+    <div class="input-group">
+        <span class="input-group-text">Rp</span>
+        <input type="number" class="form-control" id="harga" name="harga" 
+               min="0" step="1000" required>
+    </div>
+    <div class="form-text">Masukkan harga dalam rupiah</div>
+</div>
+
+// AFTER (FormHelper - 3 lines)
+<?= form_group(
+    'Harga',
+    \App\Helpers\FormHelper::currency('harga', '', ['required' => true, 'id' => 'harga']),
+    ['required' => true, 'input_id' => 'harga', 'help' => 'Masukkan harga dalam rupiah']
+) ?>
+```
+
+**Result: 75% code reduction, better maintainability, and consistent UI!** 🎉
+
+## BootstrapHelper
+
+BootstrapHelper menyediakan cara mudah untuk membuat komponen-komponen Bootstrap dalam aplikasi PHP Anda.
+
+### Konfigurasi
+
+BootstrapHelper telah dikonfigurasi untuk auto-load dan tersedia sebagai alias `Bootstrap`:
+
+```php
+// config/config.php
+'helpers' => [
+    'autoload' => ['BootstrapHelper'],
+    'aliases' => ['Bootstrap' => 'App\\Helpers\\BootstrapHelper']
+]
+```
+
+### Penggunaan Dasar
+
+#### Alert Components
+
+```php
+// Basic alert
+echo BootstrapHelper::alert('Success message!', 'success');
+echo Bootstrap::alert('Warning message!', 'warning');
+
+// Dismissible alert
+echo bootstrap_alert('Info message', 'info', ['dismissible' => true]);
+```
+
+#### Button Components
+
+```php
+// Basic button
+echo Bootstrap::button('Save', ['variant' => 'primary']);
+echo Bootstrap::button('Delete', ['variant' => 'danger', 'outline' => true]);
+
+// Button with options
+echo bootstrap_button('Submit', [
+    'type' => 'submit',
+    'variant' => 'success',
+    'size' => 'lg',
+    'block' => true
+]);
+
+// Link button
+echo Bootstrap::linkButton('Visit Site', 'https://example.com', [
+    'variant' => 'outline-primary',
+    'target' => '_blank'
+]);
+```
+
+#### Badge Components
+
+```php
+// Basic badge
+echo Bootstrap::badge('New', 'danger');
+echo bootstrap_badge('Status', 'success', ['pill' => true]);
+```
+
+#### Card Components
+
+```php
+// Simple card
+echo Bootstrap::card('Card content');
+
+// Card with title and options
+echo bootstrap_card('Dashboard content', [
+    'title' => 'Dashboard',
+    'header_class' => 'bg-primary text-white',
+    'footer' => 'Last updated: ' . date('Y-m-d'),
+    'border' => 'success'
+]);
+```
+
+#### Modal Components
+
+```php
+// Basic modal
+echo Bootstrap::modal('myModal', 'Modal Title', 'Modal content', [
+    'size' => 'lg',
+    'footer' => '<button type="button" class="btn btn-primary">Save</button>'
+]);
+
+// Modal with form
+echo Bootstrap::modalForm('addUserModal', 'Add User', $formContent, [
+    'action' => '/users/store',
+    'method' => 'POST',
+    'size' => 'lg',
+    'submit_text' => 'Add User',
+    'submit_class' => 'btn-success'
+]);
+```
+
+#### Dropdown Components
+
+```php
+// Dropdown menu
+echo Bootstrap::dropdown('Actions', [
+    ['text' => 'Edit', 'href' => '/edit/1'],
+    ['text' => 'View', 'href' => '/view/1'],
+    'divider',
+    ['header' => 'Dangerous Actions'],
+    ['text' => 'Delete', 'onclick' => 'confirm("Are you sure?")']
+], ['variant' => 'outline-secondary']);
+```
+
+#### Button Group
+
+```php
+// Horizontal button group
+echo Bootstrap::buttonGroup([
+    ['text' => 'Left', 'variant' => 'outline-primary'],
+    ['text' => 'Middle', 'variant' => 'outline-primary'],
+    ['text' => 'Right', 'variant' => 'outline-primary']
+]);
+
+// Vertical button group
+echo Bootstrap::buttonGroup($buttons, ['vertical' => true]);
+```
+
+#### Navigation Components
+
+```php
+// Breadcrumb
+echo bootstrap_breadcrumb([
+    ['text' => 'Home', 'url' => '/'],
+    ['text' => 'Users', 'url' => '/users'],
+    ['text' => 'Profile'] // Active item (no URL)
+]);
+
+// Pagination
+echo bootstrap_pagination(2, 10, '/users', [
+    'size' => 'sm',
+    'max_links' => 5
+]);
+```
+
+#### Progress Components
+
+```php
+// Progress bar
+echo bootstrap_progress(75, [
+    'variant' => 'success',
+    'striped' => true,
+    'label' => '75%'
+]);
+
+// Animated progress
+echo Bootstrap::progressBar(60, [
+    'variant' => 'info',
+    'animated' => true,
+    'height' => '20px'
+]);
+```
+
+#### Loading Components
+
+```php
+// Spinner
+echo bootstrap_spinner(['type' => 'border', 'variant' => 'primary']);
+echo Bootstrap::spinner(['type' => 'grow', 'size' => 'sm']);
+```
+
+#### Interactive Components
+
+```php
+// Collapse
+echo Bootstrap::collapse('Show Details', 'Hidden content here', [
+    'id' => 'detailsCollapse',
+    'show' => false
+]);
+
+// Accordion
+echo Bootstrap::accordion([
+    [
+        'title' => 'Section 1',
+        'content' => 'Content for section 1',
+        'open' => true
+    ],
+    [
+        'title' => 'Section 2', 
+        'content' => 'Content for section 2'
+    ]
+], ['flush' => true]);
+```
+
+#### Notification Components
+
+```php
+// Toast notification
+echo bootstrap_toast('Notification', 'Your changes have been saved', [
+    'variant' => 'success',
+    'delay' => 3000
+]);
+
+// Tooltip
+echo bootstrap_tooltip('This is helpful information', 'Hover me');
+
+// Popover
+echo Bootstrap::popover('Title', 'Detailed content', 'Click me', [
+    'placement' => 'right',
+    'trigger' => 'click'
+]);
+```
+
+### Global Functions
+
+BootstrapHelper menyediakan 12 global functions untuk akses yang lebih mudah:
+
+- `bootstrap_alert()` - Alert components
+- `bootstrap_badge()` - Badge components  
+- `bootstrap_button()` - Button components
+- `bootstrap_card()` - Card components
+- `bootstrap_modal()` - Modal components
+- `bootstrap_dropdown()` - Dropdown components
+- `bootstrap_breadcrumb()` - Breadcrumb navigation
+- `bootstrap_pagination()` - Pagination components
+- `bootstrap_progress()` - Progress bars
+- `bootstrap_spinner()` - Loading spinners
+- `bootstrap_toast()` - Toast notifications
+- `bootstrap_tooltip()` - Tooltip helpers
+
+### Contoh Penggunaan di View
+
+```php
+<!-- app/views/admin/dashboard.php -->
+<div class="container-fluid">
+    <!-- Alert notification -->
+    <?= bootstrap_alert('Welcome to dashboard!', 'success', ['dismissible' => true]) ?>
+    
+    <!-- Stats cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <?= bootstrap_card(
+                '<h3>150</h3><p class="text-muted">Total Users</p>',
+                ['header_class' => 'bg-primary text-white', 'title' => 'Users']
+            ) ?>
+        </div>
+        <div class="col-md-3">
+            <?= Bootstrap::card(
+                '<h3>89%</h3><p class="text-muted">System Health</p>',
+                ['border' => 'success', 'title' => 'Status']
+            ) ?>
+        </div>
+    </div>
+    
+    <!-- Action buttons -->
+    <div class="my-4">
+        <?= bootstrap_button('Add User', [
+            'variant' => 'primary',
+            'data-bs-toggle' => 'modal',
+            'data-bs-target' => '#addUserModal'
+        ]) ?>
+        
+        <?= Bootstrap::dropdown('Export', [
+            ['text' => 'Export PDF', 'href' => '/export/pdf'],
+            ['text' => 'Export Excel', 'href' => '/export/excel']
+        ], ['variant' => 'outline-secondary']) ?>
+    </div>
+    
+    <!-- Progress indicator -->
+    <?= bootstrap_progress(85, [
+        'variant' => 'success',
+        'label' => 'Database: 85% used'
+    ]) ?>
+</div>
+
+<!-- User modal -->
+<?= Bootstrap::modalForm('addUserModal', 'Add New User', '
+    ' . form_input('name', '', ['placeholder' => 'Full Name', 'required' => true]) . '
+    ' . form_email('email', '', ['placeholder' => 'Email Address', 'required' => true]) . '
+', [
+    'action' => '/users/store',
+    'size' => 'lg'
+]) ?>
+```
+
+### Fitur Utama
+
+1. **🎨 Komponen Lengkap** - Semua komponen Bootstrap 5 utama
+2. **⚡ Performa Optimal** - Auto-load kondisional via konfigurasi
+3. **🛡️ Keamanan XSS** - Semua output ter-escape dengan aman
+4. **🔗 Integrasi Mudah** - Bekerja dengan sistem helper yang ada
+5. **📱 Responsive Ready** - Class responsive Bootstrap ter-include
+6. **🎯 Opsi Fleksibel** - Kustomisasi extensive untuk setiap komponen
+7. **🔄 API Konsisten** - Pola yang sama dengan helper lainnya
+8. **🚀 Global Functions** - 12 fungsi shortcut untuk penggunaan umum
+
+### Migration dari HTML Manual
+
+**Sebelum:**
+```php
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    Success message!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+```
+
+**Sesudah:**
+```php
+<?= bootstrap_alert('Success message!', 'success', ['dismissible' => true]) ?>
+```
+
+**Hasil: 70% pengurangan kode, maintainability lebih baik, dan UI yang konsisten!** 🎉
