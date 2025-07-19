@@ -230,32 +230,7 @@ ob_start();
                                                 <br><small class="text-muted">Gedung <?= htmlspecialchars($kamar['gedung']) ?></small>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <?php if (!empty($kamar['nama_penghuni'])): ?>
-                                                <?php 
-                                                $nama_list = explode(', ', $kamar['nama_penghuni']);
-                                                $jumlah_penghuni = $kamar['jumlah_penghuni'] ?? count($nama_list);
-                                                ?>
-                                                <?php if (count($nama_list) == 1): ?>
-                                                    <span class="fw-bold"><?= htmlspecialchars($nama_list[0]) ?></span>
-                                                <?php else: ?>
-                                                    <div class="d-flex flex-column gap-1">
-                                                        <?php foreach ($nama_list as $index => $nama): ?>
-                                                            <span class="badge bg-primary text-white" style="font-size: 0.8rem;">
-                                                                <i class="bi bi-person"></i>
-                                                                <?= htmlspecialchars(trim($nama)) ?>
-                                                            </span>
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                    <small class="text-muted mt-1">
-                                                        <i class="bi bi-people"></i> 
-                                                        <?= $jumlah_penghuni ?> penghuni
-                                                    </small>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="text-muted">Tidak ada penghuni</span>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><?= htmlspecialchars($kamar['nama_penghuni']) ?></td>
                                         <td>
                                             <?php if (!empty($kamar['tanggal_tagihan'])): ?>
                                                 <span class="badge bg-warning text-dark">
