@@ -1843,3 +1843,308 @@ form_group($label, $input, $options)
 ```
 
 **Result: 75% code reduction, better maintainability, and consistent UI!** 🎉
+
+## BootstrapHelper
+
+BootstrapHelper menyediakan cara mudah untuk membuat komponen-komponen Bootstrap dalam aplikasi PHP Anda.
+
+### Konfigurasi
+
+BootstrapHelper telah dikonfigurasi untuk auto-load dan tersedia sebagai alias `Bootstrap`:
+
+```php
+// config/config.php
+'helpers' => [
+    'autoload' => ['BootstrapHelper'],
+    'aliases' => ['Bootstrap' => 'App\\Helpers\\BootstrapHelper']
+]
+```
+
+### Penggunaan Dasar
+
+#### Alert Components
+
+```php
+// Basic alert
+echo BootstrapHelper::alert('Success message!', 'success');
+echo Bootstrap::alert('Warning message!', 'warning');
+
+// Dismissible alert
+echo bootstrap_alert('Info message', 'info', ['dismissible' => true]);
+```
+
+#### Button Components
+
+```php
+// Basic button
+echo Bootstrap::button('Save', ['variant' => 'primary']);
+echo Bootstrap::button('Delete', ['variant' => 'danger', 'outline' => true]);
+
+// Button with options
+echo bootstrap_button('Submit', [
+    'type' => 'submit',
+    'variant' => 'success',
+    'size' => 'lg',
+    'block' => true
+]);
+
+// Link button
+echo Bootstrap::linkButton('Visit Site', 'https://example.com', [
+    'variant' => 'outline-primary',
+    'target' => '_blank'
+]);
+```
+
+#### Badge Components
+
+```php
+// Basic badge
+echo Bootstrap::badge('New', 'danger');
+echo bootstrap_badge('Status', 'success', ['pill' => true]);
+```
+
+#### Card Components
+
+```php
+// Simple card
+echo Bootstrap::card('Card content');
+
+// Card with title and options
+echo bootstrap_card('Dashboard content', [
+    'title' => 'Dashboard',
+    'header_class' => 'bg-primary text-white',
+    'footer' => 'Last updated: ' . date('Y-m-d'),
+    'border' => 'success'
+]);
+```
+
+#### Modal Components
+
+```php
+// Basic modal
+echo Bootstrap::modal('myModal', 'Modal Title', 'Modal content', [
+    'size' => 'lg',
+    'footer' => '<button type="button" class="btn btn-primary">Save</button>'
+]);
+
+// Modal with form
+echo Bootstrap::modalForm('addUserModal', 'Add User', $formContent, [
+    'action' => '/users/store',
+    'method' => 'POST',
+    'size' => 'lg',
+    'submit_text' => 'Add User',
+    'submit_class' => 'btn-success'
+]);
+```
+
+#### Dropdown Components
+
+```php
+// Dropdown menu
+echo Bootstrap::dropdown('Actions', [
+    ['text' => 'Edit', 'href' => '/edit/1'],
+    ['text' => 'View', 'href' => '/view/1'],
+    'divider',
+    ['header' => 'Dangerous Actions'],
+    ['text' => 'Delete', 'onclick' => 'confirm("Are you sure?")']
+], ['variant' => 'outline-secondary']);
+```
+
+#### Button Group
+
+```php
+// Horizontal button group
+echo Bootstrap::buttonGroup([
+    ['text' => 'Left', 'variant' => 'outline-primary'],
+    ['text' => 'Middle', 'variant' => 'outline-primary'],
+    ['text' => 'Right', 'variant' => 'outline-primary']
+]);
+
+// Vertical button group
+echo Bootstrap::buttonGroup($buttons, ['vertical' => true]);
+```
+
+#### Navigation Components
+
+```php
+// Breadcrumb
+echo bootstrap_breadcrumb([
+    ['text' => 'Home', 'url' => '/'],
+    ['text' => 'Users', 'url' => '/users'],
+    ['text' => 'Profile'] // Active item (no URL)
+]);
+
+// Pagination
+echo bootstrap_pagination(2, 10, '/users', [
+    'size' => 'sm',
+    'max_links' => 5
+]);
+```
+
+#### Progress Components
+
+```php
+// Progress bar
+echo bootstrap_progress(75, [
+    'variant' => 'success',
+    'striped' => true,
+    'label' => '75%'
+]);
+
+// Animated progress
+echo Bootstrap::progressBar(60, [
+    'variant' => 'info',
+    'animated' => true,
+    'height' => '20px'
+]);
+```
+
+#### Loading Components
+
+```php
+// Spinner
+echo bootstrap_spinner(['type' => 'border', 'variant' => 'primary']);
+echo Bootstrap::spinner(['type' => 'grow', 'size' => 'sm']);
+```
+
+#### Interactive Components
+
+```php
+// Collapse
+echo Bootstrap::collapse('Show Details', 'Hidden content here', [
+    'id' => 'detailsCollapse',
+    'show' => false
+]);
+
+// Accordion
+echo Bootstrap::accordion([
+    [
+        'title' => 'Section 1',
+        'content' => 'Content for section 1',
+        'open' => true
+    ],
+    [
+        'title' => 'Section 2', 
+        'content' => 'Content for section 2'
+    ]
+], ['flush' => true]);
+```
+
+#### Notification Components
+
+```php
+// Toast notification
+echo bootstrap_toast('Notification', 'Your changes have been saved', [
+    'variant' => 'success',
+    'delay' => 3000
+]);
+
+// Tooltip
+echo bootstrap_tooltip('This is helpful information', 'Hover me');
+
+// Popover
+echo Bootstrap::popover('Title', 'Detailed content', 'Click me', [
+    'placement' => 'right',
+    'trigger' => 'click'
+]);
+```
+
+### Global Functions
+
+BootstrapHelper menyediakan 12 global functions untuk akses yang lebih mudah:
+
+- `bootstrap_alert()` - Alert components
+- `bootstrap_badge()` - Badge components  
+- `bootstrap_button()` - Button components
+- `bootstrap_card()` - Card components
+- `bootstrap_modal()` - Modal components
+- `bootstrap_dropdown()` - Dropdown components
+- `bootstrap_breadcrumb()` - Breadcrumb navigation
+- `bootstrap_pagination()` - Pagination components
+- `bootstrap_progress()` - Progress bars
+- `bootstrap_spinner()` - Loading spinners
+- `bootstrap_toast()` - Toast notifications
+- `bootstrap_tooltip()` - Tooltip helpers
+
+### Contoh Penggunaan di View
+
+```php
+<!-- app/views/admin/dashboard.php -->
+<div class="container-fluid">
+    <!-- Alert notification -->
+    <?= bootstrap_alert('Welcome to dashboard!', 'success', ['dismissible' => true]) ?>
+    
+    <!-- Stats cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <?= bootstrap_card(
+                '<h3>150</h3><p class="text-muted">Total Users</p>',
+                ['header_class' => 'bg-primary text-white', 'title' => 'Users']
+            ) ?>
+        </div>
+        <div class="col-md-3">
+            <?= Bootstrap::card(
+                '<h3>89%</h3><p class="text-muted">System Health</p>',
+                ['border' => 'success', 'title' => 'Status']
+            ) ?>
+        </div>
+    </div>
+    
+    <!-- Action buttons -->
+    <div class="my-4">
+        <?= bootstrap_button('Add User', [
+            'variant' => 'primary',
+            'data-bs-toggle' => 'modal',
+            'data-bs-target' => '#addUserModal'
+        ]) ?>
+        
+        <?= Bootstrap::dropdown('Export', [
+            ['text' => 'Export PDF', 'href' => '/export/pdf'],
+            ['text' => 'Export Excel', 'href' => '/export/excel']
+        ], ['variant' => 'outline-secondary']) ?>
+    </div>
+    
+    <!-- Progress indicator -->
+    <?= bootstrap_progress(85, [
+        'variant' => 'success',
+        'label' => 'Database: 85% used'
+    ]) ?>
+</div>
+
+<!-- User modal -->
+<?= Bootstrap::modalForm('addUserModal', 'Add New User', '
+    ' . form_input('name', '', ['placeholder' => 'Full Name', 'required' => true]) . '
+    ' . form_email('email', '', ['placeholder' => 'Email Address', 'required' => true]) . '
+', [
+    'action' => '/users/store',
+    'size' => 'lg'
+]) ?>
+```
+
+### Fitur Utama
+
+1. **🎨 Komponen Lengkap** - Semua komponen Bootstrap 5 utama
+2. **⚡ Performa Optimal** - Auto-load kondisional via konfigurasi
+3. **🛡️ Keamanan XSS** - Semua output ter-escape dengan aman
+4. **🔗 Integrasi Mudah** - Bekerja dengan sistem helper yang ada
+5. **📱 Responsive Ready** - Class responsive Bootstrap ter-include
+6. **🎯 Opsi Fleksibel** - Kustomisasi extensive untuk setiap komponen
+7. **🔄 API Konsisten** - Pola yang sama dengan helper lainnya
+8. **🚀 Global Functions** - 12 fungsi shortcut untuk penggunaan umum
+
+### Migration dari HTML Manual
+
+**Sebelum:**
+```php
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    Success message!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+```
+
+**Sesudah:**
+```php
+<?= bootstrap_alert('Success message!', 'success', ['dismissible' => true]) ?>
+```
+
+**Hasil: 70% pengurangan kode, maintainability lebih baik, dan UI yang konsisten!** 🎉
