@@ -758,3 +758,181 @@ class Admin extends Controller
         });
     }
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: Admin
+ * PURPOSE: Main administrative controller for boarding house management system
+ * EXTENDS: Controller (base controller class)
+ * AUTHENTICATION: Requires login and admin privileges
+ * 
+ * BUSINESS_CONTEXT:
+ * This controller serves as the central hub for all administrative functions in the
+ * boarding house management system. It handles dashboard display, tenant management,
+ * room management, billing operations, payment tracking, and data import/export.
+ * All methods require authentication and appropriate user roles.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. __construct($app = null)
+ *    PURPOSE: Initialize controller with authentication check
+ *    AUTHENTICATION: Calls Auth::requireLogin() to ensure user is logged in
+ *    USED_IN: Automatic initialization for all admin requests
+ *    AI_CONTEXT: Security barrier preventing unauthorized access
+ * 
+ * 2. addBarangBawaanToPenghuni($penghuniData)
+ *    PURPOSE: Helper method to add belongings data to tenant records
+ *    PARAMETERS: $penghuniData: array - Tenant data (single or multiple)
+ *    RETURNS: array - Enhanced tenant data with belongings information
+ *    USED_IN: Various methods that display tenant information
+ *    AI_CONTEXT: Data enrichment utility for comprehensive tenant displays
+ * 
+ * 3. index()
+ *    PURPOSE: Display admin dashboard with statistics and overdue bills
+ *    RETURNS: Dashboard view with comprehensive system statistics
+ *    DATA_LOADED:
+ *      - Room statistics (total, occupied, available)
+ *      - Tenant statistics (active, total)
+ *      - Financial statistics (bills, payments)
+ *      - Overdue bill alerts
+ *    USED_IN: Admin panel home page
+ *    AI_CONTEXT: Central command center for system overview
+ * 
+ * 4. penghuni()
+ *    PURPOSE: Tenant management interface
+ *    HANDLES: Tenant CRUD operations, room assignments, checkout process
+ *    BUSINESS_LOGIC:
+ *      - GET: Display tenant list with room assignments
+ *      - POST: Create new tenant, assign to room, process checkout
+ *    FORM_PROCESSING: Validates tenant data, prevents duplicate KTP
+ *    USED_IN: Tenant management workflows
+ *    AI_CONTEXT: Core tenant lifecycle management
+ * 
+ * 5. kamar()
+ *    PURPOSE: Room management interface
+ *    HANDLES: Room CRUD operations, status tracking
+ *    BUSINESS_LOGIC:
+ *      - GET: Display room list with occupancy status
+ *      - POST: Create/update room information
+ *    VALIDATION: Prevents duplicate room numbers
+ *    USED_IN: Room management workflows
+ *    AI_CONTEXT: Physical space management for the boarding house
+ * 
+ * 6. barang()
+ *    PURPOSE: Belongings/items management interface
+ *    HANDLES: Belongings CRUD operations for billing calculations
+ *    BUSINESS_LOGIC: Manages items that tenants bring, affects billing
+ *    INTEGRATION: Used in billing calculations for additional charges
+ *    USED_IN: Belongings management, billing setup
+ *    AI_CONTEXT: Additional charges management for billing system
+ * 
+ * 7. tagihan()
+ *    PURPOSE: Billing management interface
+ *    HANDLES: Bill generation, bill display, billing analytics
+ *    BUSINESS_LOGIC:
+ *      - GET: Display bills with filtering options
+ *      - POST: Generate bills for specific month/year
+ *    COMPLEX_OPERATIONS:
+ *      - Monthly bill generation with room + belongings costs
+ *      - Overdue bill tracking
+ *      - Payment status integration
+ *    USED_IN: Financial management workflows
+ *    AI_CONTEXT: Core financial operations for the business
+ * 
+ * 8. pembayaran()
+ *    PURPOSE: Payment management and reporting interface
+ *    HANDLES: Payment recording, payment history, financial reports
+ *    BUSINESS_LOGIC:
+ *      - Payment tracking with bill relationships
+ *      - Partial payment support (installments)
+ *      - Payment status calculations
+ *    REPORTING: Financial analytics and payment histories
+ *    USED_IN: Financial tracking and collection management
+ *    AI_CONTEXT: Cash flow management and payment processing
+ * 
+ * 9. dataManagement()
+ *    PURPOSE: Data import/export interface
+ *    HANDLES: System data backup and restoration
+ *    FEATURES:
+ *      - SQL export of all tables
+ *      - SQL import with validation
+ *      - Data integrity protection
+ *    SECURITY: Transaction-based imports, error handling
+ *    USED_IN: System maintenance and data migration
+ *    AI_CONTEXT: Business continuity and data management
+ * 
+ * 10. exportSql()
+ *     PURPOSE: Export all system data to SQL file
+ *     PROCESS:
+ *       - Generate CREATE TABLE statements
+ *       - Export data as INSERT statements
+ *       - Handle foreign key constraints
+ *       - Create downloadable SQL file
+ *     SECURITY: Proper data sanitization and SQL escaping
+ *     USED_IN: Data backup and system migration
+ *     AI_CONTEXT: Data backup utility for business continuity
+ * 
+ * 11. importSql()
+ *     PURPOSE: Import data from SQL file
+ *     PROCESS:
+ *       - Validate file format and size
+ *       - Parse SQL statements safely
+ *       - Execute in transaction for data integrity
+ *       - Error handling and rollback capability
+ *     SECURITY: SQL injection prevention, transaction safety
+ *     USED_IN: Data restoration and system migration
+ *     AI_CONTEXT: Data restoration utility with integrity protection
+ * 
+ * 12. parseSqlStatements($sqlContent)
+ *     PURPOSE: Safely parse SQL file content into executable statements
+ *     PARAMETERS: $sqlContent: string - Raw SQL file content
+ *     RETURNS: array - Array of individual SQL statements
+ *     SECURITY: Handles quoted strings, removes comments, prevents injection
+ *     USED_IN: SQL import processing
+ *     AI_CONTEXT: Security utility for safe SQL processing
+ * 
+ * AUTHENTICATION_FLOW:
+ * All methods require authentication through Auth::requireLogin()
+ * User session provides access to user role and permissions
+ * Some features may be restricted to specific roles (superadmin)
+ * 
+ * DATA_FLOW_PATTERNS:
+ * 1. Dashboard Statistics:
+ *    Models -> Statistical calculations -> Dashboard view
+ * 
+ * 2. CRUD Operations:
+ *    Form submission -> Validation -> Model operations -> Redirect with message
+ * 
+ * 3. Complex Operations (Billing):
+ *    Multiple model coordination -> Business logic -> Result processing
+ * 
+ * ERROR_HANDLING:
+ * - Session flash messages for user feedback
+ * - Try-catch blocks for critical operations
+ * - Validation with user-friendly error messages
+ * - Transaction rollback for data integrity
+ * 
+ * SECURITY_FEATURES:
+ * - Authentication required for all methods
+ * - CSRF protection through proper form handling
+ * - SQL injection prevention via parameter binding
+ * - File upload validation for imports
+ * - Transaction-based operations for data integrity
+ * 
+ * INTEGRATION_POINTS:
+ * - Works with all model classes for data operations
+ * - Integrates with Auth controller for security
+ * - Uses Session for user feedback and state management
+ * - Coordinates between multiple business domains
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - This controller contains the most complex business logic flows
+ * - Handles multiple interconnected business processes
+ * - Critical for daily operations of the boarding house
+ * - Integrates financial, operational, and administrative functions
+ * - Supports both simple CRUD and complex business operations
+ * - Essential for system administration and business management
+ */

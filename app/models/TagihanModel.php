@@ -394,3 +394,150 @@ class TagihanModel extends Model
         return $this->db->fetchAll($sql, $params);
     }
 }
+
+/**
+ * =============================================================================
+ * CLASS DOCUMENTATION FOR AI LLM UNDERSTANDING
+ * =============================================================================
+ * 
+ * CLASS: TagihanModel
+ * PURPOSE: Manages billing/invoice system for boarding house monthly charges
+ * DATABASE_TABLE: tb_tagihan
+ * EXTENDS: Model (base model class)
+ * 
+ * BUSINESS_CONTEXT:
+ * This model handles the complex billing system for the boarding house. It generates
+ * monthly bills for each room based on room rent plus tenant belongings costs.
+ * The billing system supports multiple tenants per room and tracks payment status.
+ * Bills are generated monthly and include both room charges and additional costs.
+ * 
+ * CLASS_METHODS:
+ * 
+ * 1. findByBulanTahun($bulan, $tahun)
+ *    PURPOSE: Get all bills for a specific month and year
+ *    PARAMETERS: $bulan: int (1-12), $tahun: int (YYYY)
+ *    RETURNS: array - List of bills for the period
+ *    SQL_QUERY: SELECT * FROM tb_tagihan WHERE bulan = ? AND tahun = ?
+ *    USED_IN:
+ *      - Admin::tagihan() - monthly bill display
+ *      - Billing reports and analytics
+ *    AI_CONTEXT: Primary method for monthly billing management
+ * 
+ * 2. findByKamarPenghuni($id_kmr_penghuni)
+ *    PURPOSE: Get billing history for a specific room occupancy
+ *    PARAMETERS: $id_kmr_penghuni: int - Room occupancy ID
+ *    RETURNS: array - All bills for this room occupancy
+ *    SQL_QUERY: SELECT * FROM tb_tagihan WHERE id_kmr_penghuni = ?
+ *    USED_IN:
+ *      - Room billing history
+ *      - Tenant billing analysis
+ *    AI_CONTEXT: Tracks billing history per room occupancy period
+ * 
+ * 3. findByBulanTahunKamarPenghuni($bulan, $tahun, $id_kmr_penghuni)
+ *    PURPOSE: Check if bill exists for specific room and period
+ *    PARAMETERS: $bulan, $tahun, $id_kmr_penghuni
+ *    RETURNS: array|null - Specific bill or null
+ *    SQL_QUERY: SELECT * WHERE bulan = ? AND tahun = ? AND id_kmr_penghuni = ?
+ *    USED_IN:
+ *      - Bill generation validation (prevent duplicates)
+ *      - Billing verification processes
+ *    AI_CONTEXT: Prevents duplicate bill generation for same period
+ * 
+ * 4. generateTagihan($periode)
+ *    PURPOSE: Generate bills for all active rooms for a given period
+ *    PARAMETERS: $periode: string - Format "YYYY-MM"
+ *    RETURNS: int - Number of bills generated
+ *    BUSINESS_LOGIC:
+ *      - Gets all active room occupancies
+ *      - Calculates room rent + tenant belongings costs
+ *      - Creates bills based on room entry date
+ *      - Validates period constraints (current/next month only)
+ *    USED_IN:
+ *      - Admin::tagihan() - monthly bill generation
+ *    AI_CONTEXT: Core business logic for automated billing system
+ * 
+ * 5. getTagihanWithDetails($bulan = null, $tahun = null)
+ *    PURPOSE: Get bills with room and tenant information
+ *    PARAMETERS: Optional month/year filters
+ *    RETURNS: array - Bills with detailed information
+ *    SQL_QUERY: Complex JOIN across multiple tables for complete bill details
+ *    USED_IN:
+ *      - Admin::tagihan() - detailed bill display
+ *      - Billing reports with full context
+ *    AI_CONTEXT: Comprehensive billing view with all related data
+ * 
+ * 6. getTagihanTerlambat($batasHari = 5)
+ *    PURPOSE: Get overdue bills based on days threshold
+ *    PARAMETERS: $batasHari: int - Days threshold for overdue status
+ *    RETURNS: array - Overdue bills with tenant details
+ *    BUSINESS_LOGIC: Calculates days between bill date and current date
+ *    USED_IN:
+ *      - Admin dashboard - overdue bill alerts
+ *      - Collection management
+ *    AI_CONTEXT: Identifies bills requiring immediate attention
+ * 
+ * 7. getStatistikTagihan($bulan = null, $tahun = null)
+ *    PURPOSE: Generate billing statistics and analytics
+ *    PARAMETERS: Optional month/year for specific period
+ *    RETURNS: array - Statistical data about bills
+ *    CALCULATIONS: Total bills, amounts, payment rates, etc.
+ *    USED_IN:
+ *      - Admin dashboard statistics
+ *      - Financial reporting
+ *    AI_CONTEXT: Business intelligence for billing performance
+ * 
+ * 8. getStatistikPerGedung($bulan = null, $tahun = null)
+ *    PURPOSE: Get billing statistics grouped by building
+ *    PARAMETERS: Optional month/year filters
+ *    RETURNS: array - Statistics per building
+ *    USED_IN:
+ *      - Building-level financial analysis
+ *      - Performance comparison between buildings
+ *    AI_CONTEXT: Geographic/building-based billing analytics
+ * 
+ * COMPLEX_BUSINESS_LOGIC:
+ * 
+ * Bill Generation Process:
+ * 1. Validate period (only current/next month allowed)
+ * 2. Get all active room occupancies with room prices
+ * 3. For each room:
+ *    - Get all active tenants in the room
+ *    - Calculate total belongings cost for all tenants
+ *    - Set bill date based on room entry date
+ *    - Create single bill per room (not per tenant)
+ * 4. Prevent duplicate bills for same period
+ * 
+ * DATABASE_RELATIONSHIPS:
+ * - MANY-TO-ONE with tb_kmr_penghuni (room occupancy periods)
+ * - ONE-TO-MANY with tb_bayar (payments for this bill)
+ * - INDIRECT with tb_kamar through tb_kmr_penghuni
+ * - INDIRECT with tb_penghuni through tb_detail_kmr_penghuni
+ * 
+ * KEY_FIELDS:
+ * - id: Primary key
+ * - bulan: Bill month (1-12)
+ * - tahun: Bill year (YYYY)
+ * - tanggal: Bill due date
+ * - id_kmr_penghuni: Room occupancy period reference
+ * - jml_tagihan: Total bill amount (room + belongings)
+ * 
+ * BUSINESS_RULES:
+ * - One bill per room per month (not per tenant)
+ * - Bill amount = room price + sum of all tenants' belongings
+ * - Bill date follows room entry date pattern
+ * - Only current and next month bills can be generated
+ * - Historical bills are preserved for audit trail
+ * 
+ * PAYMENT_INTEGRATION:
+ * - Bills can have multiple payments (installments)
+ * - Payment status calculated from tb_bayar table
+ * - Supports partial payments and payment tracking
+ * 
+ * AI_INTEGRATION_NOTES:
+ * - This model contains the most complex business logic in the system
+ * - Bill generation involves multiple table calculations
+ * - Critical for financial operations and cash flow management
+ * - Integrates room management, tenant management, and payment systems
+ * - Supports various reporting and analytics requirements
+ * - Handles edge cases like month-end dates and leap years
+ */
