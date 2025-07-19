@@ -285,7 +285,7 @@ class TagihanModel extends Model
                        GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal,CURDATE()) as selisih_hari,
                        DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
@@ -293,7 +293,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), kp.tgl_masuk) < 0
+                WHERE DATEDIFF(t.tanggal,CURDATE()) < 0
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
@@ -309,7 +309,7 @@ class TagihanModel extends Model
                        GROUP_CONCAT(DISTINCT p.tgl_masuk SEPARATOR ', ') as tgl_masuk_penghuni,
                        k.nomor as nomor_kamar, k.gedung,
                        COALESCE(SUM(byr.jml_bayar), 0) as jml_dibayar,
-                       DATEDIFF(CURDATE(), t.tanggal) as selisih_hari,
+                       DATEDIFF(t.tanggal,CURDATE()) as selisih_hari,
                        DATEDIFF(t.tanggal, kp.tgl_masuk) as selisih_dari_tgl_masuk_kamar_penghuni
                 FROM {$this->table} t
                 INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
@@ -317,7 +317,7 @@ class TagihanModel extends Model
                 LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
                 LEFT JOIN tb_penghuni p ON dkp.id_penghuni = p.id
                 LEFT JOIN tb_bayar byr ON t.id = byr.id_tagihan                
-                WHERE DATEDIFF(CURDATE(), kp.tgl_masuk) BETWEEN 0 AND 3
+                WHERE DATEDIFF(t.tanggal,CURDATE()) BETWEEN 0 AND 3
                 GROUP BY t.id
                 HAVING COALESCE(SUM(byr.jml_bayar), 0) < t.jml_tagihan
                 ORDER BY t.tanggal DESC, k.gedung, k.nomor";
