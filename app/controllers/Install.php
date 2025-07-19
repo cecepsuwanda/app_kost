@@ -54,18 +54,20 @@ class Install extends Controller
     private function createTables()
     {
         $sql = "
-        -- Table: users (for authentication)
+        -- SQL DDL: Tabel users untuk sistem autentikasi dan otorisasi
+        -- DROP TABLE IF EXISTS: hapus tabel jika sudah ada (untuk reinstall)
+        -- CREATE TABLE: membuat struktur tabel baru dengan kolom dan constraint
         DROP TABLE IF EXISTS users;
         CREATE TABLE users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            nama VARCHAR(100) NOT NULL,
-            role ENUM('admin', 'superadmin') DEFAULT 'admin',
-            is_active TINYINT(1) DEFAULT 1,
-            last_login DATETIME NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            id INT AUTO_INCREMENT PRIMARY KEY,      -- Primary key dengan auto increment
+            username VARCHAR(50) UNIQUE NOT NULL,   -- Username unik untuk login
+            password VARCHAR(255) NOT NULL,         -- Password hash (menggunakan password_hash())
+            nama VARCHAR(100) NOT NULL,             -- Nama lengkap user
+            role ENUM('admin', 'superadmin') DEFAULT 'admin',  -- Role/level akses user
+            is_active TINYINT(1) DEFAULT 1,         -- Status aktif (1=aktif, 0=nonaktif)
+            last_login DATETIME NULL,               -- Timestamp login terakhir
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     -- Waktu dibuat otomatis
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Update otomatis
         );
 
         -- Table: tb_penghuni

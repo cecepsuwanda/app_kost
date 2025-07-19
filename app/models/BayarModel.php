@@ -8,16 +8,31 @@ class BayarModel extends Model
 {
     protected $table = 'tb_bayar';
 
-    public function findByTagihan($id_tagihan)
+        public function findByTagihan($id_tagihan)
     {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE id_tagihan = :id_tagihan ORDER BY id DESC", 
-                                 ['id_tagihan' => $id_tagihan]);
+        // SQL: Mengambil semua pembayaran untuk tagihan tertentu
+        // SELECT * FROM tb_bayar WHERE id_tagihan = ? ORDER BY id DESC
+        //
+        // Penjelasan:
+        // - WHERE id_tagihan = ?: filter pembayaran berdasarkan tagihan tertentu
+        // - ORDER BY id DESC: urutkan dari pembayaran terbaru ke terlama
+        // - Digunakan untuk melihat history pembayaran/cicilan suatu tagihan
+        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE id_tagihan = :id_tagihan ORDER BY id DESC",
+            ['id_tagihan' => $id_tagihan]);
     }
 
-    public function getTotalBayarByTagihan($id_tagihan)
+        public function getTotalBayarByTagihan($id_tagihan)
     {
-        $result = $this->db->fetch("SELECT SUM(jml_bayar) as total FROM {$this->table} WHERE id_tagihan = :id_tagihan", 
-                                  ['id_tagihan' => $id_tagihan]);
+        // SQL AGGREGATE: Menghitung total semua pembayaran untuk tagihan tertentu
+        // SELECT SUM(jml_bayar) as total FROM tb_bayar WHERE id_tagihan = ?
+        //
+        // Penjelasan:
+        // - SUM(jml_bayar): menjumlahkan semua nilai pembayaran
+        // - WHERE id_tagihan = ?: filter untuk tagihan tertentu
+        // - Digunakan untuk mengetahui sudah berapa banyak yang dibayar dari total tagihan
+        // - Result['total'] ?? 0: jika belum ada pembayaran, return 0
+        $result = $this->db->fetch("SELECT SUM(jml_bayar) as total FROM {$this->table} WHERE id_tagihan = :id_tagihan",
+            ['id_tagihan' => $id_tagihan]);
         return $result['total'] ?? 0;
     }
 

@@ -8,22 +8,32 @@ class TagihanModel extends Model
 {
     protected $table = 'tb_tagihan';
 
-    public function findByBulanTahun($bulan, $tahun)
+        public function findByBulanTahun($bulan, $tahun)
     {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE bulan = :bulan AND tahun = :tahun", 
-                                 ['bulan' => $bulan, 'tahun' => $tahun]);
+        // SQL: Mengambil semua tagihan berdasarkan bulan dan tahun tertentu
+        // SELECT * FROM tb_tagihan WHERE bulan = ? AND tahun = ?
+        // Contoh: bulan=12, tahun=2024 -> ambil semua tagihan Desember 2024
+        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE bulan = :bulan AND tahun = :tahun",
+            ['bulan' => $bulan, 'tahun' => $tahun]);
     }
 
-    public function findByKamarPenghuni($id_kmr_penghuni)
+        public function findByKamarPenghuni($id_kmr_penghuni)
     {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE id_kmr_penghuni = :id_kmr_penghuni", 
-                                 ['id_kmr_penghuni' => $id_kmr_penghuni]);
+        // SQL: Mengambil semua tagihan untuk satu kamar penghuni tertentu
+        // SELECT * FROM tb_tagihan WHERE id_kmr_penghuni = ?
+        // Digunakan untuk melihat riwayat tagihan suatu kamar dari waktu ke waktu
+        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE id_kmr_penghuni = :id_kmr_penghuni",
+            ['id_kmr_penghuni' => $id_kmr_penghuni]);
     }
 
-    public function findByBulanTahunKamarPenghuni($bulan, $tahun, $id_kmr_penghuni)
+        public function findByBulanTahunKamarPenghuni($bulan, $tahun, $id_kmr_penghuni)
     {
-        return $this->db->fetch("SELECT * FROM {$this->table} WHERE bulan = :bulan AND tahun = :tahun AND id_kmr_penghuni = :id_kmr_penghuni", 
-                               ['bulan' => $bulan, 'tahun' => $tahun, 'id_kmr_penghuni' => $id_kmr_penghuni]);
+        // SQL: Mencari tagihan spesifik untuk kamar tertentu pada bulan/tahun tertentu
+        // SELECT * FROM tb_tagihan WHERE bulan = ? AND tahun = ? AND id_kmr_penghuni = ?
+        // Digunakan untuk mengecek apakah tagihan sudah ada sebelum membuat yang baru
+        // Mencegah duplikasi tagihan untuk kamar dan periode yang sama
+        return $this->db->fetch("SELECT * FROM {$this->table} WHERE bulan = :bulan AND tahun = :tahun AND id_kmr_penghuni = :id_kmr_penghuni",
+            ['bulan' => $bulan, 'tahun' => $tahun, 'id_kmr_penghuni' => $id_kmr_penghuni]);
     }
 
     public function generateTagihan($periode)
@@ -53,8 +63,16 @@ class TagihanModel extends Model
             throw new \InvalidArgumentException("Tidak bisa generate tagihan untuk bulan yang terlalu jauh ke depan");
         }
 
-        // Get all active kamar penghuni data directly via SQL join
-        // This eliminates the need for multiple model instantiations
+        // SQL JOIN: Mengambil data kamar yang aktif beserta harga kamarnya
+        // SELECT kp.id, kp.id_kamar, kp.tgl_masuk, k.harga as harga_kamar
+        // FROM tb_kmr_penghuni kp INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+        // WHERE kp.tgl_keluar IS NULL GROUP BY ...
+        // 
+        // Penjelasan:
+        // - tb_kmr_penghuni: tabel hubungan kamar dengan periode penghunian
+        // - INNER JOIN tb_kamar: gabungkan dengan data kamar untuk mendapat harga
+        // - WHERE tgl_keluar IS NULL: hanya kamar yang masih aktif (belum checkout)
+        // - GROUP BY: hindari duplikasi data kamar yang sama
         $sql = "SELECT kp.id, kp.id_kamar, kp.tgl_masuk, k.harga as harga_kamar
                 FROM tb_kmr_penghuni kp
                 INNER JOIN tb_kamar k ON kp.id_kamar = k.id
@@ -71,7 +89,13 @@ class TagihanModel extends Model
                 continue; // Skip if already generated
             }
 
-            // Get all active penghuni in this kamar via direct SQL
+            // SQL: Mengambil semua penghuni yang masih aktif di kamar ini
+            // SELECT id_penghuni FROM tb_detail_kmr_penghuni WHERE id_kmr_penghuni = ? AND tgl_keluar IS NULL
+            // 
+            // Penjelasan:
+            // - tb_detail_kmr_penghuni: tabel detail yang menyimpan penghuni per kamar
+            // - WHERE id_kmr_penghuni: filter untuk kamar tertentu
+            // - AND tgl_keluar IS NULL: hanya penghuni yang masih tinggal (belum pindah/keluar)
             $penghuniSql = "SELECT id_penghuni FROM tb_detail_kmr_penghuni 
                            WHERE id_kmr_penghuni = :id_kmr_penghuni AND tgl_keluar IS NULL";
             $penghuniList = $this->db->fetchAll($penghuniSql, ['id_kmr_penghuni' => $kamar['id']]);
@@ -83,9 +107,19 @@ class TagihanModel extends Model
             // Use room occupancy entry date (tgl_masuk from tb_kmr_penghuni)
             $tglMasukKamarPenghuni = $kamar['tgl_masuk'];
             
-            // Calculate total harga barang for all penghuni in this kamar via direct SQL
+            // SQL COALESCE & SUM: Menghitung total harga barang bawaan semua penghuni di kamar ini
             $totalHargaBarang = 0;
             foreach ($penghuniList as $penghuni) {
+                // SELECT COALESCE(SUM(b.harga), 0) as total_harga
+                // FROM tb_brng_bawaan bb INNER JOIN tb_barang b ON bb.id_barang = b.id
+                // WHERE bb.id_penghuni = ?
+                //
+                // Penjelasan:
+                // - tb_brng_bawaan: tabel relasi penghuni dengan barang yang dibawa
+                // - INNER JOIN tb_barang: gabung untuk mendapat harga barang
+                // - SUM(b.harga): jumlahkan semua harga barang
+                // - COALESCE(..., 0): jika tidak ada barang, return 0 (bukan NULL)
+                // - WHERE bb.id_penghuni: filter untuk penghuni tertentu
                 $barangSql = "SELECT COALESCE(SUM(b.harga), 0) as total_harga
                              FROM tb_brng_bawaan bb
                              INNER JOIN tb_barang b ON bb.id_barang = b.id

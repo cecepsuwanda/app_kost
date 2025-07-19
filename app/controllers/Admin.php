@@ -537,23 +537,27 @@ class Admin extends Controller
             $sqlContent .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
 
             foreach ($tables as $table) {
-                // Check if table exists
-                $stmt = $db->prepare("SHOW TABLES LIKE ?");
-                $stmt->execute([$table]);
-                if ($stmt->rowCount() == 0) {
-                    continue;
-                }
+                            // SQL METADATA: Mengecek apakah tabel ada dalam database
+            // SHOW TABLES LIKE ? -> menampilkan tabel yang sesuai dengan pattern
+            $stmt = $db->prepare("SHOW TABLES LIKE ?");
+            $stmt->execute([$table]);
+            if ($stmt->rowCount() == 0) {
+                continue; // Skip jika tabel tidak ditemukan
+            }
 
-                // Get table structure
-                $stmt = $db->prepare("SHOW CREATE TABLE `$table`");
-                $stmt->execute();
-                $row = $stmt->fetch();
+            // SQL METADATA: Mengambil struktur tabel (CREATE TABLE statement)
+            // SHOW CREATE TABLE `table_name` -> menampilkan SQL untuk membuat tabel
+            // Digunakan untuk export struktur tabel beserta kolom, tipe data, dan constraint
+            $stmt = $db->prepare("SHOW CREATE TABLE `$table`");
+            $stmt->execute();
+            $row = $stmt->fetch();
                 
                 $sqlContent .= "-- Table: $table\n";
                 $sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
                 $sqlContent .= $row['Create Table'] . ";\n\n";
 
-                // Get table data
+                // SQL DATA EXPORT: Mengambil semua data dari tabel
+                // SELECT * FROM `table_name` -> ambil semua kolom dan baris dari tabel
                 $stmt = $db->prepare("SELECT * FROM `$table`");
                 $stmt->execute();
                 $rows = $stmt->fetchAll();
@@ -561,13 +565,16 @@ class Admin extends Controller
                 if (!empty($rows)) {
                     $sqlContent .= "-- Data for table: $table\n";
                     
+                    // Konversi data ke format INSERT statement
                     foreach ($rows as $row) {
-                        $columns = array_keys($row);
+                        $columns = array_keys($row); // Nama kolom
+                        // Quote values untuk keamanan dan format SQL yang benar
                         $values = array_map(function($value) use ($db) {
                             if ($value === null) return 'NULL';
-                            return $db->quote($value);
+                            return $db->quote($value); // Escape string untuk mencegah SQL injection
                         }, array_values($row));
                         
+                        // Generate INSERT statement: INSERT INTO table (col1, col2) VALUES (val1, val2)
                         $sqlContent .= "INSERT INTO `$table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $values) . ");\n";
                     }
                     $sqlContent .= "\n";

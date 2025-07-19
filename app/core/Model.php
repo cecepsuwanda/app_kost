@@ -21,11 +21,17 @@ class Model
 
     public function findAll()
     {
+        // SQL: Mengambil semua data dari tabel model
+        // SELECT * FROM table_name -> ambil semua kolom (*) dan semua baris
+        // Method dasar untuk mendapatkan seluruh data tanpa filter
         return $this->db->fetchAll("SELECT * FROM {$this->table}");
     }
 
     public function findById($id)
     {
+        // SQL: Mencari satu record berdasarkan ID (Primary Key)
+        // SELECT * FROM table_name WHERE id = ? -> filter berdasarkan ID unik
+        // Parameter binding (:id) mencegah SQL injection
         return $this->db->fetch("SELECT * FROM {$this->table} WHERE id = :id", ['id' => $id]);
     }
 
@@ -46,11 +52,20 @@ class Model
 
     public function where($condition, $params = [])
     {
+        // SQL: Mengambil data dengan kondisi WHERE custom
+        // SELECT * FROM table_name WHERE condition -> filter berdasarkan kondisi yang diberikan
+        // $condition: string kondisi SQL (contoh: "nama = :nama AND aktif = 1")
+        // $params: array parameter untuk binding (contoh: ['nama' => 'John'])
         return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE $condition", $params);
     }
 
     public function count($condition = '1=1', $params = [])
     {
+        // SQL AGGREGATE: Menghitung jumlah record dengan kondisi tertentu
+        // SELECT COUNT(*) as count FROM table_name WHERE condition
+        // COUNT(*): fungsi agregat untuk menghitung jumlah baris
+        // WHERE condition: filter data yang akan dihitung (default '1=1' = semua data)
+        // Return: integer jumlah record yang sesuai kondisi
         $result = $this->db->fetch("SELECT COUNT(*) as count FROM {$this->table} WHERE $condition", $params);
         return $result['count'];
     }

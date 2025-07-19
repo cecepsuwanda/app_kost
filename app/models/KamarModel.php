@@ -10,11 +10,28 @@ class KamarModel extends Model
 
     public function findByNomor($nomor)
     {
+        // SQL: Mencari kamar berdasarkan nomor kamar
+        // SELECT * FROM tb_kamar WHERE nomor = ?
+        // 
+        // Penjelasan:
+        // - WHERE nomor = ?: filter berdasarkan nomor kamar yang unik
+        // - Digunakan untuk validasi kamar baru (mencegah duplikasi nomor)
+        // - Parameter binding (:nomor) mencegah SQL injection
         return $this->db->fetch("SELECT * FROM {$this->table} WHERE nomor = :nomor", ['nomor' => $nomor]);
     }
 
     public function getKamarKosong()
     {
+        // SQL LEFT JOIN: Mencari kamar yang benar-benar kosong (tidak ada penghuni)
+        // SELECT k.* FROM tb_kamar k
+        // LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
+        // WHERE kp.id IS NULL ORDER BY k.gedung, k.nomor
+        //
+        // Penjelasan:
+        // - LEFT JOIN: ambil semua kamar, termasuk yang tidak punya relasi penghuni
+        // - AND kp.tgl_keluar IS NULL: hanya periode penghunian yang masih aktif
+        // - WHERE kp.id IS NULL: kamar yang tidak memiliki relasi aktif = kamar kosong
+        // - ORDER BY gedung, nomor: urutkan berdasarkan gedung lalu nomor kamar
         $sql = "SELECT k.* FROM tb_kamar k
                 LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
                 WHERE kp.id IS NULL
@@ -25,6 +42,21 @@ class KamarModel extends Model
 
     public function getKamarTersedia($max_occupants = 2)
     {
+        // SQL COMPLEX WITH COUNT & CALCULATIONS: Mencari kamar yang masih tersedia (belum penuh)
+        // SELECT k.*, COALESCE(COUNT(dkp.id), 0) as jumlah_penghuni,
+        //        (? - COALESCE(COUNT(dkp.id), 0)) as slot_tersedia
+        // FROM tb_kamar k
+        // LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
+        // LEFT JOIN tb_detail_kmr_penghuni dkp ON kp.id = dkp.id_kmr_penghuni AND dkp.tgl_keluar IS NULL
+        // GROUP BY k.id HAVING slot_tersedia > 0 ORDER BY k.gedung, k.nomor
+        //
+        // Penjelasan:
+        // - COUNT(dkp.id): hitung jumlah penghuni aktif per kamar
+        // - COALESCE(..., 0): jika tidak ada penghuni, set ke 0
+        // - (? - COUNT(...)): hitung slot tersedia = max_occupants - jumlah_penghuni
+        // - GROUP BY k.id: kelompokkan per kamar untuk menghitung COUNT
+        // - HAVING slot_tersedia > 0: hanya tampilkan kamar yang masih ada slot
+        // - Parameter [$max_occupants]: maksimal penghuni per kamar (default 2)
         $sql = "SELECT k.*, 
                        COALESCE(COUNT(dkp.id), 0) as jumlah_penghuni,
                        (? - COALESCE(COUNT(dkp.id), 0)) as slot_tersedia

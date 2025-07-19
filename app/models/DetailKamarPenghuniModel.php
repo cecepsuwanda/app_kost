@@ -10,12 +10,29 @@ class DetailKamarPenghuniModel extends Model
 
     public function findActiveByPenghuni($id_penghuni)
     {
+        // SQL: Mencari detail kamar aktif untuk penghuni tertentu
+        // SELECT * FROM tb_detail_kmr_penghuni WHERE id_penghuni = ? AND tgl_keluar IS NULL
+        //
+        // Penjelasan:
+        // - WHERE id_penghuni = ?: filter untuk penghuni tertentu
+        // - AND tgl_keluar IS NULL: hanya relasi yang masih aktif (belum pindah/keluar)
+        // - Digunakan untuk mengetahui kamar mana yang sedang ditempati penghuni
         return $this->db->fetch("SELECT * FROM {$this->table} WHERE id_penghuni = :id_penghuni AND tgl_keluar IS NULL", 
                                ['id_penghuni' => $id_penghuni]);
     }
 
     public function findActiveByKamarPenghuni($id_kmr_penghuni)
     {
+        // SQL JOIN: Mengambil detail penghuni aktif di kamar tertentu beserta data personalnya
+        // SELECT dkp.*, p.nama, p.no_ktp, p.no_hp 
+        // FROM tb_detail_kmr_penghuni dkp INNER JOIN tb_penghuni p ON dkp.id_penghuni = p.id 
+        // WHERE dkp.id_kmr_penghuni = ? AND dkp.tgl_keluar IS NULL
+        //
+        // Penjelasan:
+        // - INNER JOIN tb_penghuni: gabungkan dengan tabel penghuni untuk mendapat data personal
+        // - WHERE dkp.id_kmr_penghuni = ?: filter untuk kamar tertentu
+        // - AND dkp.tgl_keluar IS NULL: hanya penghuni yang masih aktif di kamar
+        // - Digunakan untuk menampilkan daftar penghuni yang sedang tinggal di suatu kamar
         return $this->db->fetchAll("SELECT dkp.*, p.nama, p.no_ktp, p.no_hp FROM {$this->table} dkp INNER JOIN tb_penghuni p ON dkp.id_penghuni = p.id WHERE dkp.id_kmr_penghuni = :id_kmr_penghuni AND dkp.tgl_keluar IS NULL", 
                                    ['id_kmr_penghuni' => $id_kmr_penghuni]);
     }
