@@ -31,14 +31,39 @@ foreach ($kamar as $k) {
         renderStatusBadge($k['status']),
         $k['nama_penghuni'] ? View::occupantList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
         $k['nama_penghuni'] ? View::belongingsList($k['penghuni_list'] ?? []) : '<span class="text-muted">-</span>',
-        View::roomActionButtons($k)
+        renderActionButtons([
+            [
+                'icon' => '<i class="bi bi-pencil"></i>',
+                'class' => 'btn-outline-primary',
+                'onclick' => 'editKamar(' . json_encode([
+                    'id' => $k['id'],
+                    'gedung' => $k['gedung'],
+                    'nomor' => $k['nomor'],
+                    'harga' => $k['harga']
+                ]) . ')',
+                'title' => 'Edit Kamar'
+            ],
+            $k['status'] == 'kosong' ? [
+                'icon' => '<i class="bi bi-trash"></i>',
+                'class' => 'btn-outline-danger',
+                'onclick' => "deleteKamar({$k['id']}, '" . addslashes($k['nomor']) . "')",
+                'title' => 'Hapus Kamar'
+            ] : [
+                'icon' => '<i class="bi bi-lock"></i>',
+                'class' => 'btn-outline-secondary',
+                'disabled' => true,
+                'title' => 'Kamar sedang terisi'
+            ]
+        ])
     ];
 }
 
 echo renderDataTable([
     'title' => 'Daftar Kamar',
     'headers' => ['Gedung', 'Nomor Kamar', 'Harga Sewa', 'Status', 'Penghuni', 'Barang Bawaan', 'Aksi'],
-    'data' => $tableData]);
+    'data' => $tableData,
+    'emptyMessage' => 'Belum ada kamar. Klik tombol "Tambah Kamar" untuk menambahkan kamar baru.'
+]);
 ?>
 
 <!-- Add Kamar Modal -->
@@ -116,7 +141,7 @@ function editKamar(data) {
     document.getElementById('edit_gedung').value = data.gedung;
     document.getElementById('edit_nomor').value = data.nomor;
     document.getElementById('edit_harga').value = data.harga;
-    
+    alert("masuk");
     new bootstrap.Modal(document.getElementById('editKamarModal')).show();
 }
 

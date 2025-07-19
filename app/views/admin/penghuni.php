@@ -69,10 +69,8 @@ echo renderDataTable([
     'title' => 'Daftar Penghuni',
     'headers' => ['Nama', 'No. KTP', 'No. HP', 'Kamar', 'Barang Bawaan', 'Tgl Masuk', 'Status', 'Aksi'],
     'data' => $tableData,
-    'emptyMessage' => 'Belum ada penghuni. Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.',
-    'actions' => [
-        ['text' => 'Tambah Penghuni', 'modal' => 'addPenghuniModal', 'icon' => '<i class="bi bi-person-plus"></i>', 'class' => 'btn-primary']
-    ]
+    'emptyMessage' => 'Belum ada penghuni. Klik tombol "Tambah Penghuni" untuk menambahkan penghuni baru.'
+    
 ]);
 ?>
 

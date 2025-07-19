@@ -175,6 +175,7 @@ class ViewHelper
         if (!$occupant['tgl_keluar']) {
             // Edit button
             $buttons[] = [
+                'type' => 'button',
                 'icon' => '<i class="bi bi-pencil"></i>',
                 'class' => 'btn-outline-primary',
                 'onclick' => "editPenghuni(" . htmlspecialchars(json_encode($occupant)) . ")",
@@ -183,6 +184,7 @@ class ViewHelper
 
             // Move room button
             $buttons[] = [
+                'type' => 'button',
                 'icon' => '<i class="bi bi-box-arrow-right"></i>',
                 'class' => 'btn-outline-warning',
                 'onclick' => "pindahKamar({$occupant['id']}, '" . htmlspecialchars($occupant['nama']) . "')",
@@ -191,6 +193,7 @@ class ViewHelper
 
             // Checkout button
             $buttons[] = [
+                'type' => 'button',
                 'icon' => '<i class="bi bi-box-arrow-left"></i>',
                 'class' => 'btn-outline-danger',
                 'onclick' => "checkoutPenghuni({$occupant['id']}, '" . htmlspecialchars($occupant['nama']) . "')",

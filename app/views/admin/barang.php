@@ -41,7 +41,8 @@ foreach ($barang as $b) {
 echo renderDataTable([
     'title' => 'Daftar Barang',
     'headers' => ['No', 'Nama Barang', 'Harga', 'Aksi'],
-    'data' => $tableData
+    'data' => $tableData,
+    'emptyMessage' => 'Belum ada barang. Klik tombol "Tambah Barang" untuk menambahkan barang baru.'
 ]);
 ?>
 

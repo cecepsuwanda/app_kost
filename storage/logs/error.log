@@ -10,3 +10,5 @@
 [2025-07-19 05:20:43] PHP Error: Undefined array key "tahun" in C:\Apache24\htdocs\app_kost\app\models\TagihanModel.php on line 128
 [2025-07-19 05:23:00] PHP Error: Undefined array key "tahun" in C:\Apache24\htdocs\app_kost\app\models\TagihanModel.php on line 128
 [2025-07-19 05:23:07] PHP Error: Undefined array key "tahun" in C:\Apache24\htdocs\app_kost\app\models\TagihanModel.php on line 128
+[2025-07-19 07:07:39] PHP Error: Undefined array key "jumlah" in C:\Apache24\htdocs\app_kost\app\controllers\Admin.php on line 461
+[2025-07-19 07:07:39] Uncaught Exception: Undefined array key "jumlah" in C:\Apache24\htdocs\app_kost\app\controllers\Admin.php on line 461
