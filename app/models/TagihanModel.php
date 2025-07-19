@@ -98,6 +98,13 @@ class TagihanModel extends Model
 
             // Calculate tanggal tagihan using room occupancy entry date
             $tanggalMasukKamarPenghuniDay = date('d', strtotime($tglMasukKamarPenghuni));
+            
+            // Validate if the date is valid for the target month/year
+            // If not valid (e.g., Feb 30), subtract one day from room entry date
+            if (!checkdate($bulan, $tanggalMasukKamarPenghuniDay, $tahun)) {
+                $tanggalMasukKamarPenghuniDay = $tanggalMasukKamarPenghuniDay - 1;
+            }
+            
             $tanggalTagihan = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggalMasukKamarPenghuniDay);
             
             // Create tagihan (satu tagihan per kamar)
