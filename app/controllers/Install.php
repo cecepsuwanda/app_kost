@@ -252,6 +252,7 @@ class Install extends Controller
         // Insert sample penghuni
         // All penghuni will be assigned to rooms to demonstrate the system
         $penghuniData = [
+            // Residents for Building 1 (Gedung 1)
             [
                 'nama' => 'Ahmad Santoso',        // Will be assigned to Room 101
                 'no_ktp' => '1234567890123456',
@@ -281,6 +282,43 @@ class Install extends Controller
                 'no_ktp' => '4567890123456789',
                 'no_hp' => '081234567893',
                 'tgl_masuk' => '2025-07-20'
+            ],
+            // Residents for Building 2 (Gedung 2)
+            [
+                'nama' => 'Dewi Lestari',         // Will be assigned to Room 217
+                'no_ktp' => '5678901234567890',
+                'no_hp' => '081234567894',
+                'tgl_masuk' => '2025-07-05'
+            ],
+            [
+                'nama' => 'Farid Rahman',         // Will be assigned to Room 218
+                'no_ktp' => '6789012345678901',
+                'no_hp' => '081234567895',
+                'tgl_masuk' => '2025-07-12'
+            ],
+            [
+                'nama' => 'Maya Indira',          // Will be assigned to Room 219
+                'no_ktp' => '7890123456789012',
+                'no_hp' => '081234567896',
+                'tgl_masuk' => '2025-07-18'
+            ],
+            [
+                'nama' => 'Rizki Pratama',        // Will be assigned to Room 220 (shared)
+                'no_ktp' => '8901234567890123',
+                'no_hp' => '081234567897',
+                'tgl_masuk' => '2025-07-25'
+            ],
+            [
+                'nama' => 'Lina Sari',            // Will be assigned to Room 220 (shared)
+                'no_ktp' => '9012345678901234',
+                'no_hp' => '081234567898',
+                'tgl_masuk' => '2025-07-25'
+            ],
+            [
+                'nama' => 'Joko Susanto',         // Will be assigned to Room 221
+                'no_ktp' => '0123456789012345',
+                'no_hp' => '081234567899',
+                'tgl_masuk' => '2025-07-08'
             ]
         ];
 
@@ -308,6 +346,33 @@ class Install extends Controller
         $this->db->insert('tb_kmr_penghuni', [
             'id_kamar' => 4, // Kamar 104 (Gedung 1) - Andi & Rina
             'tgl_masuk' => '2025-07-20'
+        ]);
+
+        // Insert kamar penghuni for Building 2 residents
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 17, // Kamar 217 - Dewi Lestari
+            'tgl_masuk' => '2025-07-05'
+        ]);
+
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 18, // Kamar 218 - Farid Rahman
+            'tgl_masuk' => '2025-07-12'
+        ]);
+
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 19, // Kamar 219 - Maya Indira
+            'tgl_masuk' => '2025-07-18'
+        ]);
+
+        // Insert sample for shared room in Building 2 (2 people in 1 room)
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 20, // Kamar 220 (Gedung 2) - Rizki & Lina
+            'tgl_masuk' => '2025-07-25'
+        ]);
+
+        $this->db->insert('tb_kmr_penghuni', [
+            'id_kamar' => 21, // Kamar 221 - Joko Susanto
+            'tgl_masuk' => '2025-07-08'
         ]);
 
         // Insert sample detail kamar penghuni
@@ -343,6 +408,44 @@ class Install extends Controller
             'tgl_masuk' => '2025-07-20'
         ]);
 
+        // Insert detail kamar penghuni for Building 2 residents
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 5, // Kamar 217
+            'id_penghuni' => 6, // Dewi Lestari
+            'tgl_masuk' => '2025-07-05'
+        ]);
+
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 6, // Kamar 218
+            'id_penghuni' => 7, // Farid Rahman
+            'tgl_masuk' => '2025-07-12'
+        ]);
+
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 7, // Kamar 219
+            'id_penghuni' => 8, // Maya Indira
+            'tgl_masuk' => '2025-07-18'
+        ]);
+
+        // Insert details for shared room in Building 2 (2 people in kamar 220)
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 8, // Kamar 220
+            'id_penghuni' => 9, // Rizki Pratama
+            'tgl_masuk' => '2025-07-25'
+        ]);
+
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 8, // Kamar 220
+            'id_penghuni' => 10, // Lina Sari
+            'tgl_masuk' => '2025-07-25'
+        ]);
+
+        $this->db->insert('tb_detail_kmr_penghuni', [
+            'id_kmr_penghuni' => 9, // Kamar 221
+            'id_penghuni' => 11, // Joko Susanto
+            'tgl_masuk' => '2025-07-08'
+        ]);
+
         // Insert sample barang bawaan
         $this->db->insert('tb_brng_bawaan', [
             'id_penghuni' => 1, // Ahmad Santoso
@@ -373,6 +476,52 @@ class Install extends Controller
         $this->db->insert('tb_brng_bawaan', [
             'id_penghuni' => 5, // Rina Sari
             'id_barang' => 4 // LEMARI ES
+        ]);
+
+        // Insert barang bawaan for Building 2 residents
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 6, // Dewi Lestari
+            'id_barang' => 2 // DISPENSER
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 6, // Dewi Lestari
+            'id_barang' => 3 // MAGICOM
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 7, // Farid Rahman
+            'id_barang' => 1 // TV
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 8, // Maya Indira
+            'id_barang' => 4 // LEMARI ES
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 9, // Rizki Pratama
+            'id_barang' => 5 // KOMPUTER
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 10, // Lina Sari
+            'id_barang' => 2 // DISPENSER
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 10, // Lina Sari
+            'id_barang' => 1 // TV (shared item with roommate)
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 11, // Joko Susanto
+            'id_barang' => 3 // MAGICOM
+        ]);
+
+        $this->db->insert('tb_brng_bawaan', [
+            'id_penghuni' => 11, // Joko Susanto
+            'id_barang' => 5 // KOMPUTER
         ]);
     }
 }
