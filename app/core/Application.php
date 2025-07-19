@@ -97,6 +97,9 @@ class Application
         $this->router->add('/admin/barang', 'Admin@barang', ['auth']);
         $this->router->add('/admin/tagihan', 'Admin@tagihan', ['auth']);
         $this->router->add('/admin/pembayaran', 'Admin@pembayaran', ['auth']);
+        $this->router->add('/admin/data-management', 'Admin@dataManagement', ['auth']);
+        $this->router->add('/admin/export-sql', 'Admin@exportSql', ['auth']);
+        $this->router->add('/admin/import-sql', 'Admin@importSql', ['auth']);
         
         // Installation routes
         $this->router->add('/install', 'Install@index');

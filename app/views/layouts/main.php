@@ -81,6 +81,8 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/tagihan"><i class="bi bi-receipt"></i> Kelola Tagihan</a></li>
                             <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/pembayaran"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?= $config->appConfig('url') ?>/admin/data-management"><i class="bi bi-database"></i> Kelola Data</a></li>
                             
                             <?php if ($user['role'] === 'superadmin'): ?>
                             <li><hr class="dropdown-divider"></li>
@@ -154,6 +156,11 @@
                     <li class="nav-item mb-1">
                         <a href="<?= $config->appConfig('url') ?>/admin/pembayaran" class="nav-link <?= $request->requestUri() == '/admin/pembayaran' ? 'active' : '' ?>">
                             <i class="bi bi-credit-card"></i> Pembayaran
+                        </a>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a href="<?= $config->appConfig('url') ?>/admin/data-management" class="nav-link <?= $request->requestUri() == '/admin/data-management' ? 'active' : '' ?>">
+                            <i class="bi bi-database"></i> Kelola Data
                         </a>
                     </li>
                     

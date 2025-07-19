@@ -134,4 +134,9 @@ class Controller
         }
         return null;
     }
+
+    protected function db()
+    {
+        return $this->db->getConnection();
+    }
 }

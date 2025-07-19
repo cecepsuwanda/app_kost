@@ -501,4 +501,253 @@ class Admin extends Controller
 
         $this->loadView('admin/pembayaran', $data);
     }
+
+    public function dataManagement()
+    {
+        $data = [
+            'title' => 'Kelola Data - ' . $this->config->appConfig('name'),
+            'message' => $this->session->sessionFlash('message'),
+            'error' => $this->session->sessionFlash('error'),
+            'showSidebar' => true
+        ];
+
+        $this->loadView('admin/data-management', $data);
+    }
+
+    public function exportSql()
+    {
+        try {
+            $db = $this->db();
+            
+            // Get all table names
+            $tables = [
+                'users',
+                'tb_penghuni',
+                'tb_kamar',
+                'tb_barang',
+                'tb_kmr_penghuni',
+                'tb_detail_kmr_penghuni',
+                'tb_brng_bawaan',
+                'tb_tagihan',
+                'tb_bayar'
+            ];
+
+            $sqlContent = "-- Export Data SQL\n";
+            $sqlContent .= "-- Generated on " . date('Y-m-d H:i:s') . "\n\n";
+            $sqlContent .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
+
+            foreach ($tables as $table) {
+                // Check if table exists
+                $stmt = $db->prepare("SHOW TABLES LIKE ?");
+                $stmt->execute([$table]);
+                if ($stmt->rowCount() == 0) {
+                    continue;
+                }
+
+                // Get table structure
+                $stmt = $db->prepare("SHOW CREATE TABLE `$table`");
+                $stmt->execute();
+                $row = $stmt->fetch();
+                
+                $sqlContent .= "-- Table: $table\n";
+                $sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
+                $sqlContent .= $row['Create Table'] . ";\n\n";
+
+                // Get table data
+                $stmt = $db->prepare("SELECT * FROM `$table`");
+                $stmt->execute();
+                $rows = $stmt->fetchAll();
+
+                if (!empty($rows)) {
+                    $sqlContent .= "-- Data for table: $table\n";
+                    
+                    foreach ($rows as $row) {
+                        $columns = array_keys($row);
+                        $values = array_map(function($value) use ($db) {
+                            if ($value === null) return 'NULL';
+                            return $db->quote($value);
+                        }, array_values($row));
+                        
+                        $sqlContent .= "INSERT INTO `$table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $values) . ");\n";
+                    }
+                    $sqlContent .= "\n";
+                }
+            }
+
+            $sqlContent .= "SET FOREIGN_KEY_CHECKS = 1;\n";
+
+            // Set headers for download
+            header('Content-Type: application/sql');
+            header('Content-Disposition: attachment; filename="kos_data_export_' . date('Y-m-d_H-i-s') . '.sql"');
+            header('Content-Length: ' . strlen($sqlContent));
+            
+            echo $sqlContent;
+            exit;
+
+        } catch (\Exception $e) {
+            $this->session->sessionFlash('error', 'Gagal mengekspor data: ' . $e->getMessage());
+            $this->redirect($this->config->appConfig('url') . '/admin/data-management');
+        }
+    }
+
+    public function importSql()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($this->config->appConfig('url') . '/admin/data-management');
+            return;
+        }
+
+        try {
+            // Check file upload
+            if (!isset($_FILES['sql_file']) || $_FILES['sql_file']['error'] !== UPLOAD_ERR_OK) {
+                $errorMessage = 'File SQL tidak ditemukan atau gagal diupload';
+                if (isset($_FILES['sql_file']['error'])) {
+                    switch ($_FILES['sql_file']['error']) {
+                        case UPLOAD_ERR_INI_SIZE:
+                        case UPLOAD_ERR_FORM_SIZE:
+                            $errorMessage = 'File terlalu besar. Maksimal 50MB.';
+                            break;
+                        case UPLOAD_ERR_PARTIAL:
+                            $errorMessage = 'File tidak terupload dengan sempurna.';
+                            break;
+                        case UPLOAD_ERR_NO_FILE:
+                            $errorMessage = 'Tidak ada file yang dipilih.';
+                            break;
+                    }
+                }
+                throw new \Exception($errorMessage);
+            }
+
+            $file = $_FILES['sql_file'];
+            $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            
+            if ($fileExtension !== 'sql') {
+                throw new \Exception('File harus berformat .sql');
+            }
+
+            // Check file size (50MB max)
+            if ($file['size'] > 50 * 1024 * 1024) {
+                throw new \Exception('File terlalu besar. Maksimal 50MB.');
+            }
+
+            // Read file content
+            $sqlContent = file_get_contents($file['tmp_name']);
+            if ($sqlContent === false) {
+                throw new \Exception('Gagal membaca file SQL');
+            }
+
+            // Validate SQL content
+            if (empty(trim($sqlContent))) {
+                throw new \Exception('File SQL kosong');
+            }
+
+            // Execute SQL statements
+            $db = $this->db();
+            $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            
+            // Start transaction for safety
+            $db->beginTransaction();
+            
+            try {
+                // Disable foreign key checks during import
+                $db->exec("SET FOREIGN_KEY_CHECKS = 0");
+                $db->exec("SET autocommit = 0");
+                
+                // Split SQL statements - improved parsing
+                $statements = $this->parseSqlStatements($sqlContent);
+
+                $successCount = 0;
+                $errorCount = 0;
+                $errors = [];
+                
+                foreach ($statements as $statement) {
+                    if (!empty($statement)) {
+                        try {
+                            $db->exec($statement);
+                            $successCount++;
+                        } catch (\PDOException $e) {
+                            $errorCount++;
+                            $error = "Error: " . $e->getMessage();
+                            $errors[] = $error;
+                            error_log("SQL Import Error: " . $error . " - Statement: " . substr($statement, 0, 200));
+                            
+                            // Stop on critical errors
+                            if (strpos($e->getMessage(), 'Table') !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Re-enable foreign key checks
+                $db->exec("SET FOREIGN_KEY_CHECKS = 1");
+                $db->exec("SET autocommit = 1");
+                
+                // Commit transaction
+                $db->commit();
+
+                $message = "Import berhasil! $successCount statement SQL berhasil dieksekusi.";
+                if ($errorCount > 0) {
+                    $message .= " $errorCount statement gagal dieksekusi.";
+                }
+                
+                $this->session->sessionFlash('message', $message);
+
+            } catch (\Exception $e) {
+                $db->rollback();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            $this->session->sessionFlash('error', 'Gagal mengimpor data: ' . $e->getMessage());
+        }
+
+        $this->redirect($this->config->appConfig('url') . '/admin/data-management');
+    }
+
+    private function parseSqlStatements($sqlContent)
+    {
+        // Remove comments
+        $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
+        $sqlContent = preg_replace('/\/\*.*?\*\//s', '', $sqlContent);
+        
+        // Split by semicolon but be careful with quoted strings
+        $statements = [];
+        $currentStatement = '';
+        $inQuotes = false;
+        $quoteChar = '';
+        
+        for ($i = 0; $i < strlen($sqlContent); $i++) {
+            $char = $sqlContent[$i];
+            
+            if (!$inQuotes && ($char === '"' || $char === "'")) {
+                $inQuotes = true;
+                $quoteChar = $char;
+            } elseif ($inQuotes && $char === $quoteChar) {
+                $inQuotes = false;
+                $quoteChar = '';
+            } elseif (!$inQuotes && $char === ';') {
+                $statement = trim($currentStatement);
+                if (!empty($statement)) {
+                    $statements[] = $statement;
+                }
+                $currentStatement = '';
+                continue;
+            }
+            
+            $currentStatement .= $char;
+        }
+        
+        // Add the last statement if it doesn't end with semicolon
+        $statement = trim($currentStatement);
+        if (!empty($statement)) {
+            $statements[] = $statement;
+        }
+        
+        // Filter out empty statements and comments
+        return array_filter($statements, function($stmt) {
+            $stmt = trim($stmt);
+            return !empty($stmt) && !preg_match('/^--/', $stmt);
+        });
+    }
 }
