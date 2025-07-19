@@ -7,13 +7,15 @@ class Model
     protected $db;
     protected $table;
     protected $config;
+    protected $queryBuilder;
     
 
     public function __construct()
     {      
             // Fallback to singleton pattern for backward compatibility
             $this->db = Database::getInstance();
-            $this->config = Config::getInstance();            
+            $this->config = Config::getInstance();
+            $this->queryBuilder = new QueryBuilder($this->db);
         
     }
 
@@ -51,5 +53,21 @@ class Model
     {
         $result = $this->db->fetch("SELECT COUNT(*) as count FROM {$this->table} WHERE $condition", $params);
         return $result['count'];
+    }
+
+    /**
+     * Get a new query builder instance for this model's table
+     */
+    protected function query(): QueryBuilder
+    {
+        return $this->queryBuilder->table($this->table);
+    }
+
+    /**
+     * Get a new query builder instance for any table
+     */
+    protected function queryTable(string $table): QueryBuilder
+    {
+        return $this->queryBuilder->table($table);
     }
 }
