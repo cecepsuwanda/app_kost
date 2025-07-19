@@ -9,7 +9,6 @@ class Controller
     protected $session;
     protected $request;
     protected $helperManager;
-    protected $queryBuilder;
     
 
     public function __construct()
@@ -21,7 +20,6 @@ class Controller
             $this->session = Session::getInstance();
             $this->request = Request::getInstance();
             $this->helperManager = HelperManager::getInstance();
-            $this->queryBuilder = new QueryBuilder($this->db);
             
             // Load helpers using new system
             $this->loadHelpers();
@@ -140,16 +138,5 @@ class Controller
     protected function db()
     {
         return $this->db->getConnection();
-    }
-
-    /**
-     * Get a new query builder instance
-     */
-    protected function query(string $table = null): QueryBuilder
-    {
-        if ($table) {
-            return $this->queryBuilder->table($table);
-        }
-        return $this->queryBuilder;
     }
 }

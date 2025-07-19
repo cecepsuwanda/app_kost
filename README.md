@@ -2476,29 +2476,56 @@ class PenghuniModel extends Model
 }
 ```
 
-### Menggunakan di Controller
+### Menggunakan di Controller (Proper MVC)
 
 ```php
 class AdminController extends Controller
 {
     public function dashboard()
     {
-        // Simple query
-        $totalKamar = $this->query('tb_kamar')->count();
+        // Controllers should use models, not direct queries
+        $kamarModel = $this->loadModel('KamarModel');
+        $kamarPenghuniModel = $this->loadModel('KamarPenghuniModel');
         
-        // Complex query with joins
-        $kamarTerisi = $this->query('tb_kmr_penghuni as kp')
-            ->innerJoin('tb_kamar k', 'kp.id_kamar', '=', 'k.id')
-            ->whereNull('kp.tgl_keluar')
-            ->count();
-
         $data = [
-            'total_kamar' => $totalKamar,
-            'kamar_terisi' => $kamarTerisi,
-            'kamar_tersedia' => $totalKamar - $kamarTerisi
+            'total_kamar' => $kamarModel->getTotalKamar(),
+            'kamar_terisi' => $kamarPenghuniModel->getKamarTerisi(),
+            'kamar_tersedia' => $kamarModel->getKamarTersedia()
         ];
 
         $this->loadView('admin/dashboard', $data);
+    }
+}
+
+// Models handle all database operations
+class KamarModel extends Model
+{
+    protected $table = 'tb_kamar';
+    
+    public function getTotalKamar()
+    {
+        return $this->query()->count();
+    }
+    
+    public function getKamarTersedia()
+    {
+        return $this->queryTable('tb_kamar as k')
+            ->leftJoin('tb_kmr_penghuni kp', 'k.id', '=', 'kp.id_kamar')
+            ->where('kp.tgl_keluar', 'IS NOT', 'NULL')
+            ->orWhere('kp.id', 'IS', 'NULL')
+            ->count();
+    }
+}
+
+class KamarPenghuniModel extends Model
+{
+    protected $table = 'tb_kmr_penghuni';
+    
+    public function getKamarTerisi()
+    {
+        return $this->query()
+            ->whereNull('tgl_keluar')
+            ->count();
     }
 }
 ```
@@ -2578,12 +2605,139 @@ $result = $this->query('tb_penghuni as p')
     ->get();
 ```
 
+### Proper MVC Architecture
+
+#### ✅ **BENAR - Models Handle Database:**
+```php
+// Controller hanya memanggil methods model
+class AdminController extends Controller 
+{
+    public function penghuni() 
+    {
+        $penghuniModel = $this->loadModel('PenghuniModel');
+        $data = [
+            'penghuni_aktif' => $penghuniModel->getActivePenghuni(),
+            'penghuni_keluar' => $penghuniModel->getPenghuniKeluarBulanIni()
+        ];
+        $this->loadView('admin/penghuni', $data);
+    }
+}
+
+// Model menggunakan QueryBuilder untuk database operations
+class PenghuniModel extends Model 
+{
+    public function getActivePenghuni() 
+    {
+        return $this->query()
+            ->whereNull('tgl_keluar')
+            ->orderBy('nama')
+            ->get();
+    }
+    
+    public function getPenghuniKeluarBulanIni() 
+    {
+        return $this->query()
+            ->whereNotNull('tgl_keluar')
+            ->whereBetween('tgl_keluar', date('Y-m-01'), date('Y-m-t'))
+            ->get();
+    }
+}
+```
+
+#### ❌ **SALAH - Controller Akses Database Langsung:**
+```php
+// JANGAN seperti ini!
+class AdminController extends Controller 
+{
+    public function penghuni() 
+    {
+        // Controller tidak boleh query langsung ke database
+        $penghuniAktif = $this->query('tb_penghuni')
+            ->whereNull('tgl_keluar')
+            ->get();
+    }
+}
+```
+
+### Responsibility Separation
+
+#### **Controller Responsibilities:**
+- Handle HTTP requests dan responses
+- Load dan panggil models
+- Prepare data untuk views
+- Handle user input validation
+- Manage sessions dan authentication
+
+#### **Model Responsibilities:**
+- Semua database operations
+- Business logic dan data validation
+- Data transformation
+- QueryBuilder usage
+- Data relationships management
+
 ### Best Practices
 
-1. **Use Aliases**: Gunakan alias untuk table yang clear
-2. **Chain Methods**: Manfaatkan method chaining untuk readability
-3. **Reuse Queries**: Simpan query yang sering digunakan di model
-4. **Debug First**: Gunakan `toSql()` untuk memverifikasi query
-5. **Use Transactions**: Combine dengan transaction untuk data integrity
+1. **MVC Separation**: Controllers TIDAK boleh akses database langsung
+2. **Use Aliases**: Gunakan alias untuk table yang clear
+3. **Chain Methods**: Manfaatkan method chaining untuk readability
+4. **Reuse Queries**: Simpan query yang sering digunakan di model
+5. **Debug First**: Gunakan `toSql()` untuk memverifikasi query
+6. **Use Transactions**: Combine dengan transaction untuk data integrity
+7. **Model Methods**: Buat method descriptive di model untuk business logic
 
-**Hasil: 80% lebih readable, 100% lebih aman, dan much easier to maintain!** 🚀
+### Migration Example
+
+#### **Before (Bad Architecture):**
+```php
+// Controller dengan query langsung (SALAH)
+class AdminController extends Controller 
+{
+    public function tagihan() 
+    {
+        $sql = "SELECT t.*, k.nomor FROM tb_tagihan t 
+                INNER JOIN tb_kmr_penghuni kp ON t.id_kmr_penghuni = kp.id
+                INNER JOIN tb_kamar k ON kp.id_kamar = k.id";
+        $tagihan = $this->db->fetchAll($sql);
+    }
+}
+```
+
+#### **After (Good Architecture):**
+```php
+// Controller clean, model handles database
+class AdminController extends Controller 
+{
+    public function tagihan() 
+    {
+        $tagihanModel = $this->loadModel('TagihanModel');
+        $data = [
+            'tagihan' => $tagihanModel->getTagihanWithKamar(),
+            'tagihan_pending' => $tagihanModel->getTagihanPending()
+        ];
+        $this->loadView('admin/tagihan', $data);
+    }
+}
+
+// Model dengan QueryBuilder
+class TagihanModel extends Model 
+{
+    public function getTagihanWithKamar() 
+    {
+        return $this->query()
+            ->select('t.*', 'k.nomor')
+            ->innerJoin('tb_kmr_penghuni kp', 't.id_kmr_penghuni', '=', 'kp.id')
+            ->innerJoin('tb_kamar k', 'kp.id_kamar', '=', 'k.id')
+            ->get();
+    }
+    
+    public function getTagihanPending() 
+    {
+        return $this->queryTable('tb_tagihan as t')
+            ->leftJoin('tb_bayar b', 't.id', '=', 'b.id_tagihan')
+            ->whereNull('b.id')
+            ->get();
+    }
+}
+```
+
+**Hasil: Proper MVC architecture, 80% lebih readable, 100% lebih aman, dan much easier to maintain!** 🚀

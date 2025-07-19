@@ -8,8 +8,11 @@ use App\Core\Database;
 /**
  * QueryBuilder Usage Examples
  * 
- * This class demonstrates how to use the QueryBuilder to replace
+ * This class demonstrates how to use the QueryBuilder in MODELS to replace
  * complex SQL queries with clean, readable code.
+ * 
+ * IMPORTANT: QueryBuilder should ONLY be used in Models, not Controllers!
+ * Controllers should call model methods, not query database directly.
  */
 class QueryBuilderExamples
 {
