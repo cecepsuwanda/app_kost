@@ -43,7 +43,8 @@ return [
         'autoload' => [
             'HtmlHelper',
             'ViewHelper',
-            'FormHelper'
+            'FormHelper',
+            'TableHelper'
         ],
         
         // Load all helpers in directory (set to true for convenience)
@@ -59,7 +60,8 @@ return [
         'aliases' => [
             'Html' => 'App\\Helpers\\HtmlHelper',
             'View' => 'App\\Helpers\\ViewHelper',
-            'Form' => 'App\\Helpers\\FormHelper'
+            'Form' => 'App\\Helpers\\FormHelper',
+            'Table' => 'App\\Helpers\\TableHelper'
         ],
         
         // Conditional loading based on routes/controllers

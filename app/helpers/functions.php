@@ -224,3 +224,93 @@ if (!function_exists('form_group')) {
         return \App\Helpers\FormHelper::group($label, $input, $options);
     }
 }
+
+if (!function_exists('table_helper')) {
+    /**
+     * Get TableHelper instance or call method directly
+     */
+    function table_helper(string $method = null, ...$args)
+    {
+        $className = 'App\\Helpers\\TableHelper';
+        
+        if ($method === null) {
+            return $className;
+        }
+        
+        if (method_exists($className, $method)) {
+            return call_user_func_array([$className, $method], $args);
+        }
+        
+        throw new BadMethodCallException("Method {$method} not found in TableHelper");
+    }
+}
+
+if (!function_exists('table_create')) {
+    /**
+     * Create table shortcut
+     */
+    function table_create(array $headers, array $rows = [], array $options = []): string
+    {
+        return \App\Helpers\TableHelper::create($headers, $rows, $options);
+    }
+}
+
+if (!function_exists('table_from_array')) {
+    /**
+     * Create table from array shortcut
+     */
+    function table_from_array(array $data, array $columns = [], array $options = []): string
+    {
+        return \App\Helpers\TableHelper::fromArray($data, $columns, $options);
+    }
+}
+
+if (!function_exists('table_action_column')) {
+    /**
+     * Action column shortcut
+     */
+    function table_action_column(array $buttons, array $options = []): string
+    {
+        return \App\Helpers\TableHelper::actionColumn($buttons, $options);
+    }
+}
+
+if (!function_exists('table_status_badge')) {
+    /**
+     * Status badge shortcut
+     */
+    function table_status_badge(string $status, array $mapping = []): string
+    {
+        return \App\Helpers\TableHelper::statusBadge($status, $mapping);
+    }
+}
+
+if (!function_exists('table_currency_column')) {
+    /**
+     * Currency column shortcut
+     */
+    function table_currency_column($amount, array $options = []): string
+    {
+        return \App\Helpers\TableHelper::currencyColumn($amount, $options);
+    }
+}
+
+if (!function_exists('table_date_column')) {
+    /**
+     * Date column shortcut
+     */
+    function table_date_column(string $date, string $format = 'd/m/Y', array $options = []): string
+    {
+        return \App\Helpers\TableHelper::dateColumn($date, $format, $options);
+    }
+}
+
+if (!function_exists('table_empty_state')) {
+    /**
+     * Empty state shortcut
+     */
+    function table_empty_state(string $message, string $icon = 'inbox', int $colspan = 1): string
+    {
+        return \App\Helpers\TableHelper::emptyState($message, $icon, $colspan);
+    }
+}
